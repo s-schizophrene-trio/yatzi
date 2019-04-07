@@ -1,5 +1,6 @@
 package ch.juventus.yatzi;
 
+import ch.juventus.yatzi.user.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,6 +21,8 @@ public class YatziApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+
+        long startTime = System.currentTimeMillis();
 
         LOGGER.debug("Starting Application");
 
@@ -42,9 +45,18 @@ public class YatziApplication extends Application {
             stage.setScene(scene);
             stage.show();
 
+            // Add Some Mock Data
+            User u = new User("Spieler 1");
+            LOGGER.debug("Sample User looks like {}", u.toString());
+
         } else {
             LOGGER.error("Failed to start the application. Make sure you have a {} and {} in your resource folder.", FXML_MAIN, STYLE_MAIN);
         }
+
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+
+        LOGGER.debug("Application started in {}ms", elapsedTime);
 
     }
 
