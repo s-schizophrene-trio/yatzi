@@ -1,4 +1,4 @@
-package ch.juventus.game.ui;
+package ch.juventus.yatzi.ui;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,7 +21,7 @@ public class FXMLController implements Initializable {
         LOGGER.debug("Initialize FXML Controller");
         String javaVersion = System.getProperty("java.version");
         String javafxVersion = System.getProperty("javafx.version");
-        label.setText("Hello, JavaFX " + javafxVersion + "\nRunning on Java " + javaVersion + ".");
+        label.setText("Yatzi Application");
     }
 
 }

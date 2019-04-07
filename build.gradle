@@ -8,7 +8,7 @@ plugins {
 }
 
 archivesBaseName = 'yatzi-application'
-group = 'ch.juventus.game'
+group = 'ch.juventus.yatzi'
 version = '0.0.1'
 sourceCompatibility = '11.0'
 targetCompatibility = '11.0'
@@ -30,7 +30,7 @@ jar {
 }
 
 // Define the main class for the application
-mainClassName = 'ch.juventus.game.YatziApplication'
+mainClassName = 'ch.juventus.yatzi.YatziApplication'
 
 dependencies {
 

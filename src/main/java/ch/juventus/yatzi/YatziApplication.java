@@ -1,4 +1,4 @@
-package ch.juventus.game;
+package ch.juventus.yatzi;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
-public class YatziApplication  extends Application {
+public class YatziApplication extends Application {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private final String FXML_MAIN = "main.fxml";
-    private final String STYLE_MAIN = "style.css";
+    private final String FXML_MAIN = "view/main.fxml";
+    private final String STYLE_MAIN = "css/style.css";
 
     @Override
     public void start(Stage stage) throws Exception {

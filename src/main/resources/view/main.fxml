@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
+           prefWidth="450.0" styleClass="wrapper-main" xmlns="http://javafx.com/javafx/8.0.172-ea"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.FXMLController">
+    <children>
+
+        <VBox prefHeight="-Infinity" prefWidth="-Infinity">
+            <children>
+
+                <Label fx:id="label" alignment="TOP_LEFT" styleClass="text-title-main" text="Application Name">
+                    <font>
+                        <Font name="Helvetica Neue Light" size="20.0"/>
+                    </font>
+                    <padding>
+                        <Insets top="20.0"/>
+                    </padding>
+                </Label>
+                <TableView prefHeight="400.0" prefWidth="200.0">
+                    <columns>
+                        <TableColumn prefWidth="75.0" text="C1"/>
+                        <TableColumn prefWidth="75.0" text="C2"/>
+                    </columns>
+                    <VBox.margin>
+                        <Insets top="30.0"/>
+                    </VBox.margin>
+                </TableView>
+                <HBox prefHeight="100.0" prefWidth="200.0">
+                    <children>
+                        <Button mnemonicParsing="false" styleClass="button" text="Button">
+                            <HBox.margin>
+                                <Insets right="10.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" styleClass="button" text="Button">
+                            <HBox.margin>
+                                <Insets right="10.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" styleClass="button" text="Button">
+                            <HBox.margin>
+                                <Insets right="10.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" styleClass="button" text="Button">
+                            <HBox.margin>
+                                <Insets right="10.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button mnemonicParsing="false" styleClass="button" text="Button"/>
+                    </children>
+                    <VBox.margin>
+                        <Insets top="50.0"/>
+                    </VBox.margin>
+                </HBox>
+            </children>
+            <StackPane.margin>
+                <Insets left="20.0" right="20.0"/>
+            </StackPane.margin>
+        </VBox>
+
+    </children>
+</StackPane>
