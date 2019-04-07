@@ -1,0 +1,14 @@
+
+.wrapper-main {
+    -fx-background-color: #eff4fc;
+}
+
+.button {
+    -fx-font-weight: bold;
+}
+
+.text-title-main {
+    -fx-padding-left: 20px;
+    -fx-border-insets: 20px;
+    -fx-background-insets: 20px;
+}
