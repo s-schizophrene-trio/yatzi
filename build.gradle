@@ -19,7 +19,7 @@ repositories {
 
 javafx {
     // Define all Modules needed for java FX
-    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics']
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics']
 }
 
 jar {
@@ -34,11 +34,14 @@ mainClassName = 'ch.juventus.yatzi.YatziApplication'
 
 dependencies {
 
-    // Logging
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-    implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
+    // Prevent boiler plate code
+    compileOnly 'org.projectlombok:lombok:1.18.4'
+    annotationProcessor 'org.projectlombok:lombok:1.18.4'
 
+    // Logging
+    implementation 'org.slf4j:slf4j-api:1.7.26'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'ch.qos.logback:logback-core:1.2.3'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
