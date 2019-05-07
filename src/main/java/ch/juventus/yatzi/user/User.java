@@ -2,11 +2,13 @@ package ch.juventus.yatzi.user;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.UUID;
 
 @Getter
 @Setter
+@ToString
 public class User {
 
     private UUID userId;
@@ -19,13 +21,5 @@ public class User {
     public User(String userName) {
         this.userId = UUID.randomUUID();
         this.userName = userName;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", userName='" + userName + '\'' +
-                '}';
     }
 }
