@@ -26,10 +26,9 @@
                         <Insets top="20.0"/>
                     </padding>
                 </Label>
-                <TableView prefHeight="400.0" prefWidth="200.0">
+                <TableView prefHeight="400.0" prefWidth="200.0" fx:id="tblBoardMain">
                     <columns>
-                        <TableColumn prefWidth="75.0" text="C1"/>
-                        <TableColumn prefWidth="75.0" text="C2"/>
+                        <TableColumn prefWidth="75.0" text="Static Column"/>
                     </columns>
                     <VBox.margin>
                         <Insets top="30.0"/>
@@ -37,27 +36,27 @@
                 </TableView>
                 <HBox prefHeight="100.0" prefWidth="200.0">
                     <children>
-                        <Button mnemonicParsing="false" styleClass="button" text="Button">
+                        <Button mnemonicParsing="false" styleClass="button" text="Button" onAction="#showMessage">
                             <HBox.margin>
                                 <Insets right="10.0"/>
                             </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" styleClass="button" text="Button">
+                        <Button mnemonicParsing="false" styleClass="button" text="Button" onAction="#showMessage">
                             <HBox.margin>
                                 <Insets right="10.0"/>
                             </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" styleClass="button" text="Button">
+                        <Button mnemonicParsing="false" styleClass="button" text="Button" onAction="#showMessage">
                             <HBox.margin>
                                 <Insets right="10.0"/>
                             </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" styleClass="button" text="Button">
+                        <Button mnemonicParsing="false" styleClass="button" text="Button" onAction="#showMessage">
                             <HBox.margin>
                                 <Insets right="10.0"/>
                             </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" styleClass="button" text="Button"/>
+                        <Button mnemonicParsing="false" styleClass="button" text="Button" onAction="#showMessage" />
                     </children>
                     <VBox.margin>
                         <Insets top="50.0"/>
