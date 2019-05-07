@@ -26,3 +26,12 @@ You have to set some VM Options
 
 * https://openjfx.io/javadoc/11/javafx.graphics/javafx/scene/doc-files/cssref.html
 
+### Naming Conventions
+
+```
+Logs
+=====
+* all characters should be writtern small
+* LOGGER.debug("application started in {}ms", elapsedTime);
+```
+
