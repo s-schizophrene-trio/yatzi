@@ -28,6 +28,10 @@
 
 }
 
+.setup-container {
+    -fx-padding: 20;
+}
+
 .border {
     -fx-border-width: 1;
     -fx-border-color: grey;
