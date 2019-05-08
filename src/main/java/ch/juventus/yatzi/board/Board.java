@@ -31,6 +31,9 @@ public class Board {
     // the current user is the player wo is in the row
     private User currentUser;
 
+    // declares the role of the board (host or client)
+    private Boolean isHost;
+
     // instance of the user service
     private UserService userService;
 
@@ -55,5 +58,9 @@ public class Board {
      */
     private List<Dice> initDiceSet(int amount) {
         return new ArrayList<>();
+    }
+
+    public void addUser(User user) {
+        this.users.add(user);
     }
 }

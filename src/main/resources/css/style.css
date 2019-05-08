@@ -1,4 +1,3 @@
-
 .wrapper-main {
     -fx-background-color: #eff4fc;
 }
@@ -11,4 +10,50 @@
     -fx-padding-left: 20px;
     -fx-border-insets: 20px;
     -fx-background-insets: 20px;
+}
+
+.text-server-role {
+    -fx-font-weight: bold;
+}
+
+.main-container {
+
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.board-container {
+
+}
+
+.border {
+    -fx-border-width: 1;
+    -fx-border-color: grey;
+    -fx-border-style: solid;
+}
+
+.border-blue {
+    -fx-border-width: 2;
+    -fx-border-color: blue;
+    -fx-border-style: solid;
+}
+
+.border-red {
+    -fx-border-width: 2;
+    -fx-border-color: red;
+    -fx-border-style: solid;
+}
+
+.border-yellow {
+    -fx-border-width: 2;
+    -fx-border-color: red;
+    -fx-border-style: solid;
+}
+
+.noheader .column-header-background {
+    -fx-max-height: 0;
+    -fx-pref-height: 0;
+    -fx-min-height: 0;
 }
