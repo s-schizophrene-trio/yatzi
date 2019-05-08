@@ -51,7 +51,7 @@ public class MainController implements Initializable {
     public void showScreen(ScreenType screenType) {
 
         // Load the requested screen from screen loader
-        Screen screen = this.loadScreen(screenType);
+        Screen screen = this.loadScreenWithController(screenType);
 
         try {
             replaceLayout(screen);
@@ -62,6 +62,11 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Replaces the current layout with a new JavaFX Node. If the Root View has existing child,
+     * they will be removed first.
+     * @param screen the screen object with the according layout node in it.
+     */
     private void replaceLayout(Screen screen) {
         LOGGER.debug("replace layout to new screen: {}", screen.getScreenType());
 
@@ -74,7 +79,14 @@ public class MainController implements Initializable {
         yatziAnchorPane.getChildren().add(screen.getNode());
     }
 
-    private Screen loadScreen(ScreenType screenType) {
+    /**
+     * Loads a screen including the according controller based on a screen type. If the
+     * screen type is unknown by this function,
+     * an error will logged.
+     * @param screenType the screen type to load
+     * @return an initialized screen object based on the screen type.
+     */
+    private Screen loadScreenWithController(ScreenType screenType) {
 
         Screen screen = null;
 
@@ -97,12 +109,21 @@ public class MainController implements Initializable {
                 boardController.loadUsers();
                 boardController.loadBoardTable();
                 break;
+            default:
+                LOGGER.error("The screen type {} could not be handled.", screenType);
+                break;
         }
 
         LOGGER.debug("screen {} loaded", screenType);
         return screen;
     }
 
+    /**
+     * Builds a screen object based on the fxml path and the according screen type
+     * @param fxmlPath The relative path to the fxml layout file with base src/main/resources/
+     * @param screenType The screen type to load
+     * @return An initialized Screen object with a loaded fxml file.
+     */
     private Screen buildScreen(String fxmlPath, ScreenType screenType) {
 
         Node node = null;

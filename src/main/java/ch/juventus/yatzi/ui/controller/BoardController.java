@@ -1,13 +1,10 @@
 package ch.juventus.yatzi.ui.controller;
 
-import ch.juventus.yatzi.board.Board;
 import ch.juventus.yatzi.ui.helper.ScreenType;
 import ch.juventus.yatzi.user.User;
-import com.mifmif.common.regex.Main;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
