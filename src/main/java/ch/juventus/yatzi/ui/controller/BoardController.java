@@ -1,7 +1,9 @@
 package ch.juventus.yatzi.ui.controller;
 
 import ch.juventus.yatzi.board.Board;
+import ch.juventus.yatzi.ui.helper.ScreenType;
 import ch.juventus.yatzi.user.User;
+import com.mifmif.common.regex.Main;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,7 +23,7 @@ public class BoardController implements Initializable {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     private final String VIEW_TITLE = "Yatzi Play Board";
 
-    private Board board;
+    private MainController mainController;
 
     @FXML
     private VBox boardContainer;
@@ -41,12 +43,10 @@ public class BoardController implements Initializable {
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
 
-        // Set Margin of the Container
-        this.boardContainer.setPadding(new Insets(0, 50, 50, 50));
-
+        // Set Screen Title
         screenTitle.setText(VIEW_TITLE);
 
-        // Active Players Table
+        // Initialize Active Players Table
         TableColumn userName = new TableColumn("User Name");
         tblPlayers.getStyleClass().add("noheader");
         userName.setCellValueFactory(new PropertyValueFactory<>("userName"));
@@ -55,17 +55,17 @@ public class BoardController implements Initializable {
     }
 
     public void loadUsers() {
-        if (this.board != null) {
-            LOGGER.debug("{} users are active", this.board.getUsers().size());
-            List<User> users = this.board.getUsers();
-            LOGGER.debug(users.toString());
+        if (this.mainController.getBoard() != null) {
+            LOGGER.debug("{} users are active", this.mainController.getBoard().getUsers().size());
+
+            List<User> users = this.mainController.getBoard().getUsers();
 
             users.forEach(u -> {
                 this.tblPlayers.getItems().add(u);
             });
 
             // Set Current User
-            this.currentUser.setText("You are: " + this.board.getCurrentUser().getUserName());
+            this.currentUser.setText("You are: " + this.mainController.getBoard().getCurrentUser().getUserName());
 
         } else {
             LOGGER.error("The reference to the main controller could not be accessed by the board controller");
@@ -82,7 +82,7 @@ public class BoardController implements Initializable {
         //colFields.setCellValueFactory(new PropertyValueFactory<>("fieldType"));
         this.tblBoardMain.getColumns().add(colFields);
 
-        this.board.getUsers().forEach(u -> {
+        this.mainController.getBoard().getUsers().forEach(u -> {
             // static fields
             TableColumn userColumn = new TableColumn(u.getUserName());
             //colFields.setCellValueFactory(new PropertyValueFactory<>("fieldType"));
@@ -96,8 +96,8 @@ public class BoardController implements Initializable {
 
     }
 
-    public void setBoard(Board board) {
-        this.board = board;
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
     }
 
     @FXML
@@ -115,7 +115,8 @@ public class BoardController implements Initializable {
 
     @FXML
     public void exit(ActionEvent e) {
-        System.exit(0);
+        // TODO: Implment clean exit of the board screen
+        this.mainController.showScreen(ScreenType.SETUP);
     }
 
 }
