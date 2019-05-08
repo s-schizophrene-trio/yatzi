@@ -1,4 +1,4 @@
-package ch.juventus.yatzi.engine.field;
+package ch.juventus.yatzi.ui.models;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @RequiredArgsConstructor
 @NoArgsConstructor
-public class Field {
+public class BoardTableRow {
 
     @NonNull
     private String fieldType;
