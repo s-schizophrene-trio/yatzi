@@ -10,8 +10,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="setupContainer" styleClass="setup-container" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.SetupController">
-    
+<AnchorPane fx:id="setupContainer" styleClass="setup-container" xmlns="http://javafx.com/javafx/8.0.172-ea"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.SetupController">
+
     <VBox prefHeight="300.0" prefWidth="400.0">
 
         <padding>
@@ -20,28 +21,28 @@
 
         <Label text="Setup New Yatzi Game">
             <font>
-                <Font name="Helvetica Neue Light" size="20.0" />
+                <Font name="Helvetica Neue Light" size="20.0"/>
             </font>
             <padding>
-                <Insets />
+                <Insets/>
             </padding>
         </Label>
         <Label text="Select Game Mode..">
             <font>
-                <Font name="Helvetica Neue Light" size="15.0" />
+                <Font name="Helvetica Neue Light" size="15.0"/>
             </font>
             <padding>
-                <Insets top="20.0" />
+                <Insets top="20.0"/>
             </padding>
         </Label>
 
         <HBox>
             <HBox.margin>
-                <Insets top="20.0" />
+                <Insets top="20.0"/>
             </HBox.margin>
-            <Button mnemonicParsing="false" text="Join a Sever"  onAction="#showJoinServerInformation"/>
-            <Region prefWidth="100.0" HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" text="Setup New Server" />
+            <Button mnemonicParsing="false" text="Join a Sever" onAction="#showJoinServerInformation"/>
+            <Region prefWidth="100.0" HBox.hgrow="ALWAYS"/>
+            <Button mnemonicParsing="false" text="Setup New Server"/>
 
         </HBox>
 
@@ -49,17 +50,17 @@
 
             <Label text="Provide Server Connection Infos">
                 <font>
-                    <Font name="Helvetica Neue Light" size="15.0" />
+                    <Font name="Helvetica Neue Light" size="15.0"/>
                 </font>
                 <padding>
-                    <Insets top="20.0" />
+                    <Insets top="20.0"/>
                 </padding>
             </Label>
 
-            <TextField text="Server Port" />
-            <TextField text="Server IP" />
+            <TextField text="Server Port"/>
+            <TextField text="Server IP"/>
 
-            <Button mnemonicParsing="false" text="Join Server" onAction="#joinServer" />
+            <Button mnemonicParsing="false" text="Join Server" onAction="#joinServer"/>
 
         </VBox>
     </VBox>

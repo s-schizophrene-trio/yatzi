@@ -2,13 +2,15 @@ package ch.juventus.yatzi.ui.models;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
-@RequiredArgsConstructor
 @NoArgsConstructor
 public class BoardTableRow {
 
-    @NonNull
-    private String fieldType;
+    private List<String> list1;
+
+    private List<String> list2;
 
 }

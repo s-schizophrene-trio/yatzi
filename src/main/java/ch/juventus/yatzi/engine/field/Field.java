@@ -10,5 +10,4 @@ public class Field {
 
     @NonNull
     private String fieldType;
-
 }

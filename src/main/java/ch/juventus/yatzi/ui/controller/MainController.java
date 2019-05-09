@@ -15,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 @Getter
@@ -40,18 +38,19 @@ public class MainController implements Initializable {
 
         LOGGER.debug("initialize main controller");
 
-        // Initaialize the Game
-        this.board = this.initBoard();
-        this.showScreen(ScreenType.SETUP);
+        // TODO: The right location to initialization?
+        this.initBoard();
+
+        this.showScreen(ScreenType.BOARD);
 
     }
 
-    /** ----------------- Screen Handlers --------------------- */
+    /* ----------------- Screen Handlers --------------------- */
 
     public void showScreen(ScreenType screenType) {
 
         // Load the requested screen from screen loader
-        Screen screen = this.loadScreen(screenType);
+        Screen screen = this.loadScreenWithController(screenType);
 
         try {
             replaceLayout(screen);
@@ -62,6 +61,11 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Replaces the current layout with a new JavaFX Node. If the Root View has existing child,
+     * they will be removed first.
+     * @param screen the screen object with the according layout node in it.
+     */
     private void replaceLayout(Screen screen) {
         LOGGER.debug("replace layout to new screen: {}", screen.getScreenType());
 
@@ -74,7 +78,14 @@ public class MainController implements Initializable {
         yatziAnchorPane.getChildren().add(screen.getNode());
     }
 
-    private Screen loadScreen(ScreenType screenType) {
+    /**
+     * Loads a screen including the according controller based on a screen type. If the
+     * screen type is unknown by this function,
+     * an error will logged.
+     * @param screenType the screen type to load
+     * @return an initialized screen object based on the screen type.
+     */
+    private Screen loadScreenWithController(ScreenType screenType) {
 
         Screen screen = null;
 
@@ -82,20 +93,19 @@ public class MainController implements Initializable {
             case SETUP:
                 // build board screen
                 screen = this.buildScreen(FXML_SETUP, screenType);
-
                 // initialize setup screen
                 SetupController setupController = screen.getFxmlLoader().getController();
-                setupController.setMainController(this);
+                setupController.afterInit(this);
                 break;
             case BOARD:
                 // build board screen
                 screen = this.buildScreen(FXML_BOARD, screenType);
-
                 // initialize board screen
                 BoardController boardController = screen.getFxmlLoader().getController();
-                boardController.setMainController(this);
-                boardController.loadUsers();
-                boardController.loadBoardTable();
+                boardController.afterInit(this);
+                break;
+            default:
+                LOGGER.error("The screen type {} could not be handled.", screenType);
                 break;
         }
 
@@ -103,6 +113,12 @@ public class MainController implements Initializable {
         return screen;
     }
 
+    /**
+     * Builds a screen object based on the fxml path and the according screen type
+     * @param fxmlPath The relative path to the fxml layout file with base src/main/resources/
+     * @param screenType The screen type to load
+     * @return An initialized Screen object with a loaded fxml file.
+     */
     private Screen buildScreen(String fxmlPath, ScreenType screenType) {
 
         Node node = null;
@@ -123,12 +139,14 @@ public class MainController implements Initializable {
         return new Screen(fxmlLoader,  node, screenType);
     }
 
-    /** ----------------- Board Handlers --------------------- */
+    /* ----------------- Board Handlers --------------------- */
 
-    private Board initBoard() {
-        Board board = new Board();
-        board.setIsHost(true);
-        return board;
+    /**
+     * Initialize a new Game Board and set the defaults
+     * @return
+     */
+    private void initBoard() {
+        this.board = new Board();
     }
 
 }

@@ -1,13 +1,12 @@
 package ch.juventus.yatzi.ui.controller;
 
-import ch.juventus.yatzi.board.Board;
 import ch.juventus.yatzi.ui.helper.ScreenType;
+import ch.juventus.yatzi.ui.models.BoardTableRow;
 import ch.juventus.yatzi.user.User;
-import com.mifmif.common.regex.Main;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -32,7 +32,7 @@ public class BoardController implements Initializable {
     private Label screenTitle;
 
     @FXML
-    private TableView tblBoardMain;
+    private TableView<BoardTableRow> tblBoardMain;
 
     @FXML
     private Label currentUser;
@@ -40,18 +40,38 @@ public class BoardController implements Initializable {
     @FXML
     private TableView<User> tblPlayers;
 
+    private List<String> testList;
+
+    /* ----------------- Initializer --------------------- */
+
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-
         // Set Screen Title
         screenTitle.setText(VIEW_TITLE);
 
         // Initialize Active Players Table
-        TableColumn userName = new TableColumn("User Name");
-        tblPlayers.getStyleClass().add("noheader");
+        //tblPlayers.getStyleClass().add("noheader");
+
+        TableColumn userId = new TableColumn("ID");
+        userId.setCellValueFactory(new PropertyValueFactory<>("userId"));
+        this.tblPlayers.getColumns().add(userId);
+
+        TableColumn userName = new TableColumn("User");
         userName.setCellValueFactory(new PropertyValueFactory<>("userName"));
         this.tblPlayers.getColumns().add(userName);
+    }
 
+    /**
+     * Initialize the Board Controller after the View is rendered.
+     * @param mainController The context of the Main Controller
+     */
+    public void afterInit(MainController mainController) {
+
+        // store the reference to the main context
+        this.mainController = mainController;
+
+        this.loadUsers();
+        this.loadBoardTable();
     }
 
     public void loadUsers() {
@@ -76,28 +96,32 @@ public class BoardController implements Initializable {
     public void loadBoardTable() {
         LOGGER.debug("initialize board table");
 
+        testList = new ArrayList<>();
+        testList.add("Test 0");
+        testList.add("Test 1");
+        testList.add("Test 2");
+
+        BoardTableRow btr = new BoardTableRow();
+        btr.setList1(testList);
+        btr.setList2(testList);
+
         // static fields
-        TableColumn colFields = new TableColumn("Fields");
+        TableColumn<BoardTableRow, String> colFields = new TableColumn("Fields");
+        colFields.setCellValueFactory(c-> new SimpleStringProperty(c.getValue().getList1().get(0)));
 
         //colFields.setCellValueFactory(new PropertyValueFactory<>("fieldType"));
         this.tblBoardMain.getColumns().add(colFields);
 
         this.mainController.getBoard().getUsers().forEach(u -> {
             // static fields
-            TableColumn userColumn = new TableColumn(u.getUserName());
-            //colFields.setCellValueFactory(new PropertyValueFactory<>("fieldType"));
+            TableColumn<BoardTableRow, String> userColumn = new TableColumn(u.getUserName());
+            userColumn.setCellValueFactory(c-> new SimpleStringProperty(c.getValue().getList1().get(0)));
             this.tblBoardMain.getColumns().add(userColumn);
 
         });
 
-        for (int i = 0; i <= 10; i++) {
-            //this.tblBoardMain.getItems().add(new Faker().gameOfThrones().dragon(), 34);
-        }
+        this.tblBoardMain.getItems().add(btr);
 
-    }
-
-    public void setMainController(MainController mainController) {
-        this.mainController = mainController;
     }
 
     @FXML

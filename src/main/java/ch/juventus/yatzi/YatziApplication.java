@@ -35,6 +35,10 @@ public class YatziApplication extends Application {
         LOGGER.debug("application started in {}ms", elapsedTime);
     }
 
+    /**
+     * Starts all necessary components for the UI, initialize them and start the built UI.
+     * @param stage The stage from JavaFX main method
+     */
     private void startUI(Stage stage) {
         // Load the UI
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
@@ -72,6 +76,12 @@ public class YatziApplication extends Application {
         }
     }
 
+    /**
+     * Builds a nwe scene based on the AnchorPane. The Global Style File will be added to the stylesheet-chain.
+     * @param root The AnchorPane Layout from the Root fxml
+     * @param styleUrl An absolute URL to the stylesheet file
+     * @return The built scene, ready to show.
+     */
     private Scene buildScene(AnchorPane root, URL styleUrl) {
         if (root != null) {
             Scene scene = new Scene(root);
