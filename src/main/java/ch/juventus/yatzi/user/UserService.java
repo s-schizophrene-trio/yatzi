@@ -14,7 +14,6 @@ public class UserService {
     }
 
     public User getLocalUser() {
-        return new User(this.faker.funnyName().name());
+        return new User(this.faker.number().numberBetween(10, 30), this.faker.funnyName().name());
     }
-
 }

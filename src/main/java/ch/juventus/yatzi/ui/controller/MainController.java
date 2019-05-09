@@ -15,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 @Getter
@@ -40,13 +38,14 @@ public class MainController implements Initializable {
 
         LOGGER.debug("initialize main controller");
 
-        // Initaialize the Game
-        this.board = this.initBoard();
-        this.showScreen(ScreenType.SETUP);
+        // TODO: The right location to initialization?
+        this.initBoard();
+
+        this.showScreen(ScreenType.BOARD);
 
     }
 
-    /** ----------------- Screen Handlers --------------------- */
+    /* ----------------- Screen Handlers --------------------- */
 
     public void showScreen(ScreenType screenType) {
 
@@ -94,20 +93,16 @@ public class MainController implements Initializable {
             case SETUP:
                 // build board screen
                 screen = this.buildScreen(FXML_SETUP, screenType);
-
                 // initialize setup screen
                 SetupController setupController = screen.getFxmlLoader().getController();
-                setupController.setMainController(this);
+                setupController.afterInit(this);
                 break;
             case BOARD:
                 // build board screen
                 screen = this.buildScreen(FXML_BOARD, screenType);
-
                 // initialize board screen
                 BoardController boardController = screen.getFxmlLoader().getController();
-                boardController.setMainController(this);
-                boardController.loadUsers();
-                boardController.loadBoardTable();
+                boardController.afterInit(this);
                 break;
             default:
                 LOGGER.error("The screen type {} could not be handled.", screenType);
@@ -144,12 +139,14 @@ public class MainController implements Initializable {
         return new Screen(fxmlLoader,  node, screenType);
     }
 
-    /** ----------------- Board Handlers --------------------- */
+    /* ----------------- Board Handlers --------------------- */
 
-    private Board initBoard() {
-        Board board = new Board();
-        board.setIsHost(true);
-        return board;
+    /**
+     * Initialize a new Game Board and set the defaults
+     * @return
+     */
+    private void initBoard() {
+        this.board = new Board();
     }
 
 }

@@ -49,7 +49,10 @@ public class Board {
         // TODO: First user in list, starts with the game
         this.currentUser = this.users.get(0);
 
-        LOGGER.debug("initalized board {}", this.toString());
+        // TODO: Load config from external source
+        this.setIsHost(true);
+
+        LOGGER.debug("initialized board {}", this.toString());
     }
 
     /**
