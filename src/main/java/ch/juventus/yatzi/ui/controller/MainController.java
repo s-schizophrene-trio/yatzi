@@ -2,11 +2,13 @@ package ch.juventus.yatzi.ui.controller;
 
 import ch.juventus.yatzi.board.Board;
 import ch.juventus.yatzi.ui.helper.ScreenType;
+import ch.juventus.yatzi.ui.interfaces.ScreenController;
 import ch.juventus.yatzi.ui.models.Screen;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 
 import lombok.Getter;
@@ -17,18 +19,26 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * The Main Controller manages all sub screens and handel as main context for the whole UI controllers.
+ * @author Jan Minder
+ */
 @Getter
 @Setter
 public class MainController implements Initializable {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    // Resource Paths
-    private final String FXML_BOARD = "view/board.fxml";
-    private final String FXML_SETUP = "view/setup.fxml";
+    // Resource Root Paths
+    private final String BASE_PATH_FXML = "view/";
+    private final String BASE_PATH_CSS = "css/";
+    private final String BASE_PATH_IMAGES = "images/";
 
     // Holds the whole game board
     private Board board;
+
+    // Class Loader to access resources
+    private ClassLoader classloader;
 
     @FXML
     private AnchorPane yatziAnchorPane;
@@ -37,6 +47,8 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         LOGGER.debug("initialize main controller");
+
+        this.classloader = Thread.currentThread().getContextClassLoader();
 
         // TODO: The right location to initialization?
         this.initBoard();
@@ -87,27 +99,12 @@ public class MainController implements Initializable {
      */
     private Screen loadScreenWithController(ScreenType screenType) {
 
-        Screen screen = null;
+        // Load a screen based on the screen type
+        Screen screen = this.buildScreen(this.getFxmlPath(screenType), screenType);
 
-        switch (screenType) {
-            case SETUP:
-                // build board screen
-                screen = this.buildScreen(FXML_SETUP, screenType);
-                // initialize setup screen
-                SetupController setupController = screen.getFxmlLoader().getController();
-                setupController.afterInit(this);
-                break;
-            case BOARD:
-                // build board screen
-                screen = this.buildScreen(FXML_BOARD, screenType);
-                // initialize board screen
-                BoardController boardController = screen.getFxmlLoader().getController();
-                boardController.afterInit(this);
-                break;
-            default:
-                LOGGER.error("The screen type {} could not be handled.", screenType);
-                break;
-        }
+        // Get the controller of the according screen and initialize it
+        ScreenController controller = screen.getFxmlLoader().getController();
+        controller.afterInit(this);
 
         LOGGER.debug("screen {} loaded", screenType);
         return screen;
@@ -122,9 +119,8 @@ public class MainController implements Initializable {
     private Screen buildScreen(String fxmlPath, ScreenType screenType) {
 
         Node node = null;
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
-        URL fxmlUrl = classloader.getResource(fxmlPath);
+        URL fxmlUrl = this.classloader.getResource(fxmlPath);
         FXMLLoader fxmlLoader = new FXMLLoader(fxmlUrl);
 
         LOGGER.debug("build {} screen", screenType);
@@ -143,10 +139,51 @@ public class MainController implements Initializable {
 
     /**
      * Initialize a new Game Board and set the defaults
-     * @return
      */
     private void initBoard() {
         this.board = new Board();
+    }
+
+    /* ----------------- Board Utils --------------------- */
+
+    /**
+     * Generates a full relative path to the fxml file based on the screen type.
+     * @param screenType The screen type of the fxml file
+     * @return A full relative path string to the fxml file of this screen type.
+     */
+    private String getFxmlPath(ScreenType screenType) {
+      return BASE_PATH_FXML + screenType.toString().toLowerCase() + ".fxml";
+    }
+
+    /**
+     * Builds the image path.
+     * @param subPath The sub-path in the base image folder eg. "icons/"
+     * @param key filename (lowercase)
+     * @param fileExt file ending eg. "png"
+     * @return A String with the relative image path
+     */
+    private String getImagePath(String subPath, String key, String fileExt) {
+        String filePath = BASE_PATH_IMAGES + subPath + key.toLowerCase() + "." + fileExt;
+        LOGGER.debug("path for image is {}", filePath);
+        return filePath;
+    }
+
+    /**
+     * Loads a Image from resources
+     * @param subPath The sub-path in the base image folder eg. "icons/"
+     * @param key filename (lowercase)
+     * @param fileExt file ending eg. "png"
+     * @return An initialized Image Object
+     */
+    public Image getImage(String subPath, String key, String fileExt) {
+        LOGGER.debug("load {} image for key {}", fileExt, key);
+        String imagePath = this.getImagePath(subPath, key, fileExt);
+        LOGGER.debug("load image from {}", imagePath);
+
+        // Load the image from resources
+        Image image = new Image(this.classloader.getResourceAsStream(imagePath));
+
+        return image;
     }
 
 }

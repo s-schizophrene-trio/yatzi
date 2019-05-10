@@ -7,11 +7,8 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -33,12 +30,21 @@
                 </padding>
             </Label>
 
-            <Label fx:id="currentUser" alignment="BOTTOM_LEFT" styleClass="text-title-main" text="you are .." textFill="#13455e">
+            <Label fx:id="currentUser" alignment="BOTTOM_LEFT" styleClass="text-title-main" text="your username" textFill="#13455e">
                 <font>
-                    <Font name="Helvetica Neue Light" size="13.0" />
+                    <Font name="Helvetica Neue Light" size="14.0" />
                 </font>
                 <padding>
                     <Insets top="50.0" />
+                </padding>
+            </Label>
+
+            <Label fx:id="currentUserId" alignment="BOTTOM_LEFT" styleClass="text-user-id" text="your user id" textFill="#13455e">
+                <font>
+                    <Font name="Helvetica Neue Light" size="16.0" />
+                </font>
+                <padding>
+                    <Insets top="5.0" />
                 </padding>
             </Label>
         </VBox>
