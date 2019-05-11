@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 
 import lombok.Getter;
@@ -184,6 +185,25 @@ public class MainController implements Initializable {
         Image image = new Image(this.classloader.getResourceAsStream(imagePath));
 
         return image;
+    }
+
+    /**
+     * Renders the Image View based on the Image key and file extension
+     *
+     * @param imageKey The unique image name without file extension
+     * @param fileExt  The file extension of the image
+     * @param height   An optional fit height of the image view
+     * @param width    An optional fit width of the image view
+     * @return An Image View based on the Serve Type with an image loaded and resized it.
+     */
+    public ImageView renderImageView(String subPath, String imageKey, String fileExt, Double height, Double width) {
+        ImageView imageView = new ImageView(this.getImage(subPath, imageKey, fileExt));
+
+        // Resize the Image View if the values are present
+        if (height != null) imageView.setFitHeight(height);
+        if (width != null) imageView.setFitWidth(width);
+
+        return imageView;
     }
 
 }

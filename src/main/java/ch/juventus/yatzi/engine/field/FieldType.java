@@ -13,7 +13,7 @@ public enum FieldType {
     TWO_PAIRS,
     THREE_OF_A_KIND,
     FOUR_OF_A_KIND,
-    SMAOO_STRAIGHT,
+    SMALL_STRAIGHT,
     LARGE_STRAIGHT,
     FULL_HOUSE,
     CHANCER,
