@@ -1,4 +1,4 @@
-package ch.juventus.yatzi.board.score;
+package ch.juventus.yatzi.engine.board.score;
 
 import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.user.User;
