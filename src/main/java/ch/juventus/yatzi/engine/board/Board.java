@@ -1,6 +1,6 @@
-package ch.juventus.yatzi.board;
+package ch.juventus.yatzi.engine.board;
 
-import ch.juventus.yatzi.board.score.UserScore;
+import ch.juventus.yatzi.engine.board.score.UserScore;
 import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.ui.helper.ServeType;

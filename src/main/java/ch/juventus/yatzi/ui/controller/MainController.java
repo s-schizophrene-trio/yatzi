@@ -1,6 +1,6 @@
 package ch.juventus.yatzi.ui.controller;
 
-import ch.juventus.yatzi.board.Board;
+import ch.juventus.yatzi.engine.board.Board;
 import ch.juventus.yatzi.ui.helper.ScreenType;
 import ch.juventus.yatzi.ui.interfaces.ScreenController;
 import ch.juventus.yatzi.ui.models.Screen;
