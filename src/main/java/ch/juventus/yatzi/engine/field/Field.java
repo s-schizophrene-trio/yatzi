@@ -9,5 +9,7 @@ import lombok.*;
 public class Field {
 
     @NonNull
-    private String fieldType;
+    private FieldType fieldType;
+    private Integer value;
+
 }

@@ -12,104 +12,109 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="boardContainer" styleClass="board-container" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.BoardController">
+<VBox fx:id="boardContainer" styleClass="board-container" xmlns="http://javafx.com/javafx/8.0.172-ea"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.BoardController">
 
     <padding>
-        <Insets left="50" right="50" />
+        <Insets left="50" right="50"/>
     </padding>
 
     <HBox prefWidth="-Infinity">
 
         <VBox>
-            <Label fx:id="screenTitle" alignment="CENTER_LEFT" prefWidth="200" styleClass="text-title-main" text="Application Name" textFill="#13455e">
+            <Label fx:id="screenTitle" alignment="CENTER_LEFT" prefWidth="200" styleClass="text-title-main"
+                   text="Application Name" textFill="#13455e">
                 <font>
-                    <Font name="Helvetica Neue Light" size="20.0" />
+                    <Font name="Helvetica Neue Light" size="20.0"/>
                 </font>
                 <padding>
-                    <Insets top="50.0" />
+                    <Insets top="50.0"/>
                 </padding>
             </Label>
 
-            <Label fx:id="currentUser" alignment="BOTTOM_LEFT" styleClass="text-title-main" text="your username" textFill="#13455e">
+            <Label fx:id="currentUser" alignment="BOTTOM_LEFT" styleClass="text-title-main" text="your username"
+                   textFill="#13455e">
                 <font>
-                    <Font name="Helvetica Neue Light" size="14.0" />
+                    <Font name="Helvetica Neue Light" size="14.0"/>
                 </font>
                 <padding>
-                    <Insets top="50.0" />
+                    <Insets top="50.0"/>
                 </padding>
             </Label>
 
-            <Label fx:id="currentUserId" alignment="BOTTOM_LEFT" styleClass="text-user-id" text="your user id" textFill="#13455e">
+            <Label fx:id="currentUserId" alignment="BOTTOM_LEFT" styleClass="text-user-id" text="your user id"
+                   textFill="#13455e">
                 <font>
-                    <Font name="Helvetica Neue Light" size="16.0" />
+                    <Font name="Helvetica Neue Light" size="16.0"/>
                 </font>
                 <padding>
-                    <Insets top="5.0" />
+                    <Insets top="5.0"/>
                 </padding>
             </Label>
         </VBox>
 
-        <Region prefWidth="100.0" HBox.hgrow="SOMETIMES" />
+        <Region prefWidth="100.0" HBox.hgrow="SOMETIMES"/>
 
-        <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+        <VBox alignment="TOP_RIGHT" prefHeight="175.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
             <HBox.margin>
-                <Insets top="15.0" />
+                <Insets top="15.0"/>
             </HBox.margin>
             <HBox alignment="TOP_RIGHT" prefWidth="150" spacing="10">
-                <Label fx:id="serverRole" alignment="TOP_RIGHT" prefWidth="150" styleClass="text-server-role" text="Your Role: Host" textFill="#48505b">
+                <Label fx:id="serverRole" alignment="TOP_RIGHT" prefWidth="150" styleClass="text-server-role"
+                       text="Your Role: Host" textFill="#48505b">
                     <font>
-                        <Font name="Helvetica Neue Light" size="15.0" />
+                        <Font name="Helvetica Neue Light" size="15.0"/>
                     </font>
                     <padding>
-                        <Insets top="3.0" />
+                        <Insets top="3.0"/>
                     </padding>
                 </Label>
 
-                <Button mnemonicParsing="false" onAction="#exit" text="Exit" />
+                <Button mnemonicParsing="false" onAction="#exit" text="Exit"/>
             </HBox>
 
             <TabPane styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
                 <Tab text="Players">
-                    <TableView fx:id="tblPlayers" prefWidth="200.0" styleClass="border" />
+                    <TableView fx:id="tblPlayers" prefWidth="200.0" styleClass="border"/>
                 </Tab>
                 <Tab text="Stats">
-                    <AnchorPane prefWidth="200" styleClass="border" />
+                    <AnchorPane prefWidth="200" styleClass="border"/>
                 </Tab>
             </TabPane>
         </VBox>
 
     </HBox>
 
-    <TableView fx:id="tblBoardMain" prefWidth="550.0">
+    <TableView fx:id="tblBoardMain" prefHeight="507" prefWidth="550.0">
         <VBox.margin>
-            <Insets top="50.0" />
+            <Insets top="30.0"/>
         </VBox.margin>
     </TableView>
 
     <HBox prefHeight="150.0" prefWidth="-Infinity">
         <Button mnemonicParsing="false" onAction="#showMessage" styleClass="button" text="Show Message">
             <HBox.margin>
-                <Insets right="10.0" />
+                <Insets right="10.0"/>
             </HBox.margin>
         </Button>
         <Button mnemonicParsing="false" styleClass="button" text="Button">
             <HBox.margin>
-                <Insets right="10.0" />
+                <Insets right="10.0"/>
             </HBox.margin>
         </Button>
         <Button mnemonicParsing="false" styleClass="button" text="Button">
             <HBox.margin>
-                <Insets right="10.0" />
+                <Insets right="10.0"/>
             </HBox.margin>
         </Button>
         <Button mnemonicParsing="false" styleClass="button" text="Button">
             <HBox.margin>
-                <Insets right="10.0" />
+                <Insets right="10.0"/>
             </HBox.margin>
         </Button>
-        <Button mnemonicParsing="false" styleClass="button" text="Button" />
+        <Button mnemonicParsing="false" styleClass="button" text="Button"/>
         <VBox.margin>
-            <Insets top="50.0" />
+            <Insets top="50.0"/>
         </VBox.margin>
     </HBox>
 

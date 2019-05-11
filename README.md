@@ -74,16 +74,16 @@ new ImageView(this.mainController.getImage("icons/", imageKey, fileExt));
 
 ```
 Logs
-====
+------------------------------------------------------------------
 * all characters should be written in lowercase
 * LOGGER.debug("application started in {}ms", elapsedTime);
 
 Comments
-========
+------------------------------------------------------------------
 // the whole comment should be written in lowercase
 
 JavaDoc
-=======
+------------------------------------------------------------------
 /**
  * Describes the funcionality of the method.
  * @param param1 Each Text should start with a Uppercase Character
