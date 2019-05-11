@@ -1,47 +1,59 @@
 package ch.juventus.yatzi.board;
 
+import ch.juventus.yatzi.board.score.UserScore;
 import ch.juventus.yatzi.engine.dice.Dice;
+import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.ui.helper.ServeType;
 import ch.juventus.yatzi.user.User;
 import ch.juventus.yatzi.user.UserService;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.rmi.server.ServerCloneException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static ch.juventus.yatzi.ui.helper.ServeType.CLIENT;
-import static ch.juventus.yatzi.ui.helper.ServeType.SERVER;
 
 /**
  * The Board represents the play ground of this game. The board knows all users and the state of the game.
  */
-@Getter
-@Setter
+
 @ToString
 public class Board {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     // holds all active users for the current game
+    @Getter
     private List<User> users;
 
     // holds all the dice from the board
+    @Getter
     private List<Dice> dice;
 
     // the current user is the player wo is in the row
+    @Getter
     private User currentUser;
 
+    // only the active user should be able to make board interactions
+    @Getter @Setter
+    private UUID activeUserId;
+
     // declares the role of the board (server or client)
+    @Setter @Getter
     private ServeType serveType;
 
     // instance of the user service
+    @Getter
     private UserService userService;
+
+    // user score service
+    private Map<FieldType, UserScore> scores;
 
     /**
      * Initialized a new Board based on the serveType. If you request a SERVER board, the board loads during
@@ -70,12 +82,10 @@ public class Board {
         this.dice = this.initDiceSet(5);
         this.userService = new UserService();
 
-        // init users with the local user
-        this.users = new ArrayList<>();
-
         // add local user
-        this.currentUser = userService.generateUser(serveType);
-        this.users.add(currentUser);
+        this.currentUser = this.userService.generateUser(serveType);
+        this.userService.registerUser(currentUser);
+
         // set server type
         this.setServeType(serveType);
 
@@ -84,6 +94,9 @@ public class Board {
             // add each remote user to the local user list
             this.userService.getRemoteUsers().forEach(this::addUser);
         }
+
+        // init users with the local user
+        this.users = this.userService.getAllUsers();
 
         LOGGER.debug("initialized board {}", this.toString());
     }
@@ -98,6 +111,6 @@ public class Board {
     }
 
     public void addUser(User user) {
-        this.users.add(user);
+        this.userService.registerUser(user);
     }
 }

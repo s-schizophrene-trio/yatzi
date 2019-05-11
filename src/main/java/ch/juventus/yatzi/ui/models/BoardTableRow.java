@@ -1,16 +1,19 @@
 package ch.juventus.yatzi.ui.models;
 
+import ch.juventus.yatzi.engine.field.Field;
+import ch.juventus.yatzi.user.User;
 import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
+@RequiredArgsConstructor
 @NoArgsConstructor
+@ToString
 public class BoardTableRow {
-
-    private List<String> list1;
-
-    private List<String> list2;
-
+    @NonNull
+    Field descField;
+    @NonNull
+    List<User> users;
 }

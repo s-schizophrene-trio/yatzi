@@ -1,5 +1,5 @@
-.wrapper-main {
-    -fx-background-color: #eff4fc;
+.main-container {
+    -fx-background-color: #eff3f9;
 }
 
 .button {
@@ -16,9 +16,7 @@
     -fx-font-weight: bold;
 }
 
-.main-container {
 
-}
 
 .tab-pane .tab-header-area .tab-header-background {
     -fx-opacity: 0;

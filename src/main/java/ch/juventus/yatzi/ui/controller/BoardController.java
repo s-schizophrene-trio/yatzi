@@ -1,7 +1,8 @@
 package ch.juventus.yatzi.ui.controller;
 
+import ch.juventus.yatzi.engine.field.Field;
+import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.ui.helper.ScreenType;
-import ch.juventus.yatzi.ui.helper.ServeType;
 import ch.juventus.yatzi.ui.interfaces.ScreenController;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
 import ch.juventus.yatzi.user.User;
@@ -50,7 +51,8 @@ public class BoardController implements ScreenController {
     @FXML
     private TableView<User> tblPlayers;
 
-    private List<String> testList;
+    // list to hold all combinations of the board table
+    private List<BoardTableRow> boardTableRows;
 
     /* ----------------- Initializer --------------------- */
 
@@ -99,10 +101,21 @@ public class BoardController implements ScreenController {
         TableColumn<User, ImageView> serveType = new TableColumn("Type");
         // Visualize the Serve Type as Images
         serveType.setCellValueFactory(c -> new SimpleObjectProperty<>(
-                this.renderImageView(c.getValue().getServeType().toString(), "png", 20D, 20D)
+                this.renderIconImageView(c.getValue().getServeType().toString(), "png")
         ));
         serveType.setStyle("-fx-alignment: CENTER;");
         this.tblPlayers.getColumns().add(serveType);
+    }
+
+    /**
+     * Renders the Image View based on the Image key and file extension (icon)
+     *
+     * @param imageKey The unique image name without file extension
+     * @param fileExt  The file extension of the image
+     * @return An Image View based on the Serve Type with an image loaded and resized it.
+     */
+    private ImageView renderIconImageView(String imageKey, String fileExt) {
+        return this.renderImageView("icons/", imageKey, fileExt, 20D, 20D);
     }
 
     /**
@@ -114,14 +127,25 @@ public class BoardController implements ScreenController {
      * @param width    An optional fit width of the image view
      * @return An Image View based on the Serve Type with an image loaded and resized it.
      */
-    private ImageView renderImageView(String imageKey, String fileExt, Double height, Double width) {
-        ImageView imageView = new ImageView(this.mainController.getImage("icons/", imageKey, fileExt));
+    private ImageView renderImageView(String subPath, String imageKey, String fileExt, Double height, Double width) {
+        ImageView imageView = new ImageView(this.mainController.getImage(subPath, imageKey, fileExt));
 
         // Resize the Image View if the values are present
         if (height != null) imageView.setFitHeight(height);
         if (width != null) imageView.setFitWidth(width);
 
         return imageView;
+    }
+
+    /**
+     * Renders the Image View based on the Image key and file extension (field)
+     *
+     * @param imageKey The unique image name without file extension
+     * @param fileExt  The file extension of the image
+     * @return An Image View based on the Serve Type with an image loaded and resized it.
+     */
+    private ImageView renderFieldImage(String imageKey, String fileExt) {
+        return this.renderImageView("combinations/", imageKey, fileExt, 20D, 120D);
     }
 
     /**
@@ -151,49 +175,50 @@ public class BoardController implements ScreenController {
         this.currentUser.setText(this.mainController.getBoard().getCurrentUser().getUserName());
         // Set Current User ID
         String userId = this.mainController.getBoard().getCurrentUser().getShortUserId();
-        this.currentUserId.setText("id: " + userId);
+        this.currentUserId.setText("ID  " + userId);
     }
 
     /**
      * Generates the game board table with the user and their score overview.
      */
     public void generateBoardTable() {
+
         LOGGER.debug("initialize board table");
 
-        testList = new ArrayList<>();
-        testList.add("Test 0");
-        testList.add("Test 1");
-        testList.add("Test 2");
-        testList.add("Test 3");
-        testList.add("Test 4");
-        testList.add("Test 5");
+        this.boardTableRows = new ArrayList<>();
+        for (FieldType fieldType : FieldType.values()) {
+            this.boardTableRows.add(new BoardTableRow(new Field(fieldType), this.mainController.getBoard().getUsers()));
+        }
+        // static combinations
+        TableColumn<BoardTableRow, ImageView> colFields = new TableColumn("Fields");
 
-        BoardTableRow btr = new BoardTableRow();
-        btr.setList1(testList);
-        btr.setList2(testList);
+        colFields.setCellValueFactory(c -> new SimpleObjectProperty<>(
+                this.renderFieldImage("ones", "png")
+        ));
 
-        // static fields
-        TableColumn<BoardTableRow, String> colFields = new TableColumn("Fields");
-        colFields.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getList1().get(0)));
+        //colFields.setCellValueFactory(c -> new SimpleObjectProperty<>(this.renderFieldImage("ones", "png")));
 
         // add field column to table
         this.tblBoardMain.getColumns().add(colFields);
 
         // add a user wrapper column
-        TableColumn users = new TableColumn("Players");
+        TableColumn userContainer = new TableColumn("Players");
 
-        this.mainController.getBoard().getUsers().forEach(u -> {
-            // static fields
-            TableColumn<BoardTableRow, String> userColumn = new TableColumn(u.getUserName());
-            userColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getList1().get(0)));
-            users.getColumns().add(userColumn);
-        });
+        List<User> users = this.mainController.getBoard().getUsers();
+
+        for (int i = 0; i < users.size(); i++) {
+            // static combinations
+            int index = i;
+            TableColumn<BoardTableRow, String> userColumn = new TableColumn(users.get(index).getUserName());
+            userColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getUsers().get(index).getShortUserId()));
+            userContainer.getColumns().add(userColumn);
+        }
 
         // User column to main table
-        this.tblBoardMain.getColumns().add(users);
+        this.tblBoardMain.getColumns().add(userContainer);
 
         // fill the table with the board table items
-        this.tblBoardMain.getItems().add(btr);
+        this.tblBoardMain.getItems().addAll(this.boardTableRows);
 
     }
 
@@ -209,6 +234,10 @@ public class BoardController implements ScreenController {
                 LOGGER.debug("pressed OK");
             }
         });
+    }
+
+    private void nextPlayer() {
+
     }
 
     @FXML
