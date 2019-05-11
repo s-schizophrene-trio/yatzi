@@ -1,7 +1,9 @@
 package ch.juventus.yatzi.ui.controller;
 
+import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.Field;
 import ch.juventus.yatzi.engine.field.FieldType;
+import ch.juventus.yatzi.engine.field.FieldTypeHelper;
 import ch.juventus.yatzi.ui.helper.ScreenType;
 import ch.juventus.yatzi.ui.interfaces.ScreenController;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
@@ -13,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,26 +118,7 @@ public class BoardController implements ScreenController {
      * @return An Image View based on the Serve Type with an image loaded and resized it.
      */
     private ImageView renderIconImageView(String imageKey, String fileExt) {
-        return this.renderImageView("icons/", imageKey, fileExt, 20D, 20D);
-    }
-
-    /**
-     * Renders the Image View based on the Image key and file extension
-     *
-     * @param imageKey The unique image name without file extension
-     * @param fileExt  The file extension of the image
-     * @param height   An optional fit height of the image view
-     * @param width    An optional fit width of the image view
-     * @return An Image View based on the Serve Type with an image loaded and resized it.
-     */
-    private ImageView renderImageView(String subPath, String imageKey, String fileExt, Double height, Double width) {
-        ImageView imageView = new ImageView(this.mainController.getImage(subPath, imageKey, fileExt));
-
-        // Resize the Image View if the values are present
-        if (height != null) imageView.setFitHeight(height);
-        if (width != null) imageView.setFitWidth(width);
-
-        return imageView;
+        return this.mainController.renderImageView("icons/", imageKey, fileExt, 20D, 20D);
     }
 
     /**
@@ -145,7 +129,7 @@ public class BoardController implements ScreenController {
      * @return An Image View based on the Serve Type with an image loaded and resized it.
      */
     private ImageView renderFieldImage(String imageKey, String fileExt) {
-        return this.renderImageView("combinations/", imageKey, fileExt, 20D, 120D);
+        return this.mainController.renderImageView("combinations/", imageKey, fileExt, 20D, 120D);
     }
 
     /**
@@ -189,17 +173,17 @@ public class BoardController implements ScreenController {
         for (FieldType fieldType : FieldType.values()) {
             this.boardTableRows.add(new BoardTableRow(new Field(fieldType), this.mainController.getBoard().getUsers()));
         }
-        // static combinations
-        TableColumn<BoardTableRow, ImageView> colFields = new TableColumn("Fields");
 
-        colFields.setCellValueFactory(c -> new SimpleObjectProperty<>(
-                this.renderFieldImage("ones", "png")
+        // static combinations
+        TableColumn<BoardTableRow, VBox> fieldsContainer = new TableColumn("Fields");
+
+        fieldsContainer.setCellValueFactory(c -> new SimpleObjectProperty<>(
+                new VBox(new Label(c.getValue().getDescField().getFieldType().toString().toLowerCase()),
+                        this.getFieldTypeImageGroup(c.getValue().getDescField().getFieldType())
+                        )
         ));
 
-        //colFields.setCellValueFactory(c -> new SimpleObjectProperty<>(this.renderFieldImage("ones", "png")));
-
-        // add field column to table
-        this.tblBoardMain.getColumns().add(colFields);
+        this.tblBoardMain.getColumns().add(fieldsContainer);
 
         // add a user wrapper column
         TableColumn userContainer = new TableColumn("Players");
@@ -222,6 +206,33 @@ public class BoardController implements ScreenController {
 
     }
 
+    /**
+     * Gets an HBox with ImageViews inside of a dice combination
+     * @param fieldType The FieldType of the field
+     * @return A HBox JavaFx Node
+     */
+    public HBox getFieldTypeImageGroup(FieldType fieldType) {
+
+        FieldTypeHelper fieldTypeHelper = new FieldTypeHelper();
+
+        // render the hbox
+        HBox imageGroup = new HBox();
+        imageGroup.setSpacing(4);
+
+        // get dice combination
+        List<DiceType> combination = fieldTypeHelper.getDiceCombination(fieldType);
+
+        // loop through all dice types in the combination, and get the according image
+        for (DiceType diceType:combination) {
+            // get the image for the type
+            ImageView diceImageView = this.mainController.renderImageView("dice/",
+                    "dice_"+diceType.toString().toLowerCase(), "png", 15D, 15D);
+            imageGroup.getChildren().add(diceImageView);
+        }
+
+        return imageGroup;
+    }
+
     /* ----------------- Actions --------------------- */
     @FXML
     private void showMessage() {
@@ -236,6 +247,9 @@ public class BoardController implements ScreenController {
         });
     }
 
+    /**
+     * Will be triggered by Server to make a player changed
+     */
     private void nextPlayer() {
 
     }
