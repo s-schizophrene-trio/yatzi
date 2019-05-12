@@ -42,11 +42,14 @@ You have to set some VM Options
 `ScreenType` is an enum with all available Screens. Each `ScreenType` has to be implemented in the `loadScreen` method 
 of the `MainController`
 
+
 | Type   | Description                                                                                 |
 |--------|---------------------------------------------------------------------------------------------|
 | BOARD  | The board screen is the main screen used for the yatzi game.                                |
 | SETUP  | The setup screen is used to initialize the game mode. The User can join or create a server. |
-| STATUS | The status bar will be added on each screen and can be access from each controller.
+| STATUS | The status bar will be added on each screen and can be access from each controller.         |
+
+
 The `YatziApplication` represents the global context and holds the main stage of the application. 
 The context of this class will be shared with the `MainController`. This is necessary to adapt the window-size
 and other global attributes. Each `ScreenController` holds an instance of the `MainController`. This means every 
