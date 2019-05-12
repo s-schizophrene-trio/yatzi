@@ -42,10 +42,15 @@ You have to set some VM Options
 `ScreenType` is an enum with all available Screens. Each `ScreenType` has to be implemented in the `loadScreen` method 
 of the `MainController`
 
-| Type  | Description                                                                                 |
-|-------|---------------------------------------------------------------------------------------------|
-| BOARD | The board screen is the main screen used for the yatzi game.                                |
-| SETUP | The setup screen is used to initialize the game mode. The User can join or create a server. |
+| Type   | Description                                                                                 |
+|--------|---------------------------------------------------------------------------------------------|
+| BOARD  | The board screen is the main screen used for the yatzi game.                                |
+| SETUP  | The setup screen is used to initialize the game mode. The User can join or create a server. |
+| STATUS | The status bar will be added on each screen and can be access from each controller.
+The `YatziApplication` represents the global context and holds the main stage of the application. 
+The context of this class will be shared with the `MainController`. This is necessary to adapt the window-size
+and other global attributes. Each `ScreenController` holds an instance of the `MainController`. This means every 
+component has access to `MainController` and `YatziApplication`. 
 
 #### Icons
 
@@ -95,7 +100,31 @@ JavaDoc
  }
 ```
 
+### Networking (java.net)
 
+By definition, a socket is one endpoint of a two-way communication link between two programs running on different computers on a network. A socket is bound to a port number so that the transport layer can identify the application that data is destined to be sent to.
 
+__Sources__
 
+* https://www.baeldung.com/a-guide-to-java-sockets
 
+#### Communication Flow
+In this illustration the java socket flow is visualized. (Single Server Socket and Client Socket) 
+![java socket flow](https://vichargrave.github.io/assets/images/Socket-Workflow.png)
+
+#### Client Handling
+This Yatzi Game (Host) is able to manage multiple Clients (max 7). To make this possible, the Server
+creates for each incoming Client a new Client Handler Thread. 
+![java socket flow](https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgramming.png)
+
+### Build & Ship Info
+
+* [How to run the application with gradle - stackoverflow](https://stackoverflow.com/a/52571719/5242747)
+
+#### Static Code testing with SonarQube
+```
+$ docker-compose up
+$ ./gradlew sonarqube \
+   -Dsonar.host.url=http://localhost:9000 \
+   -Dsonar.login=<your-token>
+```

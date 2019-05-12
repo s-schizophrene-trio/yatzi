@@ -60,17 +60,7 @@
                 <Insets top="15.0"/>
             </HBox.margin>
             <HBox alignment="TOP_RIGHT" prefWidth="150" spacing="10">
-                <Label fx:id="serverRole" alignment="TOP_RIGHT" prefWidth="150" styleClass="text-server-role"
-                       text="Your Role: Host" textFill="#48505b">
-                    <font>
-                        <Font name="Helvetica Neue Light" size="15.0"/>
-                    </font>
-                    <padding>
-                        <Insets top="3.0"/>
-                    </padding>
-                </Label>
-
-                <Button mnemonicParsing="false" onAction="#exit" text="Exit"/>
+                <Button mnemonicParsing="false" onAction="#exit" text="Quit Game"/>
             </HBox>
 
             <TabPane styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
@@ -91,7 +81,7 @@
         </VBox.margin>
     </TableView>
 
-    <HBox prefHeight="150.0" prefWidth="-Infinity">
+    <HBox prefHeight="50.0" prefWidth="-Infinity">
         <Button mnemonicParsing="false" onAction="#showMessage" styleClass="button" text="Show Message">
             <HBox.margin>
                 <Insets right="10.0"/>

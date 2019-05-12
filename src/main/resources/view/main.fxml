@@ -8,7 +8,7 @@
             fx:id="yatziAnchorPane"
             minHeight="400.0"
             minWidth="400.0"
-            prefHeight="800.0"
+            prefHeight="850.0"
             prefWidth="650.0"
             styleClass="main-container"
             fx:controller="ch.juventus.yatzi.ui.controller.MainController">
