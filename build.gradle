@@ -5,6 +5,7 @@ plugins {
 
     // OpenJFX Plugin
     id 'org.openjfx.javafxplugin' version '0.0.7'
+    id "org.sonarqube" version "2.6"
 }
 
 archivesBaseName = 'yatzi-application'
@@ -22,15 +23,19 @@ javafx {
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics']
 }
 
+// Define the main class for the application
+mainClassName = 'ch.juventus.yatzi.YatziApplication'
+
 jar {
     manifest {
         attributes 'Implementation-Title': 'Yatzi Application',
-                'Implementation-Version': version
+                'Implementation-Version': version,
+                'Main-Class': mainClassName
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
-
-// Define the main class for the application
-mainClassName = 'ch.juventus.yatzi.YatziApplication'
 
 dependencies {
 
