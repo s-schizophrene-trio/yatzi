@@ -1,9 +1,12 @@
 package ch.juventus.yatzi;
 
+import ch.juventus.yatzi.ui.controller.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import org.slf4j.Logger;
@@ -21,13 +24,19 @@ public class YatziApplication extends Application {
     private final String STYLE_MAIN = "css/style.css";
     private final String WINDOW_TITLE = "Yatzi Application 1.0";
 
+    // Stage Holder
+    private Stage primaryStage;
+
     @Override
     public void start(Stage stage) {
         long startTime = System.currentTimeMillis();
-        LOGGER.debug("starting application");
+        LOGGER.info("starting application");
+
+        // hold the stage context
+        this.primaryStage = stage;
 
         // Load the GUI
-        this.startUI(stage);
+        this.startUI();
 
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
@@ -37,9 +46,8 @@ public class YatziApplication extends Application {
 
     /**
      * Starts all necessary components for the UI, initialize them and start the built UI.
-     * @param stage The stage from JavaFX main method
      */
-    private void startUI(Stage stage) {
+    private void startUI() {
         // Load the UI
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 
@@ -51,9 +59,16 @@ public class YatziApplication extends Application {
 
         if (fxmlPath != null && stylePath != null) {
 
+            FXMLLoader fxmlLoader = new FXMLLoader(fxmlPath);
+
             try {
                 // Load the main fxml file and set it as parent
-                layoutRoot = FXMLLoader.load(fxmlPath);
+                layoutRoot = fxmlLoader.load();
+
+                // set the global main context to the main controller
+                MainController mainController = fxmlLoader.getController();
+                mainController.afterInit(this);
+
             } catch (IOException e) {
                 LOGGER.error("failed to load the main xml because of {}", e.getMessage());
             }
@@ -65,9 +80,15 @@ public class YatziApplication extends Application {
 
             if (scene != null) {
                 // configure the stage and show the UI
-                stage.setTitle(WINDOW_TITLE);
-                stage.setScene(scene);
-                stage.show();
+                this.primaryStage.setTitle(WINDOW_TITLE);
+                this.primaryStage.setScene(scene);
+                this.primaryStage.sizeToScene();
+                this.primaryStage.setResizable(false);
+                this.primaryStage.show();
+
+                // initial center stage
+                this.centerStage();
+
             } else {
                 LOGGER.error("failed to initiate the scenes");
             }
@@ -91,6 +112,23 @@ public class YatziApplication extends Application {
             LOGGER.error("failed to display the scene because of an error during parent initialization");
             return null;
         }
+    }
+
+    /**
+     * Gets the Primary Stage (JavaFX Window)
+     * @return The Primary Stage
+     */
+    public Stage getPrimaryStage() {
+        return this.primaryStage;
+    }
+
+    /**
+     * Centers a Window on the Screen
+     */
+    public void centerStage() {
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        this.primaryStage.setX((primScreenBounds.getWidth() - this.primaryStage.getWidth()) / 2);
+        this.primaryStage.setY((primScreenBounds.getHeight() - this.primaryStage.getHeight()) / 2);
     }
 
     public static void main(String[] args) {

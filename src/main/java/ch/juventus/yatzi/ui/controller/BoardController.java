@@ -4,7 +4,9 @@ import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.Field;
 import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.engine.field.FieldTypeHelper;
+import ch.juventus.yatzi.network.Server;
 import ch.juventus.yatzi.ui.helper.ScreenType;
+import ch.juventus.yatzi.ui.helper.ServeType;
 import ch.juventus.yatzi.ui.interfaces.ScreenController;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
 import ch.juventus.yatzi.user.User;
@@ -75,6 +77,9 @@ public class BoardController implements ScreenController {
 
         // store the reference to the main context
         this.mainController = mainController;
+
+        // set the correct height for this screen
+        this.mainController.getYatziAnchorPane().setPrefHeight(850D);
 
         // render the ui
         this.renderPlayerTable();
@@ -256,8 +261,16 @@ public class BoardController implements ScreenController {
 
     @FXML
     public void exit(ActionEvent e) {
+
+        switch (this.mainController.getSelectedServeType()) {
+            case SERVER:
+                this.mainController.getServer().stop();
+                break;
+            case CLIENT:
+                break;
+        }
+
         // TODO: Implment clean exit of the board screen
         this.mainController.showScreen(ScreenType.SETUP);
     }
-
 }
