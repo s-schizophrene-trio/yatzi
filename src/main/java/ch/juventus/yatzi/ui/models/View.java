@@ -1,6 +1,6 @@
 package ch.juventus.yatzi.ui.models;
 
-import ch.juventus.yatzi.ui.helper.ScreenType;
+import ch.juventus.yatzi.ui.enums.ScreenType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import lombok.*;
