@@ -1,6 +1,6 @@
-package ch.juventus.yatzi.user;
+package ch.juventus.yatzi.engine.user;
 
-import ch.juventus.yatzi.ui.helper.ServeType;
+import ch.juventus.yatzi.ui.enums.ServeType;
 import lombok.*;
 
 import java.util.UUID;

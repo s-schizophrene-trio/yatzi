@@ -1,16 +1,21 @@
 package ch.juventus.yatzi.ui.controller;
 
+import ch.juventus.yatzi.network.Client;
+import ch.juventus.yatzi.network.Server;
 import ch.juventus.yatzi.network.helper.NetworkUtils;
-import ch.juventus.yatzi.ui.helper.ScreenType;
-import ch.juventus.yatzi.ui.helper.ServeType;
-import ch.juventus.yatzi.ui.helper.StatusType;
-import ch.juventus.yatzi.ui.interfaces.ScreenController;
+import ch.juventus.yatzi.ui.enums.ScreenType;
+import ch.juventus.yatzi.ui.enums.ServeType;
+import ch.juventus.yatzi.ui.enums.StatusType;
+import ch.juventus.yatzi.ui.helper.ScreenHelper;
+import ch.juventus.yatzi.ui.interfaces.ViewContext;
+import ch.juventus.yatzi.ui.interfaces.ViewController;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,16 +24,12 @@ import java.util.ResourceBundle;
 
 /**
  * The Setup Controller manages the configuration and mode of the Game. The user is able to define this configs.
- * @author Jan Minder
  */
-public class SetupController implements ScreenController {
+public class SetupController implements ViewController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private MainController mainController;
-
-    @FXML
-    private VBox joinServerContainer;
+    private ViewContext context;
 
     @FXML
     private Label localIpLabel;
@@ -41,25 +42,39 @@ public class SetupController implements ScreenController {
     @FXML
     private Button startServerButton;
 
+    private ScreenHelper screenHelper;
+
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         this.localIpAddress = null;
         this.setSetupNotReady();
+        this.screenHelper = new ScreenHelper();
     }
 
     /* ----------------- Initializer --------------------- */
 
     /**
      * Initialize the Board Controller after the View is rendered.
-     * @param mainController The context of the Main Controller
+     * @param context The context of the Main Controller
      */
     @Override
-    public void afterInit(MainController mainController) {
+    public void afterInit(ViewContext context) {
         // store the reference to the main context
-        this.mainController = mainController;
+        this.context = context;
+
+        // define a background
+        Image sceneBackgroundImage = this.screenHelper.getImage(this.context.getClassloader(), "background/", "setup_background", "jpg");
+
+        // define background image
+        BackgroundImage sceneBackground= new BackgroundImage(
+                sceneBackgroundImage,
+                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+                new BackgroundSize(100, 100, true, true, false, true));
 
         // set the correct height for this screen
-        this.mainController.getYatziAnchorPane().setPrefHeight(400D);
+        AnchorPane anchorPane =  (AnchorPane)context.getRootNode();
+        anchorPane.setPrefHeight(400D);
+        anchorPane.setBackground(new Background(sceneBackground));
 
         // initialize network infos
         this.initServerInfo();
@@ -70,7 +85,7 @@ public class SetupController implements ScreenController {
      */
     public void initServerInfo() {
         NetworkUtils networkUtils = new NetworkUtils();
-        this.mainController.getStatusController().updateStatus("loading network info", true);
+        this.context.getViewHandler().getStatusController().updateStatus("loading network info", true);
 
         Runnable serverTask = () -> {
             try {
@@ -80,7 +95,9 @@ public class SetupController implements ScreenController {
                 Platform.runLater(() -> {
                     localIpLabel.setText(localIpAddress);
                     setSetupIsReady();
-                    this.mainController.getStatusController().updateStatus("ready", StatusType.OK);
+
+                    // update the statusbar
+                    this.context.getViewHandler().getStatusController().updateStatus("ready", StatusType.OK);
                 });
 
             } catch (Exception e) {
@@ -116,12 +133,21 @@ public class SetupController implements ScreenController {
     /* ----------------- Server --------------------- */
 
     public void joinServer() {
-        this.mainController.showScreen(ScreenType.BOARD);
+        Client client = new Client();
+        //client.startConnection();
+        this.context.getBoard().setClient(client);
+        this.context.getBoard().setServeType(ServeType.CLIENT);
+        this.screenHelper.showScreen(context, ScreenType.BOARD, this.context.getStage());
     }
 
     public void startServer() {
-        this.mainController.getServer().start(6000);
-        this.mainController.setSelectedServeType(ServeType.SERVER);
-        this.mainController.showScreen(ScreenType.BOARD);
+
+        Server server = new Server();
+        server.start(6000);
+        this.context.getBoard().setServer(server);
+        this.context.getBoard().setServeType(ServeType.SERVER);
+        this.screenHelper.showScreen(context, ScreenType.BOARD, this.context.getStage());
+
     }
+
 }

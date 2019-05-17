@@ -1,6 +1,6 @@
 package ch.juventus.yatzi.ui.models;
 
-import ch.juventus.yatzi.ui.helper.ScreenType;
+import ch.juventus.yatzi.ui.enums.ScreenType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import lombok.*;
@@ -11,9 +11,7 @@ import java.net.URL;
 @Setter
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Screen<T extends Node> {
-
-    private URL cssPath;
+public class View<T extends Node> {
 
     @NonNull
     private FXMLLoader fxmlLoader;

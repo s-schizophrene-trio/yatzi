@@ -1,9 +1,7 @@
-package ch.juventus.yatzi.user;
+package ch.juventus.yatzi.engine.user;
 
-import ch.juventus.yatzi.ui.helper.ServeType;
+import ch.juventus.yatzi.ui.enums.ServeType;
 import com.github.javafaker.Faker;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

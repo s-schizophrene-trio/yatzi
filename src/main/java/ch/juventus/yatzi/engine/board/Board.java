@@ -3,9 +3,11 @@ package ch.juventus.yatzi.engine.board;
 import ch.juventus.yatzi.engine.board.score.UserScore;
 import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.field.FieldType;
-import ch.juventus.yatzi.ui.helper.ServeType;
-import ch.juventus.yatzi.user.User;
-import ch.juventus.yatzi.user.UserService;
+import ch.juventus.yatzi.network.Client;
+import ch.juventus.yatzi.network.Server;
+import ch.juventus.yatzi.ui.enums.ServeType;
+import ch.juventus.yatzi.engine.user.User;
+import ch.juventus.yatzi.engine.user.UserService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -17,7 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static ch.juventus.yatzi.ui.helper.ServeType.CLIENT;
+import static ch.juventus.yatzi.ui.enums.ServeType.CLIENT;
+import static ch.juventus.yatzi.ui.enums.ServeType.SERVER;
 
 /**
  * The Board represents the play ground of this game. The board knows all users and the state of the game.
@@ -48,6 +51,12 @@ public class Board {
     @Setter @Getter
     private ServeType serveType;
 
+    @Setter @Getter
+    private Server server;
+
+    @Setter @Getter
+    private Client client;
+
     // instance of the user service
     @Getter
     private UserService userService;
@@ -70,7 +79,7 @@ public class Board {
      */
     public Board() {
         // initialize the server board with default values
-        this.initBoard(CLIENT);
+        this.initBoard(SERVER);
     }
 
     /**
@@ -95,10 +104,14 @@ public class Board {
             this.userService.getRemoteUsers().forEach(this::addUser);
         }
 
+        if (this.serveType == SERVER) {
+            this.userService.getRemoteUsers().forEach(this::addUser);
+        }
+
         // init users with the local user
         this.users = this.userService.getAllUsers();
 
-        LOGGER.debug("initialized board {}", this.toString());
+        LOGGER.debug("initialized board");
     }
 
     /**

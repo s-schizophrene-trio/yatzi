@@ -8,24 +8,28 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 
-<AnchorPane fx:id="statusContainer" prefWidth="${statusContainer.parent.width}" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.StatusController">
+<AnchorPane fx:id="statusContainer" prefWidth="${statusContainer.parent.width}"
+            xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ch.juventus.yatzi.ui.controller.StatusController">
 
-    <HBox fx:id="statusBox" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="${statusBox.parent.width}" spacing="5" style="-fx-border-color: gray; -fx-border-width: 1 0 0 0; -fx-border-style: solid; -fx-background-color: #f7f5e3">
+    <HBox fx:id="statusBox" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="${statusBox.parent.width}"
+          styleClass="status-bar" spacing="5">
 
         <padding>
-            <Insets left="10" right="10" />
+            <Insets left="10" right="10"/>
         </padding>
 
-        <Label alignment="CENTER_LEFT" text="Role: " />
-        <Label fx:id="serverRoleLabel" alignment="CENTER_LEFT" text="no role" />
+        <Label alignment="CENTER_LEFT" text="Role: "/>
+        <Label fx:id="serverRoleLabel" alignment="CENTER_LEFT" text="no role"/>
+        <ImageView fx:id="serverRoleIcon" fitHeight="15" fitWidth="15" visible="false"/>
 
-        <Region prefWidth="80.0" HBox.hgrow="SOMETIMES" />
+        <Region prefWidth="80.0" HBox.hgrow="SOMETIMES"/>
 
-        <Label alignment="CENTER" text="Status: " />
-        <Label fx:id="statusLabel" alignment="CENTER" text="no state" />
+        <Label alignment="CENTER" text="Status: "/>
+        <Label fx:id="statusLabel" alignment="CENTER" text="no state"/>
 
-        <ProgressIndicator fx:id="progress" prefHeight="15" prefWidth="15" />
-        <ImageView fx:id="progressStatusIcon" fitHeight="15" fitWidth="15" visible="false" />
+        <ProgressIndicator fx:id="progress" prefHeight="15" prefWidth="15"/>
+        <ImageView fx:id="progressStatusIcon" fitHeight="15" fitWidth="15" visible="false"/>
 
     </HBox>
 </AnchorPane>

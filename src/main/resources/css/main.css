@@ -1,0 +1,101 @@
+.main-container {
+    -fx-background-color: #eff3f9;
+}
+
+/** --------- Global Text Styles --------- **/
+
+.text-title-main {
+    -fx-padding-left: 20px;
+    -fx-border-insets: 20px;
+    -fx-background-insets: 20px;
+}
+
+.text-server-role {
+    -fx-font-weight: bold;
+}
+
+/** --------- Global Button Styles --------- **/
+.button {
+    -fx-background-color:
+            #090a0c,
+            linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #191d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(114,131,148,0.9), rgba(255,255,255,0));
+    -fx-background-radius: 5,4,3,5;
+    -fx-background-insets: 0,1,2,0;
+    -fx-text-fill: white;
+    -fx-font-family: "Arial";
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;
+}
+
+.button:hover {
+    -fx-background-color:
+            #090a0c,
+            linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+            linear-gradient(#20262b, #191d22),
+            radial-gradient(center 50% 0%, radius 100%, rgba(75,80,91,0.9), rgba(255,255,255,0));
+}
+
+/** --------- Tab Panes --------- **/
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #3d424c, linear-gradient(#343b42, #2d343d);
+    -fx-text-fill: white;
+    -fx-padding:4 10 5 10;
+    -fx-background-radius: 10 10 0 0;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #090a0c, linear-gradient(#20262b, #191d22);
+    -fx-text-fill: white;
+}
+
+.tab-pane .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+.tab .tab-label {
+    -fx-background-color: transparent;
+    -fx-alignment: CENTER;
+    -fx-text-fill: white;
+    -fx-padding:0 10 0 0;
+}
+
+/** --------- Border Classes for Debugging Purposes --------- **/
+
+.border {
+    -fx-border-width: 1;
+    -fx-border-color: black;
+    -fx-border-style: solid;
+}
+
+.border-gray {
+    -fx-border-width: 1;
+    -fx-border-color: #dbdbdb;
+    -fx-border-style: solid;
+}
+
+.border-blue {
+    -fx-border-width: 2;
+    -fx-border-color: blue;
+    -fx-border-style: solid;
+}
+
+.border-red {
+    -fx-border-width: 2;
+    -fx-border-color: red;
+    -fx-border-style: solid;
+}
+
+.border-yellow {
+    -fx-border-width: 2;
+    -fx-border-color: yellow;
+    -fx-border-style: solid;
+}
+
+

@@ -1,7 +1,7 @@
 package ch.juventus.yatzi.engine.board.score;
 
 import ch.juventus.yatzi.engine.field.FieldType;
-import ch.juventus.yatzi.user.User;
+import ch.juventus.yatzi.engine.user.User;
 import lombok.*;
 
 @Getter

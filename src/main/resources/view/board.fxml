@@ -65,10 +65,10 @@
 
             <TabPane styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
                 <Tab text="Players">
-                    <TableView fx:id="tblPlayers" prefWidth="200.0" styleClass="border"/>
+                    <TableView fx:id="tblPlayers" prefWidth="200.0" styleClass="border-gray" />
                 </Tab>
                 <Tab text="Stats">
-                    <AnchorPane prefWidth="200" styleClass="border"/>
+                    <AnchorPane prefWidth="200" styleClass="border-gray"/>
                 </Tab>
             </TabPane>
         </VBox>
