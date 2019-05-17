@@ -11,9 +11,7 @@ import java.net.URL;
 @Setter
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class Screen<T extends Node> {
-
-    private URL cssPath;
+public class View<T extends Node> {
 
     @NonNull
     private FXMLLoader fxmlLoader;

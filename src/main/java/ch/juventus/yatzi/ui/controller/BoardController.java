@@ -4,12 +4,13 @@ import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.Field;
 import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.engine.field.FieldTypeHelper;
-import ch.juventus.yatzi.network.Server;
-import ch.juventus.yatzi.ui.helper.ScreenType;
-import ch.juventus.yatzi.ui.helper.ServeType;
-import ch.juventus.yatzi.ui.interfaces.ScreenController;
+import ch.juventus.yatzi.ui.enums.ScreenType;
+import ch.juventus.yatzi.ui.enums.StatusType;
+import ch.juventus.yatzi.ui.helper.ScreenHelper;
+import ch.juventus.yatzi.ui.interfaces.ViewContext;
+import ch.juventus.yatzi.ui.interfaces.ViewController;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
-import ch.juventus.yatzi.user.User;
+import ch.juventus.yatzi.engine.user.User;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -17,6 +18,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
@@ -31,15 +33,13 @@ import java.util.ResourceBundle;
  * The Board Controller manages the primary Game UI.
  * @author Jan Minder
  */
-public class BoardController implements ScreenController {
+public class BoardController implements ViewController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     private final String VIEW_TITLE = "Yatzi Play Board";
 
-    private MainController mainController;
-
-    @FXML
-    private VBox boardContainer;
+    private ViewContext context;
+    private ScreenHelper screenHelper;
 
     @FXML
     private Label screenTitle;
@@ -63,23 +63,24 @@ public class BoardController implements ScreenController {
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-        // Set Screen Title
         screenTitle.setText(VIEW_TITLE);
+        this.screenHelper = new ScreenHelper();
     }
 
     /**
      * Initialize the Board Controller after the View is rendered.
      *
-     * @param mainController The context of the Main Controller
+     * @param context The context of the Main Controller
      */
     @Override
-    public void afterInit(MainController mainController) {
+    public void afterInit(ViewContext context) {
 
-        // store the reference to the main context
-        this.mainController = mainController;
+        // store the reference to the view context
+        this.context = context;
 
         // set the correct height for this screen
-        this.mainController.getYatziAnchorPane().setPrefHeight(850D);
+        AnchorPane anchorPane =  (AnchorPane)context.getRootNode();
+        anchorPane.setPrefHeight(850D);
 
         // render the ui
         this.renderPlayerTable();
@@ -88,6 +89,11 @@ public class BoardController implements ScreenController {
         this.loadUserStats();
         this.generatePlayerTable();
         this.generateBoardTable();
+
+
+        // update status bar
+        this.context.getViewHandler().getStatusController().updateServeMode(context.getBoard().getServeType());
+        this.context.getViewHandler().getStatusController().updateStatus("ready to play", StatusType.OK);
     }
 
     /* ----------------- UI Rendering --------------------- */
@@ -123,28 +129,17 @@ public class BoardController implements ScreenController {
      * @return An Image View based on the Serve Type with an image loaded and resized it.
      */
     private ImageView renderIconImageView(String imageKey, String fileExt) {
-        return this.mainController.renderImageView("icons/", imageKey, fileExt, 20D, 20D);
-    }
-
-    /**
-     * Renders the Image View based on the Image key and file extension (field)
-     *
-     * @param imageKey The unique image name without file extension
-     * @param fileExt  The file extension of the image
-     * @return An Image View based on the Serve Type with an image loaded and resized it.
-     */
-    private ImageView renderFieldImage(String imageKey, String fileExt) {
-        return this.mainController.renderImageView("combinations/", imageKey, fileExt, 20D, 120D);
+        return this.screenHelper.renderImageView(this.context.getClassloader(), "icons/", imageKey, fileExt, 20D, 20D);
     }
 
     /**
      * Loads the user data from the game and add the items to the table.
      */
     public void generatePlayerTable() {
-        if (this.mainController.getBoard() != null) {
-            LOGGER.debug("{} users are active", this.mainController.getBoard().getUsers().size());
+        if (this.context.getBoard() != null) {
+            LOGGER.debug("{} users are active", this.context.getBoard().getUsers().size());
 
-            List<User> users = this.mainController.getBoard().getUsers();
+            List<User> users = this.context.getBoard().getUsers();
 
             users.forEach(u -> {
                 this.tblPlayers.getItems().add(u);
@@ -161,9 +156,9 @@ public class BoardController implements ScreenController {
      */
     private void loadUserStats() {
         // Set Current User
-        this.currentUser.setText(this.mainController.getBoard().getCurrentUser().getUserName());
+        this.currentUser.setText(this.context.getBoard().getCurrentUser().getUserName());
         // Set Current User ID
-        String userId = this.mainController.getBoard().getCurrentUser().getShortUserId();
+        String userId = this.context.getBoard().getCurrentUser().getShortUserId();
         this.currentUserId.setText("ID  " + userId);
     }
 
@@ -176,7 +171,7 @@ public class BoardController implements ScreenController {
 
         this.boardTableRows = new ArrayList<>();
         for (FieldType fieldType : FieldType.values()) {
-            this.boardTableRows.add(new BoardTableRow(new Field(fieldType), this.mainController.getBoard().getUsers()));
+            this.boardTableRows.add(new BoardTableRow(new Field(fieldType), this.context.getBoard().getUsers()));
         }
 
         // static combinations
@@ -193,7 +188,7 @@ public class BoardController implements ScreenController {
         // add a user wrapper column
         TableColumn userContainer = new TableColumn("Players");
 
-        List<User> users = this.mainController.getBoard().getUsers();
+        List<User> users = this.context.getBoard().getUsers();
 
         for (int i = 0; i < users.size(); i++) {
             // static combinations
@@ -230,7 +225,7 @@ public class BoardController implements ScreenController {
         // loop through all dice types in the combination, and get the according image
         for (DiceType diceType:combination) {
             // get the image for the type
-            ImageView diceImageView = this.mainController.renderImageView("dice/",
+            ImageView diceImageView = this.screenHelper.renderImageView(this.context.getClassloader(), "dice/",
                     "dice_"+diceType.toString().toLowerCase(), "png", 15D, 15D);
             imageGroup.getChildren().add(diceImageView);
         }
@@ -262,15 +257,16 @@ public class BoardController implements ScreenController {
     @FXML
     public void exit(ActionEvent e) {
 
-        switch (this.mainController.getSelectedServeType()) {
+        switch (this.context.getBoard().getServeType()) {
             case SERVER:
-                this.mainController.getServer().stop();
+                this.context.getBoard().getServer().stop();
                 break;
             case CLIENT:
                 break;
         }
 
         // TODO: Implment clean exit of the board screen
-        this.mainController.showScreen(ScreenType.SETUP);
+        this.screenHelper.showScreen(this.context, ScreenType.SETUP, this.context.getStage());
     }
+
 }

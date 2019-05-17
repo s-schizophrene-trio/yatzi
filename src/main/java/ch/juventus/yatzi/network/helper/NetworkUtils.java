@@ -21,8 +21,7 @@ public class NetworkUtils {
         String localIp = "no ip found";
         try {
             LOGGER.debug("determine local ip address");
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            localIp = inetAddress.getHostAddress();
+            localIp = InetAddress.getLocalHost().getHostAddress();
         } catch (Exception e) {
             LOGGER.error("Failed to determine local ip address: {}", e.getMessage());
         }

@@ -1,4 +1,4 @@
-package ch.juventus.yatzi.ui.helper;
+package ch.juventus.yatzi.ui.enums;
 
 public enum ScreenType {
     SETUP,

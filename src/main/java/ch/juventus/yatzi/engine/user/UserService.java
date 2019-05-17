@@ -1,4 +1,4 @@
-package ch.juventus.yatzi.user;
+package ch.juventus.yatzi.engine.user;
 
 import ch.juventus.yatzi.ui.enums.ServeType;
 import com.github.javafaker.Faker;
