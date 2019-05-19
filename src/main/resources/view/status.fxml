@@ -19,16 +19,17 @@
             <Insets left="10" right="10"/>
         </padding>
 
-        <Label alignment="CENTER_LEFT" text="Role: "/>
-        <Label fx:id="serverRoleLabel" alignment="CENTER_LEFT" text="no role"/>
+        <Label alignment="CENTER_LEFT" text="Role: " styleClass="text-status-role" />
+        <Label fx:id="serverRoleLabel" alignment="CENTER_LEFT" text="no role" styleClass="text-status-role" />
         <ImageView fx:id="serverRoleIcon" fitHeight="15" fitWidth="15" visible="false"/>
 
-        <Region prefWidth="80.0" HBox.hgrow="SOMETIMES"/>
+        <Region prefWidth="50.0" HBox.hgrow="SOMETIMES" fx:id="regionStatusDivider" />
+        <Label fx:id="errorMessage"  styleClass="text-status-error" visible="false" />
 
-        <Label alignment="CENTER" text="Status: "/>
-        <Label fx:id="statusLabel" alignment="CENTER" text="no state"/>
+        <Label alignment="CENTER" text="Status: " styleClass="text-status-state" />
+        <Label fx:id="statusLabel" alignment="CENTER" text="no state" styleClass="text-status-state" />
 
-        <ProgressIndicator fx:id="progress" prefHeight="15" prefWidth="15"/>
+        <ProgressIndicator fx:id="progress" prefHeight="15" prefWidth="15" styleClass="progress-status-state"/>
         <ImageView fx:id="progressStatusIcon" fitHeight="15" fitWidth="15" visible="false"/>
 
     </HBox>

@@ -2,5 +2,25 @@
     -fx-border-color: gray;
     -fx-border-width: 1 0 0 0;
     -fx-border-style: solid;
-    -fx-background-color: #efefef;
+    -fx-background-color: rgba(0, 0, 0, .5);
+}
+
+.text-status-role {
+    -fx-text-fill: white;
+}
+
+.text-status-state {
+    -fx-text-fill: white;
+}
+
+.progress-status-state {
+    -fx-progress-color: white;
+}
+
+.region-status-divider {
+
+}
+
+.text-status-error {
+    -fx-text-fill: red;
 }

@@ -31,7 +31,6 @@ public class YatziApplication extends Application {
         long startTime = System.currentTimeMillis();
         LOGGER.info("starting application");
 
-        // Load the GUI
         this.startUI(stage);
 
         long stopTime = System.currentTimeMillis();
@@ -46,13 +45,15 @@ public class YatziApplication extends Application {
     private void startUI(Stage primaryStage) {
 
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-
         ScreenHelper screenHelper = new ScreenHelper();
         ViewContext viewContext = new FXContext();
 
         viewContext.setClassloader(classloader);
         viewContext.setBoard(this.initBoard());
         viewContext.setStage(primaryStage);
+
+        // set application icon
+        primaryStage.getIcons().add(screenHelper.getImage(classloader, "icons/", "application", "png"));
 
         // load a view based on the view type
         View view = screenHelper.buildScreen(classloader,

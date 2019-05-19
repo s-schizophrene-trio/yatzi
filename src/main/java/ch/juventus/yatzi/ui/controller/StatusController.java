@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -29,6 +30,12 @@ public class StatusController implements ViewController {
 
     @FXML
     private Label serverRoleLabel;
+
+    @FXML
+    private Region regionStatusDivider;
+
+    @FXML
+    private Label errorMessage;
 
     @FXML
     private ImageView progressStatusIcon;
@@ -86,6 +93,15 @@ public class StatusController implements ViewController {
         this.progressStatusIcon.setVisible(true);
 
         this.statusLabel.setText(statusMessage);
+    }
+
+    public void showError(String errorMessage) {
+
+        this.updateStatus("error", StatusType.NOK);
+
+        this.errorMessage.setVisible(true);
+        this.regionStatusDivider.setVisible(false);
+        this.errorMessage.setText(errorMessage);
     }
 
     /**

@@ -1,14 +1,48 @@
 .setup-container {
     -fx-padding: 20;
+    -fx-background-color: rgba(0, 0, 0, .3);
 }
+
+.setup-content {
+    -fx-padding: 50 50 0 50;
+}
+
 
 .text-title-setup {
     -fx-font-size: 30;
+    -fx-text-fill: white;
+}
+
+.text-subtitle-setup {
+    -fx-font-size: 13;
+    -fx-text-fill: white;
+}
+
+.text-field-desc {
+    -fx-font-size: 16;
     -fx-text-fill: black;
+}
+
+.text-field-value {
+    -fx-font-size: 16;
+    -fx-text-fill: #113f89;
+}
+
+.text-field-input {
+    -fx-font-size: 16;
+    -fx-text-fill: #113f89;
+    -fx-background-color: rgba(0, 0, 0, .2);
 }
 
 /** ------------- Tab Container ------------- **/
 .setup-tab-container {
+    margin-top: 1.25em;
     -fx-background-color: rgba(255, 255, 255, .7);
     -fx-background-radius: 0 5 5 5;
+}
+
+/** --------- Progress Bar --------- **/
+
+.progress-network {
+    -fx-progress-color: #113f89;
 }

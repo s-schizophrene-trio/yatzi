@@ -21,7 +21,9 @@ public class UserService {
     }
 
     public User generateUser(ServeType serveType) {
-        return new User(this.faker.funnyName().name(), serveType);
+        User generatedUser = new User(this.faker.funnyName().name(), serveType);
+        this.registerUser(generatedUser);
+        return generatedUser;
     }
 
     /**

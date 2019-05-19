@@ -1,5 +1,6 @@
 package ch.juventus.yatzi.ui.controller;
 
+import ch.juventus.yatzi.engine.user.UserService;
 import ch.juventus.yatzi.network.Client;
 import ch.juventus.yatzi.network.Server;
 import ch.juventus.yatzi.network.helper.NetworkUtils;
@@ -14,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import org.slf4j.Logger;
@@ -21,6 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import static ch.juventus.yatzi.ui.enums.ServeType.CLIENT;
+import static ch.juventus.yatzi.ui.enums.ServeType.SERVER;
 
 /**
  * The Setup Controller manages the configuration and mode of the Game. The user is able to define this configs.
@@ -34,15 +39,25 @@ public class SetupController implements ViewController {
     @FXML
     private Label localIpLabel;
 
+    @FXML
     private String localIpAddress;
 
     @FXML
     private ProgressIndicator networkProgress;
 
     @FXML
+    private TextField localServerPort;
+
+    @FXML
     private Button startServerButton;
 
     private ScreenHelper screenHelper;
+
+    @FXML
+    private TextField remoteServerIp;
+
+    @FXML
+    private TextField remoteServerPort;
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
@@ -55,6 +70,7 @@ public class SetupController implements ViewController {
 
     /**
      * Initialize the Board Controller after the View is rendered.
+     *
      * @param context The context of the Main Controller
      */
     @Override
@@ -66,13 +82,13 @@ public class SetupController implements ViewController {
         Image sceneBackgroundImage = this.screenHelper.getImage(this.context.getClassloader(), "background/", "setup_background", "jpg");
 
         // define background image
-        BackgroundImage sceneBackground= new BackgroundImage(
+        BackgroundImage sceneBackground = new BackgroundImage(
                 sceneBackgroundImage,
                 BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
                 new BackgroundSize(100, 100, true, true, false, true));
 
         // set the correct height for this screen
-        AnchorPane anchorPane =  (AnchorPane)context.getRootNode();
+        AnchorPane anchorPane = (AnchorPane) context.getRootNode();
         anchorPane.setPrefHeight(400D);
         anchorPane.setBackground(new Background(sceneBackground));
 
@@ -133,21 +149,54 @@ public class SetupController implements ViewController {
     /* ----------------- Server --------------------- */
 
     public void joinServer() {
-        Client client = new Client();
-        //client.startConnection();
-        this.context.getBoard().setClient(client);
-        this.context.getBoard().setServeType(ServeType.CLIENT);
-        this.screenHelper.showScreen(context, ScreenType.BOARD, this.context.getStage());
+
+        this.context.getViewHandler().getStatusController().updateStatus("connect to server..", true);
+        this.context.getBoard().setClient(this.setupClient(CLIENT));
+        this.context.getBoard().setServeType(CLIENT);
     }
 
     public void startServer() {
 
-        Server server = new Server();
-        server.start(6000);
-        this.context.getBoard().setServer(server);
-        this.context.getBoard().setServeType(ServeType.SERVER);
-        this.screenHelper.showScreen(context, ScreenType.BOARD, this.context.getStage());
+        int port = Integer.parseInt(this.localServerPort.getText());
+        this.context.getViewHandler().getStatusController().updateStatus("setup server..", true);
+        Server server = this.context.getBoard().getServer();
 
+        try {
+
+            if (port < 1000) {
+                this.context.getViewHandler().getStatusController().showError("port have to be > 1000");
+            } else {
+
+                server.start(port);
+
+                this.context.getBoard().setServer(server);
+                this.context.getBoard().setServeType(SERVER);
+
+                Client client = this.setupClient(SERVER);
+                this.context.getBoard().setClient(client);
+            }
+        } catch (Exception e) {
+            LOGGER.error("failed to start the server");
+            e.printStackTrace();
+            this.context.getViewHandler().getStatusController().showError("failed to start the server");
+        }
+    }
+
+    /**
+     * Connects to the server socket (local and remote)
+     */
+    public Client setupClient(ServeType serveType) {
+
+        // connects to the server
+        Client client = new Client(
+                this.remoteServerIp.getText(),
+                Integer.parseInt(this.remoteServerPort.getText()),
+                this.context.getBoard().getCurrentUser().getUserId().toString()
+        );
+
+        client.connect(this.context);
+
+        return client;
     }
 
 }

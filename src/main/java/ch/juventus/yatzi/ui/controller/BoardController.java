@@ -15,12 +15,12 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +82,9 @@ public class BoardController implements ViewController {
         AnchorPane anchorPane =  (AnchorPane)context.getRootNode();
         anchorPane.setPrefHeight(850D);
 
+        // initialize the board
+        this.context.getBoard().initBoard();
+
         // render the ui
         this.renderPlayerTable();
 
@@ -90,10 +93,24 @@ public class BoardController implements ViewController {
         this.generatePlayerTable();
         this.generateBoardTable();
 
+        // define a background
+        Image sceneBackgroundImage = this.screenHelper.getImage(this.context.getClassloader(), "background/", "board_background", "jpg");
+
+        // define background image
+        BackgroundImage sceneBackground= new BackgroundImage(
+                sceneBackgroundImage,
+                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.RIGHT, 0,true, Side.TOP, 0, false ),
+                new BackgroundSize(1400, 900, false, false, false, false));
+
+        anchorPane.setBackground(new Background(sceneBackground));
+
 
         // update status bar
         this.context.getViewHandler().getStatusController().updateServeMode(context.getBoard().getServeType());
         this.context.getViewHandler().getStatusController().updateStatus("ready to play", StatusType.OK);
+
+        // send demo message to server
+        //this.context.getBoard().getClient().sendAsyncMessage("Board started message");
     }
 
     /* ----------------- UI Rendering --------------------- */
@@ -183,11 +200,12 @@ public class BoardController implements ViewController {
                         )
         ));
 
+        fieldsContainer.setSortable(false);
         this.tblBoardMain.getColumns().add(fieldsContainer);
 
         // add a user wrapper column
         TableColumn userContainer = new TableColumn("Players");
-
+        userContainer.setSortable(false);
         List<User> users = this.context.getBoard().getUsers();
 
         for (int i = 0; i < users.size(); i++) {
@@ -195,6 +213,7 @@ public class BoardController implements ViewController {
             int index = i;
             TableColumn<BoardTableRow, String> userColumn = new TableColumn(users.get(index).getUserName());
             userColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getUsers().get(index).getShortUserId()));
+            userColumn.setSortable(false);
             userContainer.getColumns().add(userColumn);
         }
 
@@ -234,6 +253,7 @@ public class BoardController implements ViewController {
     }
 
     /* ----------------- Actions --------------------- */
+
     @FXML
     private void showMessage() {
         Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -266,7 +286,7 @@ public class BoardController implements ViewController {
         }
 
         // TODO: Implment clean exit of the board screen
-        this.screenHelper.showScreen(this.context, ScreenType.SETUP, this.context.getStage());
+        this.screenHelper.showScreen(this.context, ScreenType.SETUP);
     }
 
 }

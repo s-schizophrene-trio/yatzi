@@ -59,6 +59,7 @@ component has access to `MainController` and `YatziApplication`.
 
 * https://icons8.de/icon/set/server/ios
 * https://icons8.de/icon/25226/verbunden
+* http://www.holshousersoftware.com/glass
 
 #### Get a Java Image from Resources
 
@@ -131,3 +132,10 @@ $ ./gradlew sonarqube \
    -Dsonar.host.url=http://localhost:9000 \
    -Dsonar.login=<your-token>
 ```
+
+### Identity
+
+__Colors__
+
+* yatzi-blue: __#113f89__
+* yatzi-gray: __#dbdbdb__
