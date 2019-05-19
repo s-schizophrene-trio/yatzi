@@ -9,25 +9,16 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <?import javafx.scene.control.ProgressIndicator?>
 <AnchorPane fx:id="setupContainer" styleClass="setup-container" xmlns="http://javafx.com/javafx/8.0.172-ea"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.SetupController">
 
-    <VBox prefHeight="350.0" prefWidth="500.0" spacing="20">
-
-        <padding>
-            <Insets left="50" right="50" top="50"/>
-        </padding>
+    <VBox prefHeight="335.0" prefWidth="620" spacing="10" styleClass="setup-content">
 
         <Label text="Setup New Yatzi Game" styleClass="text-title-setup"/>
 
-        <Label text="Select Game Mode..">
-            <font>
-                <Font name="Helvetica Neue Light" size="15.0"/>
-            </font>
-        </Label>
+        <Label text="Select Game Mode.." styleClass="text-subtitle-setup" />
 
         <TabPane prefWidth="500.0" styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
             <Tab text="Host a new Yatzi Game">
@@ -35,18 +26,18 @@
                     <padding>
                         <Insets left="7"/>
                     </padding>
-                    <VBox spacing="15" styleClass="setup-tab-container">
+                    <VBox styleClass="setup-tab-container">
                         <padding>
                             <Insets left="10" top="10" bottom="10"/>
                         </padding>
                         <HBox prefHeight="100.0" prefWidth="400.0" spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Local IP"/>
-                            <Label fx:id="localIpLabel" text="determine ip..."/>
-                            <ProgressIndicator fx:id="networkProgress" prefWidth="15" prefHeight="15"/>
+                            <Label text="Local IP" styleClass="text-field-desc"/>
+                            <Label fx:id="localIpLabel" text="determine ip..." styleClass="text-field-value" />
+                            <ProgressIndicator fx:id="networkProgress" prefWidth="15" prefHeight="15" styleClass="progress-network" />
                         </HBox>
                         <HBox prefHeight="100.0" prefWidth="200.0" spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Port"/>
-                            <TextField fx:id="localServerPort" text="6000" prefWidth="50">
+                            <Label text="Port" styleClass="text-field-desc" />
+                            <TextField fx:id="localServerPort" text="6000" prefWidth="70" styleClass="text-field-input">
                             </TextField>
                         </HBox>
                     </VBox>
@@ -66,13 +57,13 @@
                             <Insets left="10" top="10" bottom="10"/>
                         </padding>
                         <HBox prefHeight="100.0" prefWidth="400.0" spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Local IP"/>
-                            <TextField fx:id="remoteServerIp" text="127.0.0.1" prefWidth="120">
+                            <Label text="Local IP" styleClass="text-field-desc" />
+                            <TextField fx:id="remoteServerIp" text="127.0.0.1" prefWidth="120" styleClass="text-field-input">
                             </TextField>
                         </HBox>
                         <HBox prefHeight="100.0" prefWidth="200.0" spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Port"/>
-                            <TextField fx:id="remoteServerPort" text="6000" prefWidth="50">
+                            <Label text="Port" styleClass="text-field-desc" />
+                            <TextField fx:id="remoteServerPort" text="6000" prefWidth="70" styleClass="text-field-input">
                             </TextField>
                         </HBox>
                     </VBox>

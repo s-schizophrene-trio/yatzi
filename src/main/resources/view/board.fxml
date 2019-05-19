@@ -10,50 +10,38 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <VBox fx:id="boardContainer" styleClass="board-container" xmlns="http://javafx.com/javafx/8.0.172-ea"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.BoardController">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.BoardController"
+      prefHeight="850" >
 
     <padding>
         <Insets left="50" right="50"/>
     </padding>
 
     <HBox prefWidth="-Infinity">
-
         <VBox>
-            <Label fx:id="screenTitle" alignment="CENTER_LEFT" prefWidth="200" styleClass="text-title-main"
-                   text="Application Name" textFill="#13455e">
-                <font>
-                    <Font name="Helvetica Neue Light" size="20.0"/>
-                </font>
+            <Label fx:id="screenTitle" alignment="CENTER_LEFT" prefWidth="200" styleClass="text-title-board"
+                   text="Application Name">
                 <padding>
-                    <Insets top="50.0"/>
+                    <Insets top="50.0" bottom="50"/>
                 </padding>
             </Label>
 
-            <Label fx:id="currentUser" alignment="BOTTOM_LEFT" styleClass="text-title-main" text="your username"
-                   textFill="#13455e">
-                <font>
-                    <Font name="Helvetica Neue Light" size="14.0"/>
-                </font>
-                <padding>
-                    <Insets top="50.0"/>
-                </padding>
-            </Label>
-
-            <Label fx:id="currentUserId" alignment="BOTTOM_LEFT" styleClass="text-user-id" text="your user id"
-                   textFill="#13455e">
-                <font>
-                    <Font name="Helvetica Neue Light" size="16.0"/>
-                </font>
-                <padding>
-                    <Insets top="5.0"/>
-                </padding>
-            </Label>
+            <VBox styleClass="box-user-info">
+                <Label fx:id="currentUser" alignment="BOTTOM_LEFT" styleClass="text-title-subtitle"
+                       text="your username">
+                </Label>
+                <Label fx:id="currentUserId" alignment="BOTTOM_LEFT" styleClass="text-user-id" text="your user id"
+                       textFill="#13455e">
+                    <padding>
+                        <Insets top="5.0"/>
+                    </padding>
+                </Label>
+            </VBox>
         </VBox>
 
-        <Region prefWidth="100.0" HBox.hgrow="SOMETIMES"/>
+        <Region prefWidth="50.0" HBox.hgrow="SOMETIMES"/>
 
         <VBox alignment="TOP_RIGHT" prefHeight="175.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
             <HBox.margin>
@@ -65,14 +53,13 @@
 
             <TabPane styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
                 <Tab text="Players">
-                    <TableView fx:id="tblPlayers" prefWidth="200.0" styleClass="border-gray" />
+                    <TableView fx:id="tblPlayers" prefWidth="200.0"/>
                 </Tab>
-                <Tab text="Stats">
+                <Tab text="Server Info">
                     <AnchorPane prefWidth="200" styleClass="border-gray"/>
                 </Tab>
             </TabPane>
         </VBox>
-
     </HBox>
 
     <TableView fx:id="tblBoardMain" prefHeight="507" prefWidth="550.0">
@@ -81,31 +68,8 @@
         </VBox.margin>
     </TableView>
 
-    <HBox prefHeight="50.0" prefWidth="-Infinity">
-        <Button mnemonicParsing="false" onAction="#showMessage" styleClass="button" text="Show Message">
-            <HBox.margin>
-                <Insets right="10.0"/>
-            </HBox.margin>
-        </Button>
-        <Button mnemonicParsing="false" styleClass="button" text="Button">
-            <HBox.margin>
-                <Insets right="10.0"/>
-            </HBox.margin>
-        </Button>
-        <Button mnemonicParsing="false" styleClass="button" text="Button">
-            <HBox.margin>
-                <Insets right="10.0"/>
-            </HBox.margin>
-        </Button>
-        <Button mnemonicParsing="false" styleClass="button" text="Button">
-            <HBox.margin>
-                <Insets right="10.0"/>
-            </HBox.margin>
-        </Button>
-        <Button mnemonicParsing="false" styleClass="button" text="Button"/>
-        <VBox.margin>
-            <Insets top="50.0"/>
-        </VBox.margin>
+    <HBox prefHeight="50.0" prefWidth="-Infinity" styleClass="box-dice-container">
+
     </HBox>
 
 </VBox>
