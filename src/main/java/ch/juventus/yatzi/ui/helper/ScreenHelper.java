@@ -43,7 +43,7 @@ public class ScreenHelper {
      * Shows a screen based on the View Type
      * @param screenType The ScreenType of the requested screen
      */
-    public void showScreen(ViewContext context, ScreenType screenType, Stage rootStage) {
+    public void showScreen(ViewContext context, ScreenType screenType) {
 
         // Clear the current Screen
         this.clearScreen(context);
@@ -57,11 +57,9 @@ public class ScreenHelper {
             this.addNode(context, view.getNode());
 
             // resize the window to scene size
+            Stage rootStage = context.getStage();
             rootStage.sizeToScene();
             this.centerStageOnScreen(rootStage);
-
-            // set styles
-            // Scene stage = rootStage.getScene();
 
             LOGGER.debug("show view: {}", screenType);
         } catch (Exception e) {
@@ -228,9 +226,9 @@ public class ScreenHelper {
      * @return An initialized Image Object
      */
     public Image getImage(ClassLoader classLoader, String subPath, String key, String fileExt) {
-        LOGGER.debug("load {} image for key {}", fileExt, key);
+        LOGGER.trace("load {} image for key {}", fileExt, key);
         String imagePath = BASE_PATH_IMAGES + subPath + key.toLowerCase() + "." + fileExt;
-        LOGGER.debug("load image from {}", imagePath);
+        LOGGER.trace("load image from {}", imagePath);
 
         // Load the image from resources
         Image image = new Image(classLoader.getResourceAsStream(imagePath));

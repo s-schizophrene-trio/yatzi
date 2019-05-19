@@ -65,38 +65,19 @@ public class Board {
     private Map<FieldType, UserScore> scores;
 
     /**
-     * Initialized a new Board based on the serveType. If you request a SERVER board, the board loads during
-     * its initialization all remote data from the configured server.
-     * @param serveType The serve type of the local game instance. (SERVER or HOST)
-     */
-    public Board(ServeType serveType) {
-        // initialize the server board with default values
-        this.initBoard(serveType);
-    }
-
-    /**
-     * Initialized a new Board based on the default values (server).
+     * Initialized a new Board with default config.
      */
     public Board() {
-        // initialize the server board with default values
-        this.initBoard(SERVER);
+        // init dice and user service
+        this.dice = this.initDiceSet(5);
+        this.userService = new UserService();
+        this.server = new Server();
     }
 
     /**
      * Initializes a new Board with default values configured.
-     * @param serveType The Serve Type of the Board (SERVER or CLIENT)
      */
-    private void initBoard(ServeType serveType) {
-        // init dice and user service
-        this.dice = this.initDiceSet(5);
-        this.userService = new UserService();
-
-        // add local user
-        this.currentUser = this.userService.generateUser(serveType);
-        this.userService.registerUser(currentUser);
-
-        // set server type
-        this.setServeType(serveType);
+    public void initBoard() {
 
         // fetch remote user from server
         if (this.serveType == CLIENT) {
@@ -112,6 +93,14 @@ public class Board {
         this.users = this.userService.getAllUsers();
 
         LOGGER.debug("initialized board");
+    }
+
+    public User getCurrentUser() {
+        if (this.currentUser == null) {
+            this.currentUser = this.userService.generateUser(serveType);
+        }
+
+        return this.currentUser;
     }
 
     /**

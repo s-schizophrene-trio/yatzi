@@ -7,6 +7,8 @@ import ch.juventus.yatzi.ui.interfaces.ViewHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,7 @@ public class MainController implements ViewHandler {
     private ViewContext context;
 
     // ui helper
+    @Getter @Setter
     private ScreenHelper screenHelper;
 
     // each controller should be able to manage the status bar
@@ -43,7 +46,6 @@ public class MainController implements ViewHandler {
     public void initialize(URL location, ResourceBundle resources) {
         LOGGER.debug("initialize main controller");
         this.screenHelper = new ScreenHelper();
-       // this.context.set = Thread.currentThread().getContextClassLoader();
     }
 
     @Override
@@ -51,7 +53,7 @@ public class MainController implements ViewHandler {
         this.context = context;
         this.screenHelper.clearScreen(context);
         this.context.setViewHandler(this);
-        this.screenHelper.showScreen(context, ScreenType.SETUP, context.getStage());
+        this.screenHelper.showScreen(context, ScreenType.SETUP);
 
         // Set on Close Event
         context.getStage().setOnHiding(event -> Platform.runLater(() -> {
