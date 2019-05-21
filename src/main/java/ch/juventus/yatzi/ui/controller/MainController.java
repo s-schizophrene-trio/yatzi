@@ -60,7 +60,7 @@ public class MainController implements ViewHandler {
             LOGGER.info("application closed by click to close button");
 
             // shutdown the server
-            this.context.getBoard().getServer().stop();
+            this.context.getYatziGame().getServer().stop();
 
             System.exit(0);
         }));

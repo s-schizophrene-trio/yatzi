@@ -1,5 +1,6 @@
 package ch.juventus.yatzi.ui.interfaces;
 
+import ch.juventus.yatzi.engine.YatziGame;
 import ch.juventus.yatzi.engine.board.Board;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -15,6 +16,9 @@ public interface ViewContext {
 
     Scene getScene();
     void setScene(Scene scene);
+
+    YatziGame getYatziGame();
+    void setYatziGame(YatziGame yatziGame);
 
     Board getBoard();
     void setBoard(Board board);

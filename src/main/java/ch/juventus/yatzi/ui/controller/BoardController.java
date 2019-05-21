@@ -35,7 +35,7 @@ import java.util.ResourceBundle;
  */
 public class BoardController implements ViewController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final String VIEW_TITLE = "Yatzi Play Board";
 
     private ViewContext context;
@@ -64,7 +64,7 @@ public class BoardController implements ViewController {
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         screenTitle.setText(VIEW_TITLE);
-        this.screenHelper = new ScreenHelper();
+        screenHelper = new ScreenHelper();
     }
 
     /**
@@ -82,19 +82,16 @@ public class BoardController implements ViewController {
         AnchorPane anchorPane =  (AnchorPane)context.getRootNode();
         anchorPane.setPrefHeight(850D);
 
-        // initialize the board
-        this.context.getBoard().initBoard();
-
         // render the ui
-        this.renderPlayerTable();
+        renderPlayerTable();
 
         // initialize the ui components
-        this.loadUserStats();
-        this.generatePlayerTable();
-        this.generateBoardTable();
+        loadUserStats();
+        generatePlayerTable();
+        generateBoardTable();
 
         // define a background
-        Image sceneBackgroundImage = this.screenHelper.getImage(this.context.getClassloader(), "background/", "board_background", "jpg");
+        Image sceneBackgroundImage = screenHelper.getImage(this.context.getClassloader(), "background/", "board_background", "jpg");
 
         // define background image
         BackgroundImage sceneBackground= new BackgroundImage(
@@ -106,7 +103,7 @@ public class BoardController implements ViewController {
 
 
         // update status bar
-        this.context.getViewHandler().getStatusController().updateServeMode(context.getBoard().getServeType());
+        this.context.getViewHandler().getStatusController().updateServeMode(context.getYatziGame().getServeType());
         this.context.getViewHandler().getStatusController().updateStatus("ready to play", StatusType.OK);
 
         // send demo message to server
@@ -123,19 +120,19 @@ public class BoardController implements ViewController {
         userId.setCellValueFactory(c -> new SimpleStringProperty(
                 c.getValue().getShortUserId()
         ));
-        this.tblPlayers.getColumns().add(userId);
+        tblPlayers.getColumns().add(userId);
 
         TableColumn userName = new TableColumn("User");
         userName.setCellValueFactory(new PropertyValueFactory<>("userName"));
-        this.tblPlayers.getColumns().add(userName);
+        tblPlayers.getColumns().add(userName);
 
         TableColumn<User, ImageView> serveType = new TableColumn("Type");
         // Visualize the Serve Type as Images
         serveType.setCellValueFactory(c -> new SimpleObjectProperty<>(
-                this.renderIconImageView(c.getValue().getServeType().toString(), "png")
+                renderIconImageView(c.getValue().getServeType().toString(), "png")
         ));
         serveType.setStyle("-fx-alignment: CENTER;");
-        this.tblPlayers.getColumns().add(serveType);
+        tblPlayers.getColumns().add(serveType);
     }
 
     /**
@@ -146,20 +143,20 @@ public class BoardController implements ViewController {
      * @return An Image View based on the Serve Type with an image loaded and resized it.
      */
     private ImageView renderIconImageView(String imageKey, String fileExt) {
-        return this.screenHelper.renderImageView(this.context.getClassloader(), "icons/", imageKey, fileExt, 20D, 20D);
+        return screenHelper.renderImageView(context.getClassloader(), "icons/", imageKey, fileExt, 20D, 20D);
     }
 
     /**
      * Loads the user data from the game and add the items to the table.
      */
     public void generatePlayerTable() {
-        if (this.context.getBoard() != null) {
-            LOGGER.debug("{} users are active", this.context.getBoard().getUsers().size());
+        if (context.getYatziGame() != null) {
+            LOGGER.debug("{} users are active", context.getYatziGame().getPlayers().size());
 
-            List<User> users = this.context.getBoard().getUsers();
+            List<User> users = context.getYatziGame().getPlayers();
 
             users.forEach(u -> {
-                this.tblPlayers.getItems().add(u);
+                tblPlayers.getItems().add(u);
             });
 
         } else {
@@ -173,10 +170,10 @@ public class BoardController implements ViewController {
      */
     private void loadUserStats() {
         // Set Current User
-        this.currentUser.setText(this.context.getBoard().getCurrentUser().getUserName());
+        currentUser.setText(context.getYatziGame().getUserMe().getUserName());
         // Set Current User ID
-        String userId = this.context.getBoard().getCurrentUser().getShortUserId();
-        this.currentUserId.setText("ID  " + userId);
+        String userId = context.getYatziGame().getUserMe().getShortUserId();
+        currentUserId.setText("ID  " + userId);
     }
 
     /**
@@ -186,9 +183,9 @@ public class BoardController implements ViewController {
 
         LOGGER.debug("initialize board table");
 
-        this.boardTableRows = new ArrayList<>();
+        boardTableRows = new ArrayList<>();
         for (FieldType fieldType : FieldType.values()) {
-            this.boardTableRows.add(new BoardTableRow(new Field(fieldType), this.context.getBoard().getUsers()));
+            boardTableRows.add(new BoardTableRow(new Field(fieldType), context.getYatziGame().getPlayers()));
         }
 
         // static combinations
@@ -196,17 +193,17 @@ public class BoardController implements ViewController {
 
         fieldsContainer.setCellValueFactory(c -> new SimpleObjectProperty<>(
                 new VBox(new Label(c.getValue().getDescField().getFieldType().toString().toLowerCase()),
-                        this.getFieldTypeImageGroup(c.getValue().getDescField().getFieldType())
+                        getFieldTypeImageGroup(c.getValue().getDescField().getFieldType())
                         )
         ));
 
         fieldsContainer.setSortable(false);
-        this.tblBoardMain.getColumns().add(fieldsContainer);
+        tblBoardMain.getColumns().add(fieldsContainer);
 
         // add a user wrapper column
         TableColumn userContainer = new TableColumn("Players");
         userContainer.setSortable(false);
-        List<User> users = this.context.getBoard().getUsers();
+        List<User> users = context.getYatziGame().getPlayers();
 
         for (int i = 0; i < users.size(); i++) {
             // static combinations
@@ -218,10 +215,10 @@ public class BoardController implements ViewController {
         }
 
         // User column to main table
-        this.tblBoardMain.getColumns().add(userContainer);
+        tblBoardMain.getColumns().add(userContainer);
 
         // fill the table with the board table items
-        this.tblBoardMain.getItems().addAll(this.boardTableRows);
+        tblBoardMain.getItems().addAll(boardTableRows);
 
     }
 
@@ -244,7 +241,7 @@ public class BoardController implements ViewController {
         // loop through all dice types in the combination, and get the according image
         for (DiceType diceType:combination) {
             // get the image for the type
-            ImageView diceImageView = this.screenHelper.renderImageView(this.context.getClassloader(), "dice/",
+            ImageView diceImageView = screenHelper.renderImageView(context.getClassloader(), "dice/",
                     "dice_"+diceType.toString().toLowerCase(), "png", 15D, 15D);
             imageGroup.getChildren().add(diceImageView);
         }
@@ -277,16 +274,16 @@ public class BoardController implements ViewController {
     @FXML
     public void exit(ActionEvent e) {
 
-        switch (this.context.getBoard().getServeType()) {
+        switch (context.getYatziGame().getServeType()) {
             case SERVER:
-                this.context.getBoard().getServer().stop();
+                context.getYatziGame().getServer().stop();
                 break;
             case CLIENT:
                 break;
         }
 
         // TODO: Implment clean exit of the board screen
-        this.screenHelper.showScreen(this.context, ScreenType.SETUP);
+        screenHelper.showScreen(context, ScreenType.SETUP);
     }
 
 }

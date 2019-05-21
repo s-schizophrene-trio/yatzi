@@ -1,4 +1,4 @@
-package ch.juventus.yatzi.network;
+package ch.juventus.yatzi.network.server;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
 
@@ -70,7 +71,7 @@ public class Server {
 
                 while (this.isRunning) {
                     this.clientSocket = serverSocket.accept();
-                    clientPoolExecutor.submit(new ClientTask(clientSocket));
+                    clientPoolExecutor.submit(new ClientHandler(clientSocket));
                 }
             } catch (Exception e) {
                 LOGGER.error("unprocessable client request {}", e.getMessage());
@@ -88,45 +89,13 @@ public class Server {
     public void stop() {
         LOGGER.debug("stop the server socket");
         try {
-            this.serverPoolExecutor.shutdown();
-            this.clientPoolExecutor.shutdown();
+            this.serverPoolExecutor.shutdownNow();
+            this.clientPoolExecutor.shutdownNow();
+
+            this.serverPoolExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            this.clientPoolExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
         }  catch (Exception e) {
             LOGGER.error("failed to stop server because of: {}", e.getMessage());
-        }
-    }
-
-    /**
-     * Each new Client will have its own ClientTask. The Connection to the client will be always open.
-     */
-    private class ClientTask implements Runnable {
-
-        Socket socket;
-
-        private ClientTask(Socket socket) {
-            this.socket = socket;
-        }
-
-        @Override
-        public void run() {
-            try (
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
-            ) {
-                LOGGER.debug("got a client with ip {} on port {}", socket.getInetAddress(), socket.getLocalPort());
-
-                String fromClient, fromServer;
-
-                out.println("REGISTRATION_SUCCESS");
-
-                while ((fromClient = in.readLine()) != null) {
-                    LOGGER.debug("got a message from a client: {}", fromClient);
-                }
-
-                clientSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-                LOGGER.error("Failed to process incoming or outgoing traffic to client");
-            }
         }
     }
 

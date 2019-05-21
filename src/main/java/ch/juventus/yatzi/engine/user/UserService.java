@@ -9,20 +9,25 @@ import java.util.*;
 
 public class UserService {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private Faker faker;
 
     // Storage of local users
     private Map<UUID, User> users;
 
+    List<User> remoteUsers;
+
+    private User localUser;
+
     public UserService() {
-        this.faker = new Faker();
-        this.users = new HashMap<>();
+        faker = new Faker();
+        users = new HashMap<>();
     }
 
-    public User generateUser(ServeType serveType) {
-        User generatedUser = new User(this.faker.funnyName().name(), serveType);
-        this.registerUser(generatedUser);
+    public User generateUser() {
+        User generatedUser = new User(faker.funnyName().name());
+        localUser = generatedUser;
+        registerUser(generatedUser);
         return generatedUser;
     }
 
@@ -30,30 +35,42 @@ public class UserService {
      * Fetches the list of all users joined the host server
      * @return A List of all Users of the game, including the local one!
      */
-    public List<User> getRemoteUsers() {
+    public Map<UUID, User> generateFakeUsers() {
+
         // TODO: Implement Remote User Service
+        if (users.size()  <= 1) {
+            // Add some Mock Data
+            User fakeServer = new User(faker.name().username(), ServeType.SERVER);
+            users.put(fakeServer.getUserId(), fakeServer); // server host
 
-        List<User> remoteUsers = new ArrayList<>();
-
-        // Add some Mock Data
-        remoteUsers.add(new User(this.faker.name().username(), ServeType.SERVER)); // server host
-        for (int i = 0; i <1; i++) {
-            remoteUsers.add(new User(this.faker.name().username(), ServeType.CLIENT)); // client hosts
+            for (int i = 0; i < 1; i++) {
+                User fakeClient = new User(faker.name().username(), ServeType.CLIENT);
+                users.put(fakeClient.getUserId(), fakeClient); // client host
+            }
         }
-        LOGGER.debug("found {} remote users", remoteUsers.size());
-        return remoteUsers;
+
+        return users;
     }
 
     /**
      * Get all active Users in the whole Game
      * @return A ArrayList with users in it
      */
-    public List<User> getAllUsers() {
-        return new ArrayList<>(this.users.values());
+    public List<User> getUsers() {
+        generateFakeUsers();
+        return new ArrayList<>(users.values());
+    }
+
+    public User getLocalUser() {
+        if (localUser != null) {
+            return localUser;
+        } else {
+            return generateUser();
+        }
     }
 
     public User getUserById(UUID userId) {
-        return this.users.get(userId);
+        return users.get(userId);
     }
 
     /**
@@ -61,7 +78,7 @@ public class UserService {
      * @param user The user object of the user to register
      */
     public void registerUser(User user) {
-        this.users.put(user.getUserId(), user);
+        users.put(user.getUserId(), user);
     }
 
 }

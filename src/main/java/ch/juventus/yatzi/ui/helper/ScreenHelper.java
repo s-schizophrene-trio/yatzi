@@ -5,7 +5,6 @@ import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewController;
 import ch.juventus.yatzi.ui.models.View;
-import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -79,7 +78,7 @@ public class ScreenHelper {
     public View loadScreenWithController(ViewContext context, ScreenType screenType) {
 
         // load a view based on the view type
-        View view = this.buildScreen(context.getClassloader(),
+        View view = this.buildView(context.getClassloader(),
                 this.getFilePath(BASE_PATH_FXML, screenType, "fxml"), screenType);
 
         // get the controller of the according view and initialize it
@@ -99,7 +98,7 @@ public class ScreenHelper {
      * @param screenType The screen type to load
      * @return An initialized View object with a loaded fxml file.
      */
-    public View<Node> buildScreen(ClassLoader classloader, String fxmlPath, ScreenType screenType) {
+    public View<Node> buildView(ClassLoader classloader, String fxmlPath, ScreenType screenType) {
 
         URL fxmlUrl = classloader.getResource(fxmlPath);
         FXMLLoader fxmlLoader = new FXMLLoader(fxmlUrl);
@@ -153,7 +152,7 @@ public class ScreenHelper {
     public StatusController addStatusBar(ViewContext context) {
 
         // Load a view based on the view type
-        View view = this.buildScreen(context.getClassloader(),
+        View view = this.buildView(context.getClassloader(),
                 this.getFilePath(BASE_PATH_FXML, ScreenType.STATUS, "fxml"),
                 ScreenType.STATUS);
 

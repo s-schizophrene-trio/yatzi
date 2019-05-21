@@ -1,11 +1,8 @@
 package ch.juventus.yatzi.ui.controller;
 
-import ch.juventus.yatzi.engine.user.UserService;
-import ch.juventus.yatzi.network.Client;
-import ch.juventus.yatzi.network.Server;
+import ch.juventus.yatzi.network.client.Client;
+import ch.juventus.yatzi.network.server.Server;
 import ch.juventus.yatzi.network.helper.NetworkUtils;
-import ch.juventus.yatzi.ui.enums.ScreenType;
-import ch.juventus.yatzi.ui.enums.ServeType;
 import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
@@ -32,7 +29,7 @@ import static ch.juventus.yatzi.ui.enums.ServeType.SERVER;
  */
 public class SetupController implements ViewController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private ViewContext context;
 
@@ -61,9 +58,9 @@ public class SetupController implements ViewController {
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-        this.localIpAddress = null;
-        this.setSetupNotReady();
-        this.screenHelper = new ScreenHelper();
+        localIpAddress = "";
+        setSetupNotReady();
+        screenHelper = new ScreenHelper();
     }
 
     /* ----------------- Initializer --------------------- */
@@ -79,7 +76,7 @@ public class SetupController implements ViewController {
         this.context = context;
 
         // define a background
-        Image sceneBackgroundImage = this.screenHelper.getImage(this.context.getClassloader(), "background/", "setup_background", "jpg");
+        Image sceneBackgroundImage = screenHelper.getImage(this.context.getClassloader(), "background/", "setup_background", "jpg");
 
         // define background image
         BackgroundImage sceneBackground = new BackgroundImage(
@@ -93,7 +90,7 @@ public class SetupController implements ViewController {
         anchorPane.setBackground(new Background(sceneBackground));
 
         // initialize network infos
-        this.initServerInfo();
+        initServerInfo();
     }
 
     /**
@@ -101,19 +98,19 @@ public class SetupController implements ViewController {
      */
     public void initServerInfo() {
         NetworkUtils networkUtils = new NetworkUtils();
-        this.context.getViewHandler().getStatusController().updateStatus("loading network info", true);
+        context.getViewHandler().getStatusController().updateStatus("loading network info", true);
 
         Runnable serverTask = () -> {
             try {
                 // set local ip to the create server config
-                this.localIpAddress = networkUtils.getLocalIP();
+                localIpAddress = networkUtils.getLocalIP();
 
                 Platform.runLater(() -> {
                     localIpLabel.setText(localIpAddress);
                     setSetupIsReady();
 
                     // update the statusbar
-                    this.context.getViewHandler().getStatusController().updateStatus("ready", StatusType.OK);
+                    context.getViewHandler().getStatusController().updateStatus("ready", StatusType.OK);
                 });
 
             } catch (Exception e) {
@@ -134,8 +131,8 @@ public class SetupController implements ViewController {
      * Disables all UI Components which depends on network information
      */
     private void setSetupNotReady() {
-        this.startServerButton.setDisable(true);
-        this.networkProgress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+        startServerButton.setDisable(true);
+        networkProgress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
     }
 
     /**
@@ -149,52 +146,53 @@ public class SetupController implements ViewController {
     /* ----------------- Server --------------------- */
 
     public void joinServer() {
-
-        this.context.getViewHandler().getStatusController().updateStatus("connect to server..", true);
-        this.context.getBoard().setClient(this.setupClient(CLIENT));
-        this.context.getBoard().setServeType(CLIENT);
+        context.getViewHandler().getStatusController().updateStatus("connect to server..", true);
+        context.getYatziGame().setClient(setupClient());
+        context.getYatziGame().setServeType(CLIENT);
     }
 
     public void startServer() {
 
-        int port = Integer.parseInt(this.localServerPort.getText());
-        this.context.getViewHandler().getStatusController().updateStatus("setup server..", true);
-        Server server = this.context.getBoard().getServer();
+        int port = Integer.parseInt(localServerPort.getText());
+        context.getViewHandler().getStatusController().updateStatus("setup server..", true);
+
+        Server server = new Server();
+        context.getYatziGame().setServer(server);
 
         try {
 
             if (port < 1000) {
-                this.context.getViewHandler().getStatusController().showError("port have to be > 1000");
+                context.getViewHandler().getStatusController().showError("port have to be > 1000");
             } else {
 
                 server.start(port);
 
-                this.context.getBoard().setServer(server);
-                this.context.getBoard().setServeType(SERVER);
+                context.getYatziGame().setServer(server);
+                context.getYatziGame().setServeType(SERVER);
 
-                Client client = this.setupClient(SERVER);
-                this.context.getBoard().setClient(client);
+                Client client = setupClient();
+                context.getYatziGame().setClient(client);
             }
         } catch (Exception e) {
             LOGGER.error("failed to start the server");
             e.printStackTrace();
-            this.context.getViewHandler().getStatusController().showError("failed to start the server");
+            context.getViewHandler().getStatusController().showError("failed to start the server");
         }
     }
 
     /**
      * Connects to the server socket (local and remote)
      */
-    public Client setupClient(ServeType serveType) {
+    public Client setupClient() {
 
         // connects to the server
         Client client = new Client(
-                this.remoteServerIp.getText(),
-                Integer.parseInt(this.remoteServerPort.getText()),
-                this.context.getBoard().getCurrentUser().getUserId().toString()
+                remoteServerIp.getText(),
+                Integer.parseInt(remoteServerPort.getText()),
+                context.getYatziGame().getUserMe().getUserIdAsString()
         );
 
-        client.connect(this.context);
+        client.connect(context);
 
         return client;
     }

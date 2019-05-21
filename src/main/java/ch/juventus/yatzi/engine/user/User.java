@@ -8,7 +8,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @RequiredArgsConstructor
 public class User {
 
@@ -20,27 +19,35 @@ public class User {
 
     private ServeType serveType;
 
+    public User() {
+        assignUserId();
+    }
+
     public User(@NonNull String userName) {
         this.userName = userName;
-        this.assignUserId();
         this.serveType = ServeType.SERVER;
+        assignUserId();
     }
 
     public User(@NonNull String userName, @NonNull ServeType serveType) {
         this.userName = userName;
         this.serveType = serveType;
-        this.assignUserId();
+        assignUserId();
     }
 
+    public String getUserIdAsString() {
+            return userId.toString();
+    }
+
+
     public String getShortUserId() {
-        return this.userId.toString().substring(0, 3);
+        return userId.toString().substring(0, 3);
     }
 
     /**
      * Generates a new UUID.randomUUID() and assign it to the user instance.
      */
     public void assignUserId() {
-        UUID userId = UUID.randomUUID();
-        this.userId = userId;
+        userId = UUID.randomUUID();
     }
 }

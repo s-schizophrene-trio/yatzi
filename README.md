@@ -112,6 +112,10 @@ __Sources__
 
 * https://www.baeldung.com/a-guide-to-java-sockets
 
+#### Implementation
+
+![socket communication](https://upload.skydevelopment.ch/selif/e517lwkc.jpg)
+
 #### Communication Flow
 In this illustration the java socket flow is visualized. (Single Server Socket and Client Socket) 
 ![java socket flow](https://vichargrave.github.io/assets/images/Socket-Workflow.png)
