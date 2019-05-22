@@ -165,7 +165,7 @@ public class SetupController implements ViewController {
                 context.getViewHandler().getStatusController().showError("port have to be > 1000");
             } else {
 
-                server.start(port);
+                server.start(port, context.getYatziGame().getUserMe().getUserId());
 
                 context.getYatziGame().setServer(server);
                 context.getYatziGame().setServeType(SERVER);
@@ -189,7 +189,7 @@ public class SetupController implements ViewController {
         Client client = new Client(
                 remoteServerIp.getText(),
                 Integer.parseInt(remoteServerPort.getText()),
-                context.getYatziGame().getUserMe().getUserIdAsString()
+                context.getYatziGame().getUserMe().getUserId()
         );
 
         client.connect(context);

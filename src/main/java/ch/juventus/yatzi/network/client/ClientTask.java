@@ -1,8 +1,12 @@
 package ch.juventus.yatzi.network.client;
 
+import ch.juventus.yatzi.engine.user.User;
+import ch.juventus.yatzi.network.handler.MessageHandler;
+import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +16,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public class ClientTask implements Runnable {
 
@@ -20,12 +27,14 @@ public class ClientTask implements Runnable {
 
     private final Socket clientSocket;
     private ViewContext viewContext;
-    private String userId;
+    private UUID userId;
+    private MessageHandler messageHandler;
 
-    public ClientTask(Socket clientSocket, ViewContext viewContext, String userId) {
+    public ClientTask(Socket clientSocket, ViewContext viewContext, UUID userId, MessageHandler messageHandler) {
         this.clientSocket = clientSocket;
         this.viewContext = viewContext;
         this.userId = userId;
+        this.messageHandler = messageHandler;
     }
 
     @Override
@@ -36,14 +45,25 @@ public class ClientTask implements Runnable {
         ) {
             String fromServer;
 
+            Transfer t = new Transfer();
+            t.setSender(userId);
+            t.setContext("registration");
+            t.setQuery("register");
+
+            List<User> players = viewContext.getYatziGame().getPlayers();
+            ObjectMapper objectMapper = new ObjectMapper();
+            t.setBody(objectMapper.writeValueAsString(players));
+            t.setSentTime(new Date());
+            String transferData = objectMapper.writeValueAsString(t);
             // register game at server
-            out.println("REGISTER CLIENT USER " + userId);
+            t.setBody(transferData);
+            out.println(transferData);
 
             while ((fromServer = in.readLine()) != null) {
                 LOGGER.debug("got message from server: {}", fromServer);
 
                 if (fromServer.contains("REGISTRATION_SUCCESS")) {
-                    LOGGER.debug("Successfully registered at yatzi server. show UI now.");
+                    LOGGER.debug("successfully registered at yatzi server. show ui now.");
                     Platform.runLater(() -> {
                         // update the statusbar
                         this.viewContext.getViewHandler().getStatusController().updateStatus("connected to server", StatusType.OK);
