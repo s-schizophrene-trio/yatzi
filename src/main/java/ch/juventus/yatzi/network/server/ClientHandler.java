@@ -42,8 +42,8 @@ public class ClientHandler implements Runnable {
             Transfer t = new Transfer();
             t.setSender(userId);
             t.setContext("registration");
-            t.setQuery("type");
-            t.setBody("REGISTRATION_SUCCESS");
+            t.setQuery("");
+            t.setBody("SUCCESS");
             t.setSentTime(new Date());
 
             ObjectMapper objectMapper = new ObjectMapper();

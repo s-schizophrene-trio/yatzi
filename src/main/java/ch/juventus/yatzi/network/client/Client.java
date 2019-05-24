@@ -50,11 +50,12 @@ public class Client {
      * @param remotePort Network Port of the Server to connect
      * @param userId The User ID of the current playing user
      */
-    public Client(String remoteIp, Integer remotePort, UUID userId) {
+    public Client(String remoteIp, Integer remotePort, UUID userId, MessageHandler messageHandler) {
         this.remoteIp = remoteIp;
         this.remotePort = remotePort;
         this.userId = userId;
         this.reconnects = 0;
+        this.messageHandler = messageHandler;
 
         BasicThreadFactory clientPoolFactory = new BasicThreadFactory.Builder()
                 .namingPattern("Local Client #%d")
@@ -91,7 +92,6 @@ public class Client {
                                 viewContext.getYatziGame().getUserMe().getUserId(),
                                 messageHandler)
                         );
-
                     } catch (ConnectException e) {
                         LOGGER.debug("failed to establish a connection to server {}", e.getMessage());
                         try {

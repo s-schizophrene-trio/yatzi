@@ -1,8 +1,11 @@
 package ch.juventus.yatzi.ui.controller;
 
 import ch.juventus.yatzi.network.client.Client;
+import ch.juventus.yatzi.network.model.Message;
+import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.server.Server;
 import ch.juventus.yatzi.network.helper.NetworkUtils;
+import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
@@ -15,11 +18,15 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static ch.juventus.yatzi.ui.enums.ServeType.CLIENT;
 import static ch.juventus.yatzi.ui.enums.ServeType.SERVER;
@@ -56,11 +63,25 @@ public class SetupController implements ViewController {
     @FXML
     private TextField remoteServerPort;
 
+    private MessageHandler messageHandler;
+    private Boolean shouldListen = true;
+
+    private ExecutorService messageHandlerPool;
+
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         localIpAddress = "";
         setSetupNotReady();
+        messageHandler = new MessageHandler();
         screenHelper = new ScreenHelper();
+
+        BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
+                .namingPattern("UI Message Handler #%d")
+                .daemon(true)
+                .priority(Thread.MAX_PRIORITY)
+                .build();
+
+        messageHandlerPool = Executors.newSingleThreadExecutor( messagePoolFactory);
     }
 
     /* ----------------- Initializer --------------------- */
@@ -149,6 +170,49 @@ public class SetupController implements ViewController {
         context.getViewHandler().getStatusController().updateStatus("connect to server..", true);
         context.getYatziGame().setClient(setupClient());
         context.getYatziGame().setServeType(CLIENT);
+        startServerListener(messageHandler);
+    }
+
+    /**
+     * Listens to the Input Message Queue from the Server
+     * @param messageHandler The handler, which should be used to transfer the messages
+     */
+    public void startServerListener(MessageHandler messageHandler) {
+
+        Runnable messageListener = () -> {
+            while (shouldListen) {
+                try {
+                    if (!messageHandler.getInputQueue().isEmpty()) {
+
+                        Message request = messageHandler.getInputQueue().poll();
+
+                        LOGGER.debug("message handler [incoming]: {}", request.toString());
+
+                        if (request.getMessage().contains("registration_successful")) {
+
+                            LOGGER.debug("successfully registered at yatzi server. show ui now.");
+                            Platform.runLater(() -> {
+                                // update the statusbar
+                                context.getViewHandler().getStatusController().updateStatus("connected to server", StatusType.OK);
+                                context.getViewHandler().getScreenHelper().showScreen(context, ScreenType.BOARD);
+                            });
+                        }
+                    }
+
+                } catch (NoSuchElementException e) {
+                    LOGGER.error("failed to extract the last element from queue");
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread messageListenerTask = new Thread(messageListener);
+        messageHandlerPool.submit(messageListenerTask);
     }
 
     public void startServer() {
@@ -172,7 +236,10 @@ public class SetupController implements ViewController {
 
                 Client client = setupClient();
                 context.getYatziGame().setClient(client);
+
+                startServerListener(messageHandler);
             }
+
         } catch (Exception e) {
             LOGGER.error("failed to start the server");
             e.printStackTrace();
@@ -189,7 +256,8 @@ public class SetupController implements ViewController {
         Client client = new Client(
                 remoteServerIp.getText(),
                 Integer.parseInt(remoteServerPort.getText()),
-                context.getYatziGame().getUserMe().getUserId()
+                context.getYatziGame().getUserMe().getUserId(),
+                messageHandler
         );
 
         client.connect(context);
