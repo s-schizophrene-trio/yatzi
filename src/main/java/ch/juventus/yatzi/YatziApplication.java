@@ -1,5 +1,6 @@
 package ch.juventus.yatzi;
 
+import ch.juventus.yatzi.engine.YatziGame;
 import ch.juventus.yatzi.engine.board.Board;
 import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
@@ -49,14 +50,19 @@ public class YatziApplication extends Application {
         ViewContext viewContext = new FXContext();
 
         viewContext.setClassloader(classloader);
-        viewContext.setBoard(this.initBoard());
+
+
+        // Create a new Game Instance
+        YatziGame yatziGame = this.initYatziGame();
+
+        viewContext.setYatziGame(yatziGame);
         viewContext.setStage(primaryStage);
 
         // set application icon
         primaryStage.getIcons().add(screenHelper.getImage(classloader, "icons/", "application", "png"));
 
         // load a view based on the view type
-        View view = screenHelper.buildScreen(classloader,
+        View view = screenHelper.buildView(classloader,
                 screenHelper.getFilePath(ScreenHelper.BASE_PATH_FXML, ScreenType.MAIN, "fxml"),
                 ScreenType.MAIN);
 
@@ -89,8 +95,8 @@ public class YatziApplication extends Application {
     /**
      * Initialize a new Game Board and set the defaults
      */
-    private Board initBoard() {
-        return new Board();
+    private YatziGame initYatziGame() {
+        return new YatziGame();
     }
 
 }

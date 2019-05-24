@@ -1,11 +1,11 @@
 package ch.juventus.yatzi.ui.controller;
 
-import ch.juventus.yatzi.engine.user.UserService;
-import ch.juventus.yatzi.network.Client;
-import ch.juventus.yatzi.network.Server;
+import ch.juventus.yatzi.network.client.Client;
+import ch.juventus.yatzi.network.model.Message;
+import ch.juventus.yatzi.network.handler.MessageHandler;
+import ch.juventus.yatzi.network.server.Server;
 import ch.juventus.yatzi.network.helper.NetworkUtils;
 import ch.juventus.yatzi.ui.enums.ScreenType;
-import ch.juventus.yatzi.ui.enums.ServeType;
 import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
@@ -18,11 +18,15 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static ch.juventus.yatzi.ui.enums.ServeType.CLIENT;
 import static ch.juventus.yatzi.ui.enums.ServeType.SERVER;
@@ -32,7 +36,7 @@ import static ch.juventus.yatzi.ui.enums.ServeType.SERVER;
  */
 public class SetupController implements ViewController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private ViewContext context;
 
@@ -59,11 +63,25 @@ public class SetupController implements ViewController {
     @FXML
     private TextField remoteServerPort;
 
+    private MessageHandler messageHandler;
+    private Boolean shouldListen = true;
+
+    private ExecutorService messageHandlerPool;
+
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
-        this.localIpAddress = null;
-        this.setSetupNotReady();
-        this.screenHelper = new ScreenHelper();
+        localIpAddress = "";
+        setSetupNotReady();
+        messageHandler = new MessageHandler();
+        screenHelper = new ScreenHelper();
+
+        BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
+                .namingPattern("UI Message Handler #%d")
+                .daemon(true)
+                .priority(Thread.MAX_PRIORITY)
+                .build();
+
+        messageHandlerPool = Executors.newSingleThreadExecutor( messagePoolFactory);
     }
 
     /* ----------------- Initializer --------------------- */
@@ -79,7 +97,7 @@ public class SetupController implements ViewController {
         this.context = context;
 
         // define a background
-        Image sceneBackgroundImage = this.screenHelper.getImage(this.context.getClassloader(), "background/", "setup_background", "jpg");
+        Image sceneBackgroundImage = screenHelper.getImage(this.context.getClassloader(), "background/", "setup_background", "jpg");
 
         // define background image
         BackgroundImage sceneBackground = new BackgroundImage(
@@ -93,7 +111,7 @@ public class SetupController implements ViewController {
         anchorPane.setBackground(new Background(sceneBackground));
 
         // initialize network infos
-        this.initServerInfo();
+        initServerInfo();
     }
 
     /**
@@ -101,19 +119,19 @@ public class SetupController implements ViewController {
      */
     public void initServerInfo() {
         NetworkUtils networkUtils = new NetworkUtils();
-        this.context.getViewHandler().getStatusController().updateStatus("loading network info", true);
+        context.getViewHandler().getStatusController().updateStatus("loading network info", true);
 
         Runnable serverTask = () -> {
             try {
                 // set local ip to the create server config
-                this.localIpAddress = networkUtils.getLocalIP();
+                localIpAddress = networkUtils.getLocalIP();
 
                 Platform.runLater(() -> {
                     localIpLabel.setText(localIpAddress);
                     setSetupIsReady();
 
                     // update the statusbar
-                    this.context.getViewHandler().getStatusController().updateStatus("ready", StatusType.OK);
+                    context.getViewHandler().getStatusController().updateStatus("ready", StatusType.OK);
                 });
 
             } catch (Exception e) {
@@ -134,8 +152,8 @@ public class SetupController implements ViewController {
      * Disables all UI Components which depends on network information
      */
     private void setSetupNotReady() {
-        this.startServerButton.setDisable(true);
-        this.networkProgress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+        startServerButton.setDisable(true);
+        networkProgress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
     }
 
     /**
@@ -149,52 +167,100 @@ public class SetupController implements ViewController {
     /* ----------------- Server --------------------- */
 
     public void joinServer() {
+        context.getViewHandler().getStatusController().updateStatus("connect to server..", true);
+        context.getYatziGame().setClient(setupClient());
+        context.getYatziGame().setServeType(CLIENT);
+        startServerListener(messageHandler);
+    }
 
-        this.context.getViewHandler().getStatusController().updateStatus("connect to server..", true);
-        this.context.getBoard().setClient(this.setupClient(CLIENT));
-        this.context.getBoard().setServeType(CLIENT);
+    /**
+     * Listens to the Input Message Queue from the Server
+     * @param messageHandler The handler, which should be used to transfer the messages
+     */
+    public void startServerListener(MessageHandler messageHandler) {
+
+        Runnable messageListener = () -> {
+            while (shouldListen) {
+                try {
+                    if (!messageHandler.getInputQueue().isEmpty()) {
+
+                        Message request = messageHandler.getInputQueue().poll();
+
+                        LOGGER.debug("message handler [incoming]: {}", request.toString());
+
+                        if (request.getMessage().contains("registration_successful")) {
+
+                            LOGGER.debug("successfully registered at yatzi server. show ui now.");
+                            Platform.runLater(() -> {
+                                // update the statusbar
+                                context.getViewHandler().getStatusController().updateStatus("connected to server", StatusType.OK);
+                                context.getViewHandler().getScreenHelper().showScreen(context, ScreenType.BOARD);
+                            });
+                        }
+                    }
+
+                } catch (NoSuchElementException e) {
+                    LOGGER.error("failed to extract the last element from queue");
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread messageListenerTask = new Thread(messageListener);
+        messageHandlerPool.submit(messageListenerTask);
     }
 
     public void startServer() {
 
-        int port = Integer.parseInt(this.localServerPort.getText());
-        this.context.getViewHandler().getStatusController().updateStatus("setup server..", true);
-        Server server = this.context.getBoard().getServer();
+        int port = Integer.parseInt(localServerPort.getText());
+        context.getViewHandler().getStatusController().updateStatus("setup server..", true);
+
+        Server server = new Server();
+        context.getYatziGame().setServer(server);
 
         try {
 
             if (port < 1000) {
-                this.context.getViewHandler().getStatusController().showError("port have to be > 1000");
+                context.getViewHandler().getStatusController().showError("port have to be > 1000");
             } else {
 
-                server.start(port);
+                server.start(port, context.getYatziGame().getUserMe().getUserId());
 
-                this.context.getBoard().setServer(server);
-                this.context.getBoard().setServeType(SERVER);
+                context.getYatziGame().setServer(server);
+                context.getYatziGame().setServeType(SERVER);
 
-                Client client = this.setupClient(SERVER);
-                this.context.getBoard().setClient(client);
+                Client client = setupClient();
+                context.getYatziGame().setClient(client);
+
+                startServerListener(messageHandler);
             }
+
         } catch (Exception e) {
             LOGGER.error("failed to start the server");
             e.printStackTrace();
-            this.context.getViewHandler().getStatusController().showError("failed to start the server");
+            context.getViewHandler().getStatusController().showError("failed to start the server");
         }
     }
 
     /**
      * Connects to the server socket (local and remote)
      */
-    public Client setupClient(ServeType serveType) {
+    public Client setupClient() {
 
         // connects to the server
         Client client = new Client(
-                this.remoteServerIp.getText(),
-                Integer.parseInt(this.remoteServerPort.getText()),
-                this.context.getBoard().getCurrentUser().getUserId().toString()
+                remoteServerIp.getText(),
+                Integer.parseInt(remoteServerPort.getText()),
+                context.getYatziGame().getUserMe().getUserId(),
+                messageHandler
         );
 
-        client.connect(this.context);
+        client.connect(context);
 
         return client;
     }

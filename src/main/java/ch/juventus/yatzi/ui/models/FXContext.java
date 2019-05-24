@@ -1,5 +1,6 @@
 package ch.juventus.yatzi.ui.models;
 
+import ch.juventus.yatzi.engine.YatziGame;
 import ch.juventus.yatzi.engine.board.Board;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewHandler;
@@ -17,6 +18,7 @@ public class FXContext implements ViewContext {
 
     // context of the game
     private Board board;
+    private YatziGame yatziGame;
 
     @Override
     public ClassLoader getClassloader() {
@@ -76,5 +78,15 @@ public class FXContext implements ViewContext {
     @Override
     public void setScene(Scene scene) {
         this.scene = scene;
+    }
+
+    @Override
+    public YatziGame getYatziGame() {
+        return this.yatziGame;
+    }
+
+    @Override
+    public void setYatziGame(YatziGame yatziGame) {
+        this.yatziGame = yatziGame;
     }
 }

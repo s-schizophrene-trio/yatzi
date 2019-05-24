@@ -48,6 +48,11 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.3'
     implementation 'ch.qos.logback:logback-core:1.2.3'
 
+    // Json
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.9'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.9'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
+
     implementation 'com.github.javafaker:javafaker:0.16'
 
     // Use JUnit test framework
