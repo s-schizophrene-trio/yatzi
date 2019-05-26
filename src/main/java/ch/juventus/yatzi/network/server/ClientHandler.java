@@ -1,14 +1,13 @@
 package ch.juventus.yatzi.network.server;
 
+import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.model.Transfer;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Date;
 import java.util.UUID;
@@ -21,45 +20,47 @@ public class ClientHandler implements Runnable {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     Socket socket;
-    UUID userId;
-    Boolean isRunning;
+    MessageHandler messageHandler;
+    Boolean isRunning = true;
 
-    public ClientHandler(Socket socket, UUID userId) {
+    ObjectMapper objectMapper;
+    PrintWriter out;
+
+    public ClientHandler(Socket socket, MessageHandler messageHandler) {
         this.socket = socket;
-        this.userId = userId;
+        this.objectMapper = new ObjectMapper();
+        this.messageHandler = messageHandler;
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
     public void run() {
-        try (
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))
-        ) {
+        try {
+            out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
             LOGGER.debug("got a client with ip {} on port {}", socket.getInetAddress(), socket.getLocalPort());
 
-            String fromClient, fromServer;
-
-            Transfer t = new Transfer();
-            t.setSender(userId);
-            t.setContext("registration");
-            t.setQuery("");
-            t.setBody("SUCCESS");
-            t.setSentTime(new Date());
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            String transferData = objectMapper.writeValueAsString(t);
-
-            out.println(transferData);
+            String fromClient;
 
             while ((fromClient = in.readLine()) != null && isRunning) {
-                LOGGER.debug("parse incoming message {}", fromClient);
-                LOGGER.debug("got a message from a client: {}", objectMapper.readValue(fromClient, Transfer.class));
+                LOGGER.debug("server got a new message from client: {}", fromClient);
+                messageHandler.put(objectMapper.readValue(fromClient, Transfer.class));
             }
-
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
             LOGGER.error("Failed to process incoming or outgoing traffic to client");
+        }
+    }
+
+    public void send(Transfer transfer) {
+        LOGGER.debug("send message to client {}", socket.getInetAddress());
+        try {
+            transfer.setSentTime(new Date());
+            out.println(objectMapper.writeValueAsString(transfer));
+        } catch (Exception e) {
+            LOGGER.error("failed to send message to client {}", e.getMessage());
         }
     }
 }

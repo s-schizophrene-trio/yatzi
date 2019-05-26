@@ -1,6 +1,7 @@
 package ch.juventus.yatzi.engine.user;
 
 import ch.juventus.yatzi.ui.enums.ServeType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.util.UUID;
@@ -35,11 +36,13 @@ public class User {
         assignUserId();
     }
 
+    @JsonIgnore
     public String getUserIdAsString() {
             return userId.toString();
     }
 
 
+    @JsonIgnore
     public String getShortUserId() {
         return userId.toString().substring(0, 3);
     }
@@ -47,6 +50,7 @@ public class User {
     /**
      * Generates a new UUID.randomUUID() and assign it to the user instance.
      */
+    @JsonIgnore
     public void assignUserId() {
         userId = UUID.randomUUID();
     }

@@ -52,11 +52,11 @@ public class StatusController implements ViewController {
 
     /**
      * Initialize the Board Controller after the View is rendered.
-     * @param context The context of the Main Controller
+     * @param context The function of the Main Controller
      */
     @Override
     public void afterInit(ViewContext context) {
-        // store the reference to the main context
+        // store the reference to the main function
         this.context = context;
         this.progress.setVisible(false);
     }
@@ -68,6 +68,7 @@ public class StatusController implements ViewController {
      */
     public void updateStatus(String statusMessage, Boolean isLoading) {
 
+        this.resetError();
         this.resetProgress();
 
         if (isLoading) {
@@ -85,7 +86,7 @@ public class StatusController implements ViewController {
      * @param statusType Defines a status type, visualized by a green or red indicator
      */
     public void updateStatus(String statusMessage, StatusType statusType) {
-
+        this.resetError();
         this.resetProgress();
 
         Image okImage = this.screenHelper.getImage(this.context.getClassloader(), "state/", statusType.toString().toLowerCase(), "png");
@@ -119,15 +120,19 @@ public class StatusController implements ViewController {
     /**
      * Resets the Serve Mode Status
      */
-    public void resetServeMode() {
+    private void resetServeMode() {
         this.serverRoleLabel.setText("no role");
         this.serverRoleIcon.setVisible(false);
+    }
+
+    private void resetError() {
+        this.errorMessage.setVisible(false);
     }
 
     /**
      * Resets the Status Bar back to the initial state
      */
-    public void resetProgress() {
+    private void resetProgress() {
         this.progress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
         this.progress.setVisible(false);
         this.progressStatusIcon.setVisible(false);

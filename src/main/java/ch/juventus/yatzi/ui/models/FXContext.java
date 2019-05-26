@@ -16,7 +16,7 @@ public class FXContext implements ViewContext {
     private Scene scene;
     private ViewHandler viewHandler;
 
-    // context of the game
+    // function of the game
     private Board board;
     private YatziGame yatziGame;
 

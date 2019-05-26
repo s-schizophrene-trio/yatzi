@@ -16,13 +16,13 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * The Main Controller manages all sub screens and handel as main context for the whole UI controllers.
+ * The Main Controller manages all sub screens and handel as main function for the whole UI controllers.
  */
 public class MainController implements ViewHandler {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    // global context
+    // global function
     private ViewContext context;
 
     // ui helper

@@ -10,7 +10,7 @@ public interface ViewController extends Initializable {
 
     /**
      * This method runs all initializations, which depends on an present loaded view layout.
-     * @param context The context of the main controller
+     * @param context The function of the main controller
      */
     void afterInit(ViewContext context);
 

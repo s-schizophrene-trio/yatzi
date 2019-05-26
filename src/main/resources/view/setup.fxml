@@ -11,6 +11,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.ScrollPane?>
 <AnchorPane fx:id="setupContainer" styleClass="setup-container" xmlns="http://javafx.com/javafx/8.0.172-ea"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.SetupController">
 
@@ -18,36 +20,54 @@
 
         <Label text="Setup New Yatzi Game" styleClass="text-title-setup"/>
 
-        <Label text="Select Game Mode.." styleClass="text-subtitle-setup" />
+        <HBox prefHeight="100.0" prefWidth="200.0" spacing="10" alignment="CENTER_LEFT">
+            <Label text="Username" styleClass="text-field-desc-white"/>
+            <TextField fx:id="userName" prefWidth="150" styleClass="text-field-input-white">
+            </TextField>
+        </HBox>
 
         <TabPane prefWidth="500.0" styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
-            <Tab text="Host a new Yatzi Game">
-                <VBox spacing="15">
+            <Tab text="Host a new Yatzi Game" fx:id="tabHostServer">
+                <VBox spacing="10" fx:id="vboxStartServerOuterContainer">
                     <padding>
                         <Insets left="7"/>
                     </padding>
-                    <VBox styleClass="setup-tab-container">
-                        <padding>
-                            <Insets left="10" top="10" bottom="10"/>
-                        </padding>
-                        <HBox prefHeight="100.0" prefWidth="400.0" spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Local IP" styleClass="text-field-desc"/>
-                            <Label fx:id="localIpLabel" text="determine ip..." styleClass="text-field-value" />
-                            <ProgressIndicator fx:id="networkProgress" prefWidth="15" prefHeight="15" styleClass="progress-network" />
-                        </HBox>
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Port" styleClass="text-field-desc" />
-                            <TextField fx:id="localServerPort" text="6000" prefWidth="70" styleClass="text-field-input">
-                            </TextField>
-                        </HBox>
-                    </VBox>
-                    <Button fx:id="startServerButton" mnemonicParsing="false" onAction="#startServer"
+                    <HBox prefWidth="500" spacing="10" alignment="CENTER_LEFT" styleClass="setup-tab-container">
+                        <VBox prefWidth="250" spacing="5" fx:id="vboxStartServerContainer">
+                            <padding>
+                                <Insets left="10" top="10" bottom="10"/>
+                            </padding>
+                            <HBox prefHeight="100.0" prefWidth="400.0" spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Local IP" styleClass="text-field-desc"/>
+                                <Label fx:id="localIpLabel" text="determine ip..." styleClass="text-field-value"/>
+                                <ProgressIndicator fx:id="networkProgress" prefWidth="15" prefHeight="15"
+                                                   styleClass="progress-network"/>
+                            </HBox>
+                            <HBox prefHeight="100.0" prefWidth="200.0" spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Port" styleClass="text-field-desc"/>
+                                <TextField fx:id="localServerPort" text="6000" prefWidth="70"
+                                           styleClass="text-field-input">
+                                </TextField>
+                            </HBox>
+                        </VBox>
+                        <VBox prefWidth="250" prefHeight="160" styleClass="setup-users-container" fx:id="setupUsersContainer" visible="false" spacing="10">
+                            <Label text="Registered Players" styleClass="text-field-desc"/>
+                            <ScrollPane prefHeight="120" styleClass="scroll-pane">
+                                <GridPane hgap="10" vgap="10" fx:id="setupUsersGrid">
+                                    <padding>
+                                        <Insets top="10" />
+                                    </padding>
+                                </GridPane>
+                            </ScrollPane>
+                        </VBox>
+                    </HBox>
+                    <Button fx:id="btnStartServer" mnemonicParsing="false" onAction="#startServerAction"
                             styleClass="button"
-                            text="Start">
+                            text="Start Server">
                     </Button>
                 </VBox>
             </Tab>
-            <Tab text="Join a Yatzi Host">
+            <Tab text="Join a Yatzi Host" fx:id="tabJoinHost">
                 <VBox spacing="15">
                     <padding>
                         <Insets left="7"/>
@@ -57,17 +77,19 @@
                             <Insets left="10" top="10" bottom="10"/>
                         </padding>
                         <HBox prefHeight="100.0" prefWidth="400.0" spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Local IP" styleClass="text-field-desc" />
-                            <TextField fx:id="remoteServerIp" text="127.0.0.1" prefWidth="120" styleClass="text-field-input">
+                            <Label text="Local IP" styleClass="text-field-desc"/>
+                            <TextField fx:id="remoteServerIp" text="127.0.0.1" prefWidth="120"
+                                       styleClass="text-field-input">
                             </TextField>
                         </HBox>
                         <HBox prefHeight="100.0" prefWidth="200.0" spacing="10" alignment="CENTER_LEFT">
-                            <Label text="Port" styleClass="text-field-desc" />
-                            <TextField fx:id="remoteServerPort" text="6000" prefWidth="70" styleClass="text-field-input">
+                            <Label text="Port" styleClass="text-field-desc"/>
+                            <TextField fx:id="remoteServerPort" text="6000" prefWidth="70"
+                                       styleClass="text-field-input">
                             </TextField>
                         </HBox>
                     </VBox>
-                    <Button mnemonicParsing="false" onAction="#joinServer" styleClass="button"
+                    <Button mnemonicParsing="false" fx:id="btnJoinServer" onAction="#joinServerAction" styleClass="button"
                             text="Join">
                     </Button>
                 </VBox>

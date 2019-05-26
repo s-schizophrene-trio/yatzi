@@ -1,6 +1,7 @@
 package ch.juventus.yatzi.network.handler;
 
 import ch.juventus.yatzi.network.model.Message;
+import ch.juventus.yatzi.network.model.Transfer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,13 +14,9 @@ import java.util.Queue;
 @NoArgsConstructor
 public class MessageHandler {
 
-    private Queue<Message> inputQueue = new LinkedList<>();
-    private Queue<Message> outputQueue = new LinkedList<>();
+    private Queue<Transfer> queue = new LinkedList<>();
 
-    public void send(Message message) {
-        this.outputQueue.add(message);
-    }
-    public void receive(Message message) {
-        this.inputQueue.add(message);
+    public void put(Transfer transfer) {
+        this.queue.add(transfer);
     }
 }

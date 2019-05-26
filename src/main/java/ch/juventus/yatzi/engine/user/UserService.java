@@ -24,13 +24,6 @@ public class UserService {
         users = new HashMap<>();
     }
 
-    public User generateUser() {
-        User generatedUser = new User(faker.funnyName().name());
-        localUser = generatedUser;
-        registerUser(generatedUser);
-        return generatedUser;
-    }
-
     /**
      * Fetches the list of all users joined the host server
      * @return A List of all Users of the game, including the local one!
@@ -65,7 +58,7 @@ public class UserService {
         if (localUser != null) {
             return localUser;
         } else {
-            return generateUser();
+            return null;
         }
     }
 
@@ -77,8 +70,11 @@ public class UserService {
      * Registers a user by the local user list
      * @param user The user object of the user to register
      */
-    public void registerUser(User user) {
+    public void registerUser(User user, Boolean isLocal) {
         users.put(user.getUserId(), user);
+        if (isLocal) {
+            localUser = user;
+        }
     }
 
 }
