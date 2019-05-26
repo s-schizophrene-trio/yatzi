@@ -9,10 +9,14 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class Transfer {
+
     private UUID sender;
-    private String context;
-    private String query;
+
+    @NonNull
+    private String function;
     private String body;
     private Date sentTime;
+
 }

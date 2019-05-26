@@ -1,21 +1,24 @@
 package ch.juventus.yatzi.ui.controller;
 
+import ch.juventus.yatzi.engine.user.User;
 import ch.juventus.yatzi.network.client.Client;
-import ch.juventus.yatzi.network.model.Message;
+import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.handler.MessageHandler;
+import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.network.server.Server;
 import ch.juventus.yatzi.network.helper.NetworkUtils;
 import ch.juventus.yatzi.ui.enums.ScreenType;
+import ch.juventus.yatzi.ui.enums.ServeType;
 import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewController;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
@@ -28,6 +31,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static ch.juventus.yatzi.network.helper.Commands.*;
 import static ch.juventus.yatzi.ui.enums.ServeType.CLIENT;
 import static ch.juventus.yatzi.ui.enums.ServeType.SERVER;
 
@@ -38,34 +42,43 @@ public class SetupController implements ViewController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    private ViewContext context;
-
     @FXML
     private Label localIpLabel;
-
     @FXML
     private String localIpAddress;
-
     @FXML
     private ProgressIndicator networkProgress;
+    @FXML
+    private TextField userName;
+    @FXML
+    private VBox setupUsersContainer;
+    @FXML
+    private GridPane setupUsersGrid;
 
     @FXML
     private TextField localServerPort;
-
     @FXML
-    private Button startServerButton;
-
-    private ScreenHelper screenHelper;
-
+    private Button btnStartServer;
     @FXML
     private TextField remoteServerIp;
-
     @FXML
     private TextField remoteServerPort;
+    @FXML
+    private Tab tabJoinHost;
+    @FXML
+    private Tab tabHostServer;
+    @FXML
+    private Button btnJoinServer;
+    @FXML
+    private VBox vboxStartServerContainer;
+    @FXML
+    private VBox vboxStartServerOuterContainer;
 
+    private Button btnStartGame;
+    private ViewContext context;
+    private ScreenHelper screenHelper;
     private MessageHandler messageHandler;
     private Boolean shouldListen = true;
-
     private ExecutorService messageHandlerPool;
 
     @FXML
@@ -74,14 +87,21 @@ public class SetupController implements ViewController {
         setSetupNotReady();
         messageHandler = new MessageHandler();
         screenHelper = new ScreenHelper();
+        btnStartGame = new Button();
+        btnStartGame.getStyleClass().add("button");
+        btnStartGame.setText("Start Game");
+        btnStartGame.addEventHandler(ActionEvent.ACTION,
+                event -> {
+                   startGame();
+                });
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
-                .namingPattern("UI Message Handler #%d")
+                .namingPattern("Setup Message Handler #%d")
                 .daemon(true)
                 .priority(Thread.MAX_PRIORITY)
                 .build();
 
-        messageHandlerPool = Executors.newSingleThreadExecutor( messagePoolFactory);
+        messageHandlerPool = Executors.newSingleThreadExecutor(messagePoolFactory);
     }
 
     /* ----------------- Initializer --------------------- */
@@ -89,11 +109,11 @@ public class SetupController implements ViewController {
     /**
      * Initialize the Board Controller after the View is rendered.
      *
-     * @param context The context of the Main Controller
+     * @param context The function of the Main Controller
      */
     @Override
     public void afterInit(ViewContext context) {
-        // store the reference to the main context
+        // store the reference to the main function
         this.context = context;
 
         // define a background
@@ -152,7 +172,7 @@ public class SetupController implements ViewController {
      * Disables all UI Components which depends on network information
      */
     private void setSetupNotReady() {
-        startServerButton.setDisable(true);
+        btnStartServer.setDisable(true);
         networkProgress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
     }
 
@@ -160,45 +180,135 @@ public class SetupController implements ViewController {
      * Enables all UI Components which depends on network Information
      */
     private void setSetupIsReady() {
-        startServerButton.setDisable(false);
+        btnStartServer.setDisable(false);
         networkProgress.setVisible(false);
     }
 
     /* ----------------- Server --------------------- */
 
-    public void joinServer() {
+    public void joinServerAction() {
+        if (!userName.getText().isEmpty()) {
+            userName.setDisable(true);
+            tabHostServer.setDisable(true);
+            btnJoinServer.setDisable(true);
+            joinServer(CLIENT);
+        } else {
+            context.getViewHandler().getStatusController().showError("username can not be empty");
+        }
+    }
+
+    private void joinServer(ServeType serveType) {
+
+        User localUser = new User(userName.getText(), serveType);
+        context.getYatziGame().getUserService().registerUser(localUser, true);
+
+        context.getYatziGame().setServeType(serveType);
+
         context.getViewHandler().getStatusController().updateStatus("connect to server..", true);
-        context.getYatziGame().setClient(setupClient());
-        context.getYatziGame().setServeType(CLIENT);
+        context.getYatziGame().setClient(setupClient(localUser));
         startServerListener(messageHandler);
+    }
+
+    public void startServerAction() {
+
+        int port = Integer.parseInt(localServerPort.getText());
+        context.getViewHandler().getStatusController().updateStatus("setup server..", true);
+
+        Server server = new Server();
+        context.getYatziGame().setServer(server);
+
+        try {
+
+            if (port < 1000) {
+                context.getViewHandler().getStatusController().showError("port have to be > 1000");
+            } else {
+
+                if (!userName.getText().isEmpty()) {
+                    server.start(port);
+                    context.getYatziGame().setServer(server);
+
+                    tabJoinHost.setDisable(true);
+                    userName.setDisable(true);
+
+                    joinServer(SERVER);
+
+                } else {
+                    context.getViewHandler().getStatusController().showError("username can not be empty");
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("failed to start the server");
+            e.printStackTrace();
+            context.getViewHandler().getStatusController().showError("failed to start the server");
+        }
     }
 
     /**
      * Listens to the Input Message Queue from the Server
+     *
      * @param messageHandler The handler, which should be used to transfer the messages
      */
-    public void startServerListener(MessageHandler messageHandler) {
+    private void startServerListener(MessageHandler messageHandler) {
 
         Runnable messageListener = () -> {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
             while (shouldListen) {
                 try {
-                    if (!messageHandler.getInputQueue().isEmpty()) {
+                    if (!messageHandler.getQueue().isEmpty()) {
+                        Transfer transfer = messageHandler.getQueue().poll();
+                        LOGGER.debug("client-message handler [incoming]: {}", transfer.toString());
 
-                        Message request = messageHandler.getInputQueue().poll();
+                        switch (transfer.getFunction()) {
+                            case NEW_PLAYER:
+                                Platform.runLater(() -> {
+                                    try {
+                                        setupUsersContainer.setVisible(true);
+                                        context.getViewHandler().getStatusController().updateStatus("waiting for players..", true);
+                                        User user = objectMapper.readValue(transfer.getBody(), User.class);
 
-                        LOGGER.debug("message handler [incoming]: {}", request.toString());
+                                        Label lblUser = new Label();
+                                        lblUser.getStyleClass().add("text-field-value");
+                                        lblUser.setText(user.getUserName());
 
-                        if (request.getMessage().contains("registration_successful")) {
+                                        Label lblUserId = new Label();
+                                        lblUserId.getStyleClass().add("text-field-value");
+                                        lblUserId.setText(user.getShortUserId());
 
-                            LOGGER.debug("successfully registered at yatzi server. show ui now.");
-                            Platform.runLater(() -> {
-                                // update the statusbar
-                                context.getViewHandler().getStatusController().updateStatus("connected to server", StatusType.OK);
-                                context.getViewHandler().getScreenHelper().showScreen(context, ScreenType.BOARD);
-                            });
+                                        int rowIndex = setupUsersGrid.getRowCount();
+
+                                        setupUsersGrid.add(lblUser, 0, rowIndex);
+                                        setupUsersGrid.add(lblUserId, 1, rowIndex);
+
+                                        // enable the start game button
+                                        btnStartServer.setVisible(false);
+
+                                        // only when more than 1 player is joined
+                                        if (setupUsersGrid.getRowCount() > 1) {
+                                            vboxStartServerOuterContainer.getChildren().remove(btnStartServer);
+                                            vboxStartServerContainer.getChildren().add(btnStartGame);
+                                        }
+                                    } catch (Exception e) {
+                                        LOGGER.error("Failed to update the user list: {}", e.getMessage());
+                                    }
+                                });
+                                break;
+                            case WAIT_FOR_GAME_READY:
+                                Platform.runLater(() -> {
+                                    context.getViewHandler().getStatusController().updateStatus("wait for host to start game", StatusType.PENDING);
+                                    btnJoinServer.setDisable(true);
+                                    tabHostServer.setDisable(true);
+                                });
+                                break;
+                            case GAME_READY:
+                                Platform.runLater(() -> {
+                                    context.getViewHandler().getScreenHelper().showScreen(context, ScreenType.BOARD);
+                                });
+                                break;
                         }
                     }
-
                 } catch (NoSuchElementException e) {
                     LOGGER.error("failed to extract the last element from queue");
                 }
@@ -215,54 +325,25 @@ public class SetupController implements ViewController {
         messageHandlerPool.submit(messageListenerTask);
     }
 
-    public void startServer() {
-
-        int port = Integer.parseInt(localServerPort.getText());
-        context.getViewHandler().getStatusController().updateStatus("setup server..", true);
-
-        Server server = new Server();
-        context.getYatziGame().setServer(server);
-
-        try {
-
-            if (port < 1000) {
-                context.getViewHandler().getStatusController().showError("port have to be > 1000");
-            } else {
-
-                server.start(port, context.getYatziGame().getUserMe().getUserId());
-
-                context.getYatziGame().setServer(server);
-                context.getYatziGame().setServeType(SERVER);
-
-                Client client = setupClient();
-                context.getYatziGame().setClient(client);
-
-                startServerListener(messageHandler);
-            }
-
-        } catch (Exception e) {
-            LOGGER.error("failed to start the server");
-            e.printStackTrace();
-            context.getViewHandler().getStatusController().showError("failed to start the server");
-        }
+    public void startGame() {
+        context.getYatziGame().getServer().broadcastMessage(new Transfer(Commands.GAME_READY), true);
     }
 
     /**
      * Connects to the server socket (local and remote)
      */
-    public Client setupClient() {
+    private Client setupClient(User user) {
 
-        // connects to the server
-        Client client = new Client(
-                remoteServerIp.getText(),
-                Integer.parseInt(remoteServerPort.getText()),
-                context.getYatziGame().getUserMe().getUserId(),
-                messageHandler
-        );
+            // connects to the server
+            Client client = new Client(
+                    remoteServerIp.getText(),
+                    Integer.parseInt(remoteServerPort.getText()),
+                    user.getUserId(),
+                    messageHandler
+            );
 
-        client.connect(context);
+            client.connect(context);
 
-        return client;
+            return client;
     }
-
 }

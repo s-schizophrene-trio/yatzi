@@ -58,7 +58,7 @@ public class ScreenHelper {
             // resize the window to scene size
             Stage rootStage = context.getStage();
             rootStage.sizeToScene();
-            this.centerStageOnScreen(rootStage);
+            //this.centerStageOnScreen(rootStage);
 
             LOGGER.debug("show view: {}", screenType);
         } catch (Exception e) {

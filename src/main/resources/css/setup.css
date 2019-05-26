@@ -7,6 +7,10 @@
     -fx-padding: 50 50 0 50;
 }
 
+.setup-users-container {
+    -fx-padding: 20;
+}
+
 
 .text-title-setup {
     -fx-font-size: 30;
@@ -23,14 +27,30 @@
     -fx-text-fill: black;
 }
 
+.text-field-desc-white {
+    -fx-font-size: 16;
+    -fx-text-fill: white;
+}
+
 .text-field-value {
     -fx-font-size: 16;
     -fx-text-fill: #113f89;
 }
 
+.text-field-value-white {
+    -fx-font-size: 16;
+    -fx-text-fill: #fff;
+}
+
 .text-field-input {
     -fx-font-size: 16;
     -fx-text-fill: #113f89;
+    -fx-background-color: rgba(0, 0, 0, .2);
+}
+
+.text-field-input-white {
+    -fx-font-size: 16;
+    -fx-text-fill: #fff;
     -fx-background-color: rgba(0, 0, 0, .2);
 }
 
@@ -45,4 +65,39 @@
 
 .progress-network {
     -fx-progress-color: #113f89;
+}
+
+/** Scroll Pane **/
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal, .scroll-bar:vertical{
+    -fx-background-color:transparent;
+}
+
+.increment-button, .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color: transparent;
+    -fx-border-color:derive( #000000,90%);
+    -fx-background-radius: 2em;
+    -fx-border-radius:2em;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #000000;
+    -fx-border-color:derive( #000000,90%);
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
 }

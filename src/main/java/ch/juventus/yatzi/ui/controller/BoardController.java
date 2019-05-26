@@ -4,6 +4,9 @@ import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.Field;
 import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.engine.field.FieldTypeHelper;
+import ch.juventus.yatzi.network.handler.MessageHandler;
+import ch.juventus.yatzi.network.helper.Commands;
+import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
@@ -11,6 +14,7 @@ import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewController;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
 import ch.juventus.yatzi.engine.user.User;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -21,13 +25,17 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * The Board Controller manages the primary Game UI.
@@ -40,6 +48,8 @@ public class BoardController implements ViewController {
 
     private ViewContext context;
     private ScreenHelper screenHelper;
+
+    private Boolean shouldListen = true;
 
     @FXML
     private Label screenTitle;
@@ -59,23 +69,38 @@ public class BoardController implements ViewController {
     // list to hold all combinations of the board table
     private List<BoardTableRow> boardTableRows;
 
+    private ExecutorService messageHandlerPool;
+
+    private MessageHandler messageHandler;
+
     /* ----------------- Initializer --------------------- */
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         screenTitle.setText(VIEW_TITLE);
         screenHelper = new ScreenHelper();
+        messageHandler = new MessageHandler();
+
+        BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
+                .namingPattern("Board Message Handler #%d")
+                .daemon(true)
+                .priority(Thread.MAX_PRIORITY)
+                .build();
+
+        messageHandlerPool = Executors.newSingleThreadExecutor( messagePoolFactory);
+
+        listenToLocalClient(messageHandler);
     }
 
     /**
      * Initialize the Board Controller after the View is rendered.
      *
-     * @param context The context of the Main Controller
+     * @param context The function of the Main Controller
      */
     @Override
     public void afterInit(ViewContext context) {
 
-        // store the reference to the view context
+        // store the reference to the view function
         this.context = context;
 
         // set the correct height for this screen
@@ -107,7 +132,7 @@ public class BoardController implements ViewController {
         this.context.getViewHandler().getStatusController().updateStatus("ready to play", StatusType.OK);
 
         // send demo message to server
-        //this.context.getBoard().getClient().sendAsyncMessage("Board started message");
+        //this.function.getBoard().getClient().sendAsyncMessage("Board started message");
     }
 
     /* ----------------- UI Rendering --------------------- */
@@ -247,6 +272,44 @@ public class BoardController implements ViewController {
         }
 
         return imageGroup;
+    }
+
+    /**
+     * Listens to the Input Message Queue from the Server
+     * @param messageHandler The handler, which should be used to transfer the messages
+     */
+    public void listenToLocalClient(MessageHandler messageHandler) {
+
+        Runnable messageListener = () -> {
+            while (shouldListen) {
+                try {
+                    if (!messageHandler.getQueue().isEmpty()) {
+                        Transfer transfer = messageHandler.getQueue().poll();
+                        LOGGER.debug("message handler [incoming]: {}", transfer.toString());
+
+                        if (transfer.getFunction().contains(Commands.GAME_READY)) {
+
+                            LOGGER.debug("successfully registered at yatzi server. show ui now.");
+
+                            Platform.runLater(() -> {
+                                context.getViewHandler().getStatusController().updateStatus("ready to play", StatusType.OK);
+                            });
+                        }
+                    }
+                } catch (NoSuchElementException e) {
+                    LOGGER.error("failed to extract the last element from queue");
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread messageListenerTask = new Thread(messageListener);
+        messageHandlerPool.submit(messageListenerTask);
     }
 
     /* ----------------- Actions --------------------- */

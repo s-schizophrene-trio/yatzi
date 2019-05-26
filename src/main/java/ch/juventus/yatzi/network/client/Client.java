@@ -4,7 +4,6 @@ import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +40,7 @@ public class Client {
 
     private Integer reconnects;
 
-    @Getter @Setter
-    MessageHandler messageHandler;
+    private MessageHandler messageHandler;
 
     /**
      * Creates a new Client and initialize all the static values.
@@ -56,6 +54,7 @@ public class Client {
         this.userId = userId;
         this.reconnects = 0;
         this.messageHandler = messageHandler;
+
 
         BasicThreadFactory clientPoolFactory = new BasicThreadFactory.Builder()
                 .namingPattern("Local Client #%d")
