@@ -114,7 +114,39 @@ __Sources__
 
 #### Implementation
 
-![socket communication](https://upload.skydevelopment.ch/selif/e517lwkc.jpg)
+```
+  Player 1 (Host)
+
+          +-----------------+
+  +-----> | Message Handler | <-------------+
+  |       +-----------------+               |
+  |                                         |
+  |                 +------------+      +---+--+
+  |   +-----------> |   Client   +----> | CT 1 +---+                            +-----------------+
+  |   |             +------------+      +------+   |                +---------> | Message Handler |
+ ++---+---+                                        |                |           +---------------+-+
+ |  Game  |                                        |                |                           ^
+ +-+--+---+                             +------+   |                |                           |
+   |  |             +------------+      |      | <-+            +---+--+     +--------+       +-+----+
+   |  +-----------> |   Server   +----> | CH 1 |XXXXXX TCP XXXXX| CT 1 | <---+ Client | <-----+ Game |    Player 2
+   |                +----------+-+      |      +---+            +------+     +--------+       +------+
+   |                           |        +------+   |
+   |                           |                   |
+   |                           |                   |
+   |                           +------> +------+   |            +------+     +--------+       +------+
+   |                                    | CH n |XXXXXX TCP XXXXX| CT 1 | <---+ Client | <-----+ Game |    Player n
+   |                                    +---+--+   +            +---+--+     +--------+       +-+----+
+   |      +-----------------+               |      |                |                           |
+   +----> | Message Handler | <-------------+      |                |                           v
+          +-----------------+                      |                |           +---------------+-+
+                                                   |                +---------> | Message Handler |
+                  ^                                |                            +-----------------+
+                  +--------------------------------+
+
+
+CT = Client Task
+CH = Client Handler
+```
 
 #### Communication Flow
 In this illustration the java socket flow is visualized. (Single Server Socket and Client Socket) 

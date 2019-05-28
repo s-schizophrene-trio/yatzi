@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * Each new Client will have its own ClientTask. The Connection to the client will be always open.
@@ -21,7 +20,7 @@ public class ClientHandler implements Runnable {
 
     Socket socket;
     MessageHandler messageHandler;
-    Boolean isRunning = true;
+    Boolean isRunning;
 
     ObjectMapper objectMapper;
     PrintWriter out;
@@ -31,6 +30,7 @@ public class ClientHandler implements Runnable {
         this.objectMapper = new ObjectMapper();
         this.messageHandler = messageHandler;
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.isRunning = true;
     }
 
     @Override
@@ -52,6 +52,10 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
             LOGGER.error("Failed to process incoming or outgoing traffic to client");
         }
+    }
+
+    public void stop() {
+        isRunning = false;
     }
 
     public void send(Transfer transfer) {

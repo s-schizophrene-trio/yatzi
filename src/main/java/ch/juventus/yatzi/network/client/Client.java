@@ -42,6 +42,8 @@ public class Client {
 
     private MessageHandler messageHandler;
 
+    private ClientTask clientTask;
+
     /**
      * Creates a new Client and initialize all the static values.
      * @param remoteIp Network IP of the Server to connect
@@ -86,11 +88,13 @@ public class Client {
                         clientSocket.connect(new InetSocketAddress(remoteIp, remotePort), 30000);
 
                         LOGGER.debug("client - remote address is {}", clientSocket.getRemoteSocketAddress().toString());
-                        clientExecutor.submit(new ClientTask(clientSocket,
+
+                        clientTask = new ClientTask(clientSocket,
                                 viewContext,
                                 viewContext.getYatziGame().getUserMe().getUserId(),
-                                messageHandler)
-                        );
+                                messageHandler);
+
+                        clientExecutor.submit(clientTask);
                     } catch (ConnectException e) {
                         LOGGER.debug("failed to establish a connection to server {}", e.getMessage());
                         try {
@@ -115,48 +119,16 @@ public class Client {
         clientConnectionExecutor.submit(new Thread(clientConnectTask));
     }
 
-    public String sendMessage(String msg) {
-        String response = "";
-        try {
-            Transfer t = new Transfer();
-            t.setSender(getUserId());
-        } catch (Exception e) {
-            LOGGER.error("failed to send message to server: {}", e.getMessage());
-        }
-        return response;
+    public void send(Transfer transfer) {
+        clientTask.send(transfer);
     }
 
-    public void sendAsyncMessage(String message) {
-        Runnable sendMessageTask = () -> {
-            try {
-
-                if (clientSocket == null) {
-                    LOGGER.error("Fucking client socket is NULL!");
-                }
-
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                out.println(message);
-
-            } catch (Exception e) {
-                LOGGER.error("unprocessable client request {}", e.getMessage());
-                e.printStackTrace();
-            }
-        };
-
-        // start the server thread
-        Thread sendMessageThread = new Thread(sendMessageTask);
-        sendMessageThread.start();
-    }
-
-    public void stopConnection() {
+    public void stop() {
         try {
-            //in.close();
-            //out.close();
-            clientSocket.close();
+            clientTask.stop();
+            clientConnectionExecutor.shutdown();
         } catch (Exception e) {
             LOGGER.error("failed to stop connection to server", e.getMessage());
         }
-
     }
-
 }
