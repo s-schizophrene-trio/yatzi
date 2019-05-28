@@ -1,7 +1,6 @@
 package ch.juventus.yatzi.network.client;
 
 import ch.juventus.yatzi.network.handler.MessageHandler;
-import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -17,7 +16,7 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.UUID;
 
-import static ch.juventus.yatzi.network.helper.Commands.NEW_PLAYER;
+import static ch.juventus.yatzi.network.helper.Commands.PLAYER_NEW;
 
 public class ClientTask implements Runnable {
 
@@ -53,7 +52,7 @@ public class ClientTask implements Runnable {
             // register local client / player at server
             Transfer t = new Transfer();
             t.setSender(userId);
-            t.setFunction(NEW_PLAYER);
+            t.setFunction(PLAYER_NEW);
             t.setBody(objectMapper.writeValueAsString(viewContext.getYatziGame().getUserMe()));
             String transferData = objectMapper.writeValueAsString(t);
 
