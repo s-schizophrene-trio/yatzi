@@ -339,9 +339,11 @@ public class BoardController implements ViewController {
 
         switch (context.getYatziGame().getServeType()) {
             case SERVER:
+                context.getYatziGame().getClient().stop();
                 context.getYatziGame().getServer().stop();
                 break;
             case CLIENT:
+                context.getYatziGame().getClient().stop();
                 break;
         }
 

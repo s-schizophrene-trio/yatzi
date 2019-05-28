@@ -29,6 +29,7 @@ public class ClientTask implements Runnable {
     private MessageHandler messageHandler;
     private ObjectMapper objectMapper;
     private PrintWriter out;
+    private Boolean isRunning;
 
     ClientTask(Socket clientSocket, ViewContext viewContext, UUID userId, MessageHandler messageHandler) {
         this.clientSocket = clientSocket;
@@ -37,6 +38,7 @@ public class ClientTask implements Runnable {
         this.messageHandler = messageHandler;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.isRunning = true;
     }
 
     @Override
@@ -58,7 +60,7 @@ public class ClientTask implements Runnable {
             // send registration to server
             out.println(transferData);
 
-            while ((fromServer = in.readLine()) != null) {
+            while ((fromServer = in.readLine()) != null && isRunning) {
                 LOGGER.debug("got message from server: {}", fromServer);
 
                 // try to parse the input message (only messages of type Transfer will be checked)
@@ -73,6 +75,10 @@ public class ClientTask implements Runnable {
             e.printStackTrace();
             LOGGER.error("failed to connect to server ip {} on port {} because of {}", clientSocket.getRemoteSocketAddress(), clientSocket.getPort(), e.getMessage());
         }
+    }
+
+    public void stop() {
+        isRunning = false;
     }
 
     public void send(Transfer transfer) {

@@ -176,11 +176,18 @@ public class Server {
     public void stop() {
         LOGGER.debug("stop the server socket");
         try {
+
+            this.isRunning = false;
+
+            for (ClientHandler ch : clients) {
+                ch.stop();
+            }
+
             this.serverPoolExecutor.shutdownNow();
             this.clientPoolExecutor.shutdownNow();
 
-            this.serverPoolExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
-            this.clientPoolExecutor.awaitTermination(1000, TimeUnit.MILLISECONDS);
+            this.serverPoolExecutor.awaitTermination(500, TimeUnit.MILLISECONDS);
+            this.clientPoolExecutor.awaitTermination(500, TimeUnit.MILLISECONDS);
         }  catch (Exception e) {
             LOGGER.error("failed to stop server because of: {}", e.getMessage());
         }
