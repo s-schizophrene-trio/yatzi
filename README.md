@@ -104,7 +104,7 @@ JavaDoc
  }
 ```
 
-### Networking (java.net)
+## Networking (java.net)
 
 By definition, a socket is one endpoint of a two-way communication link between two programs running on different computers on a network. A socket is bound to a port number so that the transport layer can identify the application that data is destined to be sent to.
 
@@ -112,7 +112,7 @@ __Sources__
 
 * https://www.baeldung.com/a-guide-to-java-sockets
 
-#### Implementation
+### Implementation
 
 ```
   Player 1 (Host)
@@ -147,6 +147,28 @@ __Sources__
 CT = Client Task
 CH = Client Handler
 ```
+
+### Data Transfer
+
+| Attribute | Type   | Description                                                                          |
+|-----------|--------|--------------------------------------------------------------------------------------|
+| Sender    | UUID   | UUID of the sender user / client. The server does not need to provide the Sender ID. |
+| Function  | String | Defines the reason for this network transfer.                                        |
+| Body      | String | The needed Model translated to a JSON String                                         |
+| Sent Time | Date   | Time when the transfer object was sent to the network.                               |
+
+#### Transfer Functions
+
+| Command             | Description                                                            | Body      |
+|---------------------|------------------------------------------------------------------------|-----------|
+| PLAYER_NEW          | A new player will join the the game.                                   | User      |
+| WAIT_FOR_GAME_READY | The server is waiting for new players to join.                         | -         |
+| GAME_READY          | The server has started the game.                                       | -         |
+| DICE_CHANGE         | The dice set has been changed.                                         | Dice[]    |
+| ROUND_START         | Starts a new round of the game.                                        | YatziGame |
+| BOARD_CHANGED       | The board has been changed. (includes the currently active user)       | Board     |
+| PLAYER_EXIT         | A player leaves the game early.                                        | User Id   |
+| GAME_END            | The game is finished. The user can exit the game or start a new party. | -         |
 
 #### Communication Flow
 In this illustration the java socket flow is visualized. (Single Server Socket and Client Socket) 
