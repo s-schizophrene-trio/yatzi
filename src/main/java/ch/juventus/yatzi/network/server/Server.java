@@ -2,7 +2,6 @@ package ch.juventus.yatzi.network.server;
 
 import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.helper.Commands;
-import ch.juventus.yatzi.network.model.Message;
 import ch.juventus.yatzi.network.model.Transfer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -129,7 +128,7 @@ public class Server {
                         Transfer transfer = messageHandler.getQueue().poll();
                         LOGGER.debug("server-message handler [incoming]: {}", transfer.toString());
 
-                        if (transfer.getFunction().contains(Commands.NEW_PLAYER)) {
+                        if (transfer.getFunction().contains(Commands.PLAYER_NEW)) {
                             // tell the main client, that a new user is registered
                             sendMessageToMainClient(transfer);
 

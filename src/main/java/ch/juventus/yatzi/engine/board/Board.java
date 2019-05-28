@@ -24,8 +24,6 @@ public class Board {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-
-
     // holds all the dice from the board
     private List<Dice> dice;
 

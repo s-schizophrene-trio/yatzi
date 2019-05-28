@@ -16,7 +16,6 @@ import ch.juventus.yatzi.ui.interfaces.ViewController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -262,7 +261,7 @@ public class SetupController implements ViewController {
                         LOGGER.debug("client-message handler [incoming]: {}", transfer.toString());
 
                         switch (transfer.getFunction()) {
-                            case NEW_PLAYER:
+                            case PLAYER_NEW:
                                 Platform.runLater(() -> {
                                     try {
                                         setupUsersContainer.setVisible(true);

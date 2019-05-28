@@ -9,6 +9,7 @@ import ch.juventus.yatzi.ui.enums.ServeType;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,7 +19,6 @@ public class YatziGame {
 
     @NonNull
     private Board board;
-
     private Client client;
     private Server server;
     private ServeType serveType;
