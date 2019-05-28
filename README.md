@@ -163,9 +163,10 @@ CH = Client Handler
 | Command             | Description                                                            | Body      |
 |---------------------|------------------------------------------------------------------------|-----------|
 | PLAYER_NEW          | A new player will join the the game.                                   | User      |
+| MAX_PLAYERS_REACHED | The maximum of clients is reached.                                     | -         |
 | WAIT_FOR_GAME_READY | The server is waiting for new players to join.                         | -         |
 | GAME_READY          | The server has started the game.                                       | -         |
-| DICE_CHANGE         | The dice set has been changed.                                         | Dice[]    |
+| DICE_CHANGED        | The dice set has been changed.                                         | Dice[]    |
 | ROUND_START         | Starts a new round of the game.                                        | YatziGame |
 | BOARD_CHANGED       | The board has been changed. (includes the currently active user)       | Board     |
 | PLAYER_EXIT         | A player leaves the game early.                                        | User Id   |
