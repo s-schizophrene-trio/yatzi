@@ -95,13 +95,14 @@ If you want to load an image from resource folder inside a `ScreenController`, u
 // @param key filename (lowercase)
 // @param fileExt file ending eg. "png"
 // @return A String with the relative image path
-this.mainController.getImage("icons/", imageKey, fileExt)
+screenHelper.getImage(classloader, subpath, imageKey, fileExt)
 
 //sample:
-Image image1 = this.mainController.getImage("icons/", "server", "png")
+Image image1 = screenHelper.getImage(this.context.getClassloader(), "background/", "board_background", "jpg");
 
 // render a image view based on this image:
-new ImageView(this.mainController.getImage("icons/", imageKey, fileExt));
+ImageView imageView1 = screenHelper.renderImageView(context.getClassloader(), "icons/", "server", "png")
+ImageView imageView1 = screenHelper.renderImageView(context.getClassloader(), "icons/", "server", "png", 200, 200)
 ```
 
 ### Naming Conventions
@@ -170,7 +171,6 @@ __Sources__
 
                                                                     Player n
 CT = Client Task
-
 CH = Client Handler
 ```
 
