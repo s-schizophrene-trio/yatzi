@@ -204,11 +204,13 @@ Each client opens a new connection to the server. The server tries to keep alive
 to prevent latency during game play due of connection establishing.
 
 ![java socket flow](https://www.oreilly.com/library/view/distributed-computing-in/9781787126992/assets/ea864328-5b66-4620-9dd8-9005c5af7986.png)
+_src: https://www.oreilly.com/library/view/distributed-computing-in/9781787126992/assets/ea864328-5b66-4620-9dd8-9005c5af7986.png_
 
 #### Client Handling
 This Yatzi Game (Host) is able to manage multiple Clients (max 7). To make this possible, the Server
 creates for each incoming Client a new Client Handler Thread. 
 ![java socket flow](https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgramming.png)
+_src: https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgramming.png_
 
 ### Build & Ship Info
 
