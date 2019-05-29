@@ -11,9 +11,10 @@
 - [Networking](#networking-javanet)
   * [Implementation](#implementation)
   * [Data Transfer](#data-transfer)
-- [Naming Conventions](#naming-conventions)
-- [Sonarqube](#static-code-testing-with-sonarqube)
-- [Design Guidelines](#identity)
+- [Yatzi Project]()
+  * [Naming Conventions](#naming-conventions)
+  * [Sonarqube](#static-code-testing-with-sonarqube)
+  * [Design Guidelines](#identity)
 
   
 
