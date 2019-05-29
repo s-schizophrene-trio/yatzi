@@ -37,17 +37,21 @@ public class Board {
      * Initialized a new Board with default config.
      */
     public Board() {
-        this.dice = this.initDiceSet(5);
+        this.dice = this.initDiceSet();
         LOGGER.debug("initialized a new board");
     }
 
     /**
-     * This method generates a set of dice used on the board.
-     * @param amount The amount of dice in the dice list
+     * This method generates a set of dice used on the board
      * @return array list with dice in it
      */
-    private List<Dice> initDiceSet(int amount) {
-        return new ArrayList<>();
-    }
+    private List<Dice> initDiceSet() {
+        List<Dice> dices = new ArrayList<>();
 
+        for (int i=0; i < 5; i++) {
+            dices.add(new Dice());
+        }
+        return dices;
+
+    }
 }
