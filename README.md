@@ -73,10 +73,11 @@ of the `MainController`
 | STATUS | The status bar will be added on each view and can be access from each controller.         |
 
 
-The `YatziApplication` represents the global context and holds the main stage of the application. 
-The context of this class will be shared with the `MainController`. This is necessary to adapt the window-size
-and other global attributes. Each `ScreenController` holds an instance of the `MainController`. This means every 
-component has access to `MainController` and `YatziApplication`. 
+The `YatziApplication`, an instance of `javafx.application.Application` creates a global `ch.juventus.yatzi.ui.models.FXContext` which holds the 
+main stage and the game instance of the application. The context will be accessed over the `ViewContext` interface. 
+The context instance will be shared with the `MainController`. This is necessary to adapt the window-size
+and other global attributes. Each `ScreenController` holds also an instance of the `ViewContext`. This means every 
+component has access to global `ViewContext` and its child values. 
 
 ### Image Handling
 
@@ -91,6 +92,7 @@ component has access to `MainController` and `YatziApplication`.
 If you want to load an image from resource folder inside a `ScreenController`, use following methods.
 
 ```
+// @param classloader The classloader of the context to access ressources
 // @param subPath The sub-path in the base image folder eg. "icons/"
 // @param key filename (lowercase)
 // @param fileExt file ending eg. "png"
@@ -198,8 +200,10 @@ CH = Client Handler
 | GAME_END            | The game is finished. The user can exit the game or start a new party. | -         |
 
 #### Communication Flow
-In this illustration the java socket flow is visualized. (Single Server Socket and Client Socket) 
-![java socket flow](https://vichargrave.github.io/assets/images/Socket-Workflow.png)
+Each client opens a new connection to the server. The server tries to keep alive these connections. This is needed 
+to prevent latency during game play due of connection establishing.
+
+![java socket flow](https://www.oreilly.com/library/view/distributed-computing-in/9781787126992/assets/ea864328-5b66-4620-9dd8-9005c5af7986.png)
 
 #### Client Handling
 This Yatzi Game (Host) is able to manage multiple Clients (max 7). To make this possible, the Server
