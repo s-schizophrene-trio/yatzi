@@ -1,6 +1,25 @@
 # Yatzi (JavaFX)
 
-### Getting Started
+- [Getting Started](#getting-started)
+  * [Setup Environment](#setup-environment)
+  * [Setup Java FX](#setup-javafx-with-gradle)
+  * [Debugging](#debugging)
+- [User Interface](#user-interface)
+  * [Java FX](#javafx)
+  * [Screen Types](#screen-types)
+  * [Image Handling](#image-handling)
+- [Networking](#networking-javanet)
+  * [Implementation](#implementation)
+  * [Data Transfer](#data-transfer)
+- [Naming Conventions](#naming-conventions)
+- [Sonarqube](#static-code-testing-with-sonarqube)
+- [Design Guidelines](#identity)
+
+  
+
+## Getting Started
+
+### Setup Environment
 
 * Install Gradle 5.3.1+
 * Install JDK 11.0.2
@@ -11,7 +30,7 @@
 
 https://openjfx.io/openjfx-docs/#gradle -> JavaFX and IntelliJ -> Non-modular with Gradle
 
-__Debugging__
+#### Debugging
 
 If you get this Error Message in IntelliJ...
 ```
@@ -21,6 +40,8 @@ You have to set some VM Options
 ```
 --module-path /path/to/your/javafx-sdk-11.0.2/lib --add-modules=javafx.controls,javafx.fxml
 ```
+
+## User Interface
 
 ### JavaFX
 
@@ -42,6 +63,7 @@ You have to set some VM Options
 `ScreenType` is an enum with all available Screens. Each `ScreenType` has to be implemented in the `loadScreen` method 
 of the `MainController`
 
+### Screen Types
 
 | Type   | Description                                                                                 |
 |--------|---------------------------------------------------------------------------------------------|
@@ -54,6 +76,8 @@ The `YatziApplication` represents the global context and holds the main stage of
 The context of this class will be shared with the `MainController`. This is necessary to adapt the window-size
 and other global attributes. Each `ScreenController` holds an instance of the `MainController`. This means every 
 component has access to `MainController` and `YatziApplication`. 
+
+### Image Handling
 
 #### Icons
 
@@ -186,6 +210,7 @@ creates for each incoming Client a new Client Handler Thread.
 * [How to run the application with gradle - stackoverflow](https://stackoverflow.com/a/52571719/5242747)
 
 #### Static Code testing with SonarQube
+
 ```
 $ docker-compose up
 $ ./gradlew sonarqube \
