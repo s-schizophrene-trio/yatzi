@@ -208,6 +208,9 @@ public class SetupController implements ViewController {
         startServerListener(messageHandler);
     }
 
+    /**
+     * Verify the user inputs and start a new server instance.
+     */
     public void startServerAction() {
 
         int port = Integer.parseInt(localServerPort.getText());
@@ -223,13 +226,13 @@ public class SetupController implements ViewController {
             } else {
 
                 if (!userName.getText().isEmpty()) {
-                    server.start(port);
+
+                    joinServer(SERVER);
+                    server.start(port, context.getYatziGame());
                     context.getYatziGame().setServer(server);
 
                     tabJoinHost.setDisable(true);
                     userName.setDisable(true);
-
-                    joinServer(SERVER);
 
                 } else {
                     context.getViewHandler().getStatusController().showError("username can not be empty");
@@ -251,9 +254,7 @@ public class SetupController implements ViewController {
     private void startServerListener(MessageHandler messageHandler) {
 
         Runnable messageListener = () -> {
-
             ObjectMapper objectMapper = new ObjectMapper();
-
             while (shouldListen) {
                 try {
                     if (!messageHandler.getQueue().isEmpty()) {
@@ -266,7 +267,9 @@ public class SetupController implements ViewController {
                                     try {
                                         setupUsersContainer.setVisible(true);
                                         context.getViewHandler().getStatusController().updateStatus("waiting for players..", true);
+
                                         User user = objectMapper.readValue(transfer.getBody(), User.class);
+                                        context.getYatziGame().getUserService().registerUser(user, false);
 
                                         Label lblUser = new Label();
                                         lblUser.getStyleClass().add("text-field-value");
@@ -303,6 +306,9 @@ public class SetupController implements ViewController {
                                 break;
                             case GAME_READY:
                                 Platform.runLater(() -> {
+
+                                    // stop message listener
+                                    this.shouldListen = false;
                                     context.getViewHandler().getScreenHelper().showScreen(context, ScreenType.BOARD);
                                 });
                                 break;
@@ -324,6 +330,9 @@ public class SetupController implements ViewController {
         messageHandlerPool.submit(messageListenerTask);
     }
 
+    /**
+     * Sends a broadcast message to all clients
+     */
     public void startGame() {
         context.getYatziGame().getServer().broadcastMessage(new Transfer(Commands.GAME_READY), true);
     }

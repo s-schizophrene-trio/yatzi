@@ -1,9 +1,13 @@
 package ch.juventus.yatzi.network.server;
 
+import ch.juventus.yatzi.engine.YatziGame;
 import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
@@ -16,6 +20,10 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static ch.juventus.yatzi.network.helper.Commands.CLIENT_READY;
+import static ch.juventus.yatzi.network.helper.Commands.PLAYER_NEW;
 
 public class Server {
 
@@ -41,6 +49,9 @@ public class Server {
 
     private MessageHandler messageHandler;
     private Boolean listen = true;
+
+    @Getter
+    private UUID serverUserId;
 
     /**
      * Initializes a new Server Object and their Executor Services.
@@ -82,9 +93,10 @@ public class Server {
      *
      * @param port The port, the server should run.
      */
-    public void start(int port) {
+    public void start(int port, YatziGame yatziGame) {
 
         this.localPort = port;
+        this.serverUserId = yatziGame.getUserService().getLocalUser().getUserId();
 
         Runnable serverTask = () -> {
             try {
@@ -92,7 +104,7 @@ public class Server {
                 this.serverSocket = new ServerSocket(port);
                 LOGGER.debug("Waiting for clients to connect...");
 
-                listenToClients();
+                listenToClients(yatziGame);
 
                 while (this.isRunning) {
                     this.clientSocket = serverSocket.accept();
@@ -114,11 +126,13 @@ public class Server {
     /**
      * Listens to the Input Message Queue from the Server
      */
-    public void listenToClients() {
+    public void listenToClients(YatziGame yatziGame) {
 
         Runnable messageListener = () -> {
 
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
             LOGGER.debug("start message handler for server messages..");
 
             while(listen) {
@@ -128,16 +142,22 @@ public class Server {
                         Transfer transfer = messageHandler.getQueue().poll();
                         LOGGER.debug("server-message handler [incoming]: {}", transfer.toString());
 
-                        if (transfer.getFunction().contains(Commands.PLAYER_NEW)) {
-                            // tell the main client, that a new user is registered
-                            sendMessageToMainClient(transfer);
-
-                            // tell the other clients, the have to wait until the main client gives the OK
-                            broadcastMessage(new Transfer(Commands.WAIT_FOR_GAME_READY), false);
+                        switch (transfer.getFunction()) {
+                            case PLAYER_NEW:
+                                // tell the main client, that a new user is registered
+                                sendMessageToMainClient(transfer);
+                                // tell the other clients, the have to wait until the main client gives the OK
+                                broadcastMessage(new Transfer(Commands.WAIT_FOR_GAME_READY), false);
+                                break;
+                            case CLIENT_READY:
+                                // Trigger the client to start the party
+                                String game = objectMapper.writeValueAsString(yatziGame);
+                                sendMessageToClientByUserId(transfer.getSender(), new Transfer(serverUserId, Commands.ROUND_START, game));
+                                break;
                         }
                     }
                 } catch (Exception e) {
-                    LOGGER.error("failed to extract the last element from queue");
+                    LOGGER.error("failed to extract the last element from queue: {}", e.getMessage());
                 }
 
                 try {
@@ -152,13 +172,38 @@ public class Server {
         messageHandlerPool.submit(messageListenerTask);
     }
 
+    /**
+     * Sends a message to the main client (local client in server mode)
+     * @param transfer Transfer object to transfer
+     */
     public void sendMessageToMainClient(Transfer transfer) {
         this.clients.get(0).send(transfer);
     }
 
     /**
+     * Sends a message to a client identified by its user id
+     * @param userId The unique id ot the user
+     * @param transfer The transfer object
+     */
+    public void sendMessageToClientByUserId(UUID userId, Transfer transfer) {
+
+       List<ClientHandler> clientHandlers =  clients.stream().filter(ch -> ch.getOwner().equals(userId)).collect(Collectors.toList());
+
+       if (!clientHandlers.isEmpty()) {
+           // client found. the message will be sent
+           ClientHandler ch = clientHandlers.get(0);
+           ch.send(transfer);
+       } else {
+           // client not found.
+           LOGGER.warn("client with the user id {} was not found on server", userId);
+       }
+    }
+
+    /**
      * Sends a Transfer Message to all Clients (without the main client)
-     * @param transfer
+     * @param transfer The transfer object
+     * @param includeServerClient  Should the local client also be informed? sometimes the server mode has more
+     *                             privileges and different ui components.
      */
     public void broadcastMessage(Transfer transfer, Boolean includeServerClient) {
 

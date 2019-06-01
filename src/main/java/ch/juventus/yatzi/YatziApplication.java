@@ -1,7 +1,6 @@
 package ch.juventus.yatzi;
 
 import ch.juventus.yatzi.engine.YatziGame;
-import ch.juventus.yatzi.engine.board.Board;
 import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;

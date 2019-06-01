@@ -2,26 +2,35 @@ package ch.juventus.yatzi.engine.user;
 
 import ch.juventus.yatzi.ui.enums.ServeType;
 import com.github.javafaker.Faker;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UserService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
     private Faker faker;
 
-    // Storage of local users
+    // In Memory Storage of all users
     private Map<UUID, User> users;
-
-    List<User> remoteUsers;
 
     private User localUser;
 
+    private Map<UUID, User> circleRoundPlayed;
+
+    @Getter
+    private UUID activeUserId;
+
     public UserService() {
         faker = new Faker();
-        users = new HashMap<>();
+        users = new LinkedHashMap<>();
+        circleRoundPlayed = new LinkedHashMap<>();
+
+        LOGGER.debug("user service initialized");
     }
 
     /**
@@ -50,16 +59,41 @@ public class UserService {
      * @return A ArrayList with users in it
      */
     public List<User> getUsers() {
-        generateFakeUsers();
         return new ArrayList<>(users.values());
+    }
+
+    public User getNextUserInCircleRound() {
+
+        for(User u : users.values()) {
+            if (circleRoundPlayed.get(u.getUserId()) != null) {
+                // user has already played in this circle
+            } else {
+                // user can play
+                activeUserId = u.getUserId();
+            }
+        }
+
+        return getUserById(activeUserId);
+    }
+
+    public void setActiveUserId(UUID userId) {
+        this.activeUserId = userId;
     }
 
     public User getLocalUser() {
         if (localUser != null) {
             return localUser;
         } else {
+            // the user is new and has to be generated
+
             return null;
         }
+    }
+
+    public void updateUsers(List<User> newUsers) {
+        Map<UUID, User> result1 = newUsers.stream().collect(
+                Collectors.toMap(User::getUserId, x -> x));
+        users.putAll(result1);
     }
 
     public User getUserById(UUID userId) {
@@ -74,6 +108,7 @@ public class UserService {
         users.put(user.getUserId(), user);
         if (isLocal) {
             localUser = user;
+            activeUserId = localUser.getUserId();
         }
     }
 
