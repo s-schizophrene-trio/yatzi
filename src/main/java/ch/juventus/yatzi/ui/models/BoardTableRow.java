@@ -5,6 +5,8 @@ import ch.juventus.yatzi.engine.user.User;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -12,8 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class BoardTableRow {
+
     @NonNull
     Field descField;
+
     @NonNull
     List<User> users;
 }

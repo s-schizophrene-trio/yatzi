@@ -1,7 +1,6 @@
 package ch.juventus.yatzi.ui.models;
 
 import ch.juventus.yatzi.engine.YatziGame;
-import ch.juventus.yatzi.engine.board.Board;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewHandler;
 import javafx.scene.Node;
@@ -17,7 +16,6 @@ public class FXContext implements ViewContext {
     private ViewHandler viewHandler;
 
     // function of the game
-    private Board board;
     private YatziGame yatziGame;
 
     @Override
@@ -38,16 +36,6 @@ public class FXContext implements ViewContext {
     @Override
     public void setRootNode(Node node) {
         this.rootNode = node;
-    }
-
-    @Override
-    public Board getBoard() {
-        return this.board;
-    }
-
-    @Override
-    public void setBoard(Board board) {
-        this.board = board;
     }
 
     @Override

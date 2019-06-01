@@ -6,10 +6,11 @@ import ch.juventus.yatzi.engine.user.UserService;
 import ch.juventus.yatzi.network.client.Client;
 import ch.juventus.yatzi.network.server.Server;
 import ch.juventus.yatzi.ui.enums.ServeType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -19,10 +20,17 @@ public class YatziGame {
 
     @NonNull
     private Board board;
+
+    @JsonIgnore
     private Client client;
+
+    @JsonIgnore
     private Server server;
+
+    @JsonIgnore
     private ServeType serveType;
 
+    @JsonIgnore
     private UserService userService;
 
     public YatziGame() {
@@ -34,6 +42,7 @@ public class YatziGame {
      * Gets the Local Users (Unique ID overall)
      * @return The User who is playing this instance of the game
      */
+    @JsonIgnore
     public User getUserMe() {
         return userService.getLocalUser();
     }
@@ -44,6 +53,29 @@ public class YatziGame {
      */
     public List<User> getPlayers() {
         return userService.getUsers();
+    }
+
+    public void setPlayers(List<User> users) {
+        userService.updateUsers(users);
+    }
+
+    public UUID getActiveUserId() {
+        return userService.getActiveUserId();
+    }
+
+    public void setActiveUserId(UUID userId) {
+        this.getUserService().setActiveUserId(userId);
+    }
+
+    @JsonIgnore
+    private void updatePlayers(List<User> users) {
+        userService.updateUsers(users);
+    }
+
+    @JsonIgnore
+    public void updateGame(YatziGame yatziGame) {
+        // update board
+        updatePlayers(yatziGame.getUserService().getUsers());
     }
 
 }

@@ -7,6 +7,9 @@ public class Commands {
     public static final String MAX_PLAYERS_REACHED = "max_players_reached"; // The maximum of clients is reached.
     public static final String PLAYER_EXIT = "player_exit"; // A player leaves the game early.
 
+    // client commands
+    public static final String CLIENT_READY = "client_ready"; // The client is ready to start a new game.
+
     // game commands
     public static final String WAIT_FOR_GAME_READY = "wait_for_game_ready"; // The server is waiting for new players to join.
     public static final String GAME_READY = "game_ready"; // The server has started the game.

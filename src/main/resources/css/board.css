@@ -33,22 +33,22 @@
 
 .table-view .column-header-background{
     /** -fx-background-color: rgba(255, 255, 255, .7); **/
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(255,255,255,0.5);
     -fx-border-width: 0 0 2 0;
-    -fx-border-color: white;
+    -fx-border-color: black;
 }
 
 .table-view .column-header,
 .table-view .column-header-background .filler {
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(255,255,255,0.5);
 }
 
 .table-view > .column-header-background > .nested-column-header > .column-header.table-column {
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(255,255,255,0.5);
 }
 
 .table-view .column-header .label {
-    -fx-text-fill: white;
+    -fx-text-fill: black;
     -fx-font-size: 15;
     -fx-font-weight: bold;
 }
@@ -74,7 +74,7 @@
 /* The main scrollbar **track** CSS class  */
 .table-view .scroll-bar:horizontal .track,
 .table-view .scroll-bar:vertical .track{
-    -fx-background-color: transparent;
+    -fx-background-color: rgba(255,255,255,0.5);
     -fx-border-color:derive( #000000,90%);
     -fx-background-radius: 2em;
     -fx-border-radius:2em;

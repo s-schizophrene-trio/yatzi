@@ -1,5 +1,6 @@
 package ch.juventus.yatzi.ui.controller;
 
+import ch.juventus.yatzi.engine.YatziGame;
 import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.Field;
 import ch.juventus.yatzi.engine.field.FieldType;
@@ -14,11 +15,16 @@ import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewController;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
 import ch.juventus.yatzi.engine.user.User;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -29,13 +35,13 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static ch.juventus.yatzi.network.helper.Commands.*;
 
 /**
  * The Board Controller manages the primary Game UI.
@@ -79,7 +85,6 @@ public class BoardController implements ViewController {
     public void initialize(URL location, ResourceBundle resources) {
         screenTitle.setText(VIEW_TITLE);
         screenHelper = new ScreenHelper();
-        messageHandler = new MessageHandler();
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
                 .namingPattern("Board Message Handler #%d")
@@ -88,8 +93,6 @@ public class BoardController implements ViewController {
                 .build();
 
         messageHandlerPool = Executors.newSingleThreadExecutor( messagePoolFactory);
-
-        listenToLocalClient(messageHandler);
     }
 
     /**
@@ -103,9 +106,22 @@ public class BoardController implements ViewController {
         // store the reference to the view function
         this.context = context;
 
+        // listen to the client-message handler queue
+        this.messageHandler = this.context.getYatziGame().getClient().getMessageHandler();
+        listenToLocalClient(messageHandler);
+
+        // inform the server, this client is ready to get board data
+        sendMessageToServer(
+                new Transfer(context.getYatziGame().getUserMe().getUserId(), CLIENT_READY)
+        );
+
         // set the correct height for this screen
         AnchorPane anchorPane =  (AnchorPane)context.getRootNode();
         anchorPane.setPrefHeight(850D);
+
+        tblPlayers.setDisable(true);
+        tblBoardMain.setDisable(true);
+        context.getViewHandler().getStatusController().updateStatus("waiting for data..", true);
 
         // render the ui
         renderPlayerTable();
@@ -129,7 +145,6 @@ public class BoardController implements ViewController {
 
         // update status bar
         this.context.getViewHandler().getStatusController().updateServeMode(context.getYatziGame().getServeType());
-        this.context.getViewHandler().getStatusController().updateStatus("ready to play", StatusType.OK);
 
         // send demo message to server
         //this.function.getBoard().getClient().sendAsyncMessage("Board started message");
@@ -176,13 +191,17 @@ public class BoardController implements ViewController {
      */
     public void generatePlayerTable() {
         if (context.getYatziGame() != null) {
+
             LOGGER.debug("{} users are active", context.getYatziGame().getPlayers().size());
 
             List<User> users = context.getYatziGame().getPlayers();
 
-            users.forEach(u -> {
+            // reset the table first
+            tblPlayers.getItems().clear();
+
+            for(User u : users) {
                 tblPlayers.getItems().add(u);
-            });
+            }
 
         } else {
             LOGGER.error("The reference to the main controller could not be accessed by the board controller");
@@ -207,6 +226,9 @@ public class BoardController implements ViewController {
     public void generateBoardTable() {
 
         LOGGER.debug("initialize board table");
+
+        tblBoardMain.getColumns().clear();
+        tblBoardMain.getItems().clear();
 
         boardTableRows = new ArrayList<>();
         for (FieldType fieldType : FieldType.values()) {
@@ -236,6 +258,13 @@ public class BoardController implements ViewController {
             TableColumn<BoardTableRow, String> userColumn = new TableColumn(users.get(index).getUserName());
             userColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getUsers().get(index).getShortUserId()));
             userColumn.setSortable(false);
+
+            if (users.get(index).getUserId().equals(context.getYatziGame().getActiveUserId())) {
+               userColumn.setStyle("-fx-background-color: rgba(235,242,216,0.7);");
+            } else {
+                userColumn. setStyle("-fx-background-color: rgba(229,229,229,0.7);");
+            }
+            userColumn.setEditable(false);
             userContainer.getColumns().add(userColumn);
         }
 
@@ -274,6 +303,10 @@ public class BoardController implements ViewController {
         return imageGroup;
     }
 
+    private void sendMessageToServer(Transfer transfer){
+            context.getYatziGame().getClient().send(transfer);
+    }
+
     /**
      * Listens to the Input Message Queue from the Server
      * @param messageHandler The handler, which should be used to transfer the messages
@@ -281,23 +314,43 @@ public class BoardController implements ViewController {
     public void listenToLocalClient(MessageHandler messageHandler) {
 
         Runnable messageListener = () -> {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
             while (shouldListen) {
                 try {
                     if (!messageHandler.getQueue().isEmpty()) {
+
                         Transfer transfer = messageHandler.getQueue().poll();
-                        LOGGER.debug("message handler [incoming]: {}", transfer.toString());
+                        LOGGER.debug("board-message handler [incoming]: {}", transfer.toString());
+                        switch (transfer.getFunction()) {
+                            case ROUND_START:
+                                YatziGame yatziGame = objectMapper.readValue(transfer.getBody(), YatziGame.class);
+                                context.getYatziGame().updateGame(yatziGame);
+                                context.getYatziGame().getUserService().getNextUserInCircleRound();
 
-                        if (transfer.getFunction().contains(Commands.GAME_READY)) {
+                                Platform.runLater(() -> {
 
-                            LOGGER.debug("successfully registered at yatzi server. show ui now.");
+                                    generatePlayerTable();
+                                    generateBoardTable();
+                                    //TODO: Implement round counter
+                                    tblPlayers.setDisable(false);
+                                    tblBoardMain.setDisable(false);
+                                    context.getViewHandler().getStatusController().updateStatus("round 1 started", StatusType.OK);
+                                });
 
-                            Platform.runLater(() -> {
-                                context.getViewHandler().getStatusController().updateStatus("ready to play", StatusType.OK);
-                            });
+                                break;
                         }
                     }
                 } catch (NoSuchElementException e) {
-                    LOGGER.error("failed to extract the last element from queue");
+                    LOGGER.error("failed to extract the last element from queue {}", e.getMessage());
+                } catch (JsonParseException e) {
+                    LOGGER.error("failed to parse the json: {}", e.getMessage());
+                } catch (JsonMappingException e) {
+                    LOGGER.error("failed to map json values: {}", e.getMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
                 try {

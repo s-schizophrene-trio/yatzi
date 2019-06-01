@@ -40,6 +40,7 @@ public class Client {
 
     private Integer reconnects;
 
+    @Getter
     private MessageHandler messageHandler;
 
     private ClientTask clientTask;
