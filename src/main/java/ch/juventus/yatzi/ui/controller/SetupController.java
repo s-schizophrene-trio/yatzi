@@ -95,7 +95,7 @@ public class SetupController implements ViewController {
                 });
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
-                .namingPattern("Setup Message Manager #%d")
+                .namingPattern("Setup Message Handler #%d")
                 .daemon(true)
                 .priority(Thread.MAX_PRIORITY)
                 .build();

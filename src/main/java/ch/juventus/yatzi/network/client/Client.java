@@ -65,7 +65,7 @@ public class Client {
                 .build();
 
         BasicThreadFactory clientExecutorFactory = new BasicThreadFactory.Builder()
-                .namingPattern("Local Client Manager #%d")
+                .namingPattern("Local Client Handler #%d")
                 .daemon(true)
                 .priority(Thread.MAX_PRIORITY)
                 .build();
@@ -128,7 +128,7 @@ public class Client {
             clientTask.stop();
             clientConnectionExecutor.shutdown();
         } catch (Exception e) {
-            LOGGER.error("failed to stop connection to server", e.getMessage());
+            LOGGER.error("failed to stop connection to server {}", e.getMessage());
         }
     }
 }

@@ -60,7 +60,7 @@ public class Server {
                 .build();
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
-                .namingPattern("Server Message Manager #%d")
+                .namingPattern("Server Message Handler #%d")
                 .daemon(true)
                 .priority(Thread.MAX_PRIORITY)
                 .build();
@@ -137,7 +137,7 @@ public class Server {
                         }
                     }
                 } catch (Exception e) {
-                    LOGGER.error("failed to extract the last element from queue");
+                    LOGGER.error("failed to extract the last element from queue {}", e.getMessage());
                 }
 
                 try {
