@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Each new Client will have its own ClientTask. The Connection to the client will be always open.
@@ -24,6 +25,8 @@ public class ClientHandler implements Runnable {
 
     ObjectMapper objectMapper;
     PrintWriter out;
+
+    UUID owner;
 
     public ClientHandler(Socket socket, MessageHandler messageHandler) {
         this.socket = socket;
@@ -45,7 +48,20 @@ public class ClientHandler implements Runnable {
 
             while ((fromClient = in.readLine()) != null && isRunning) {
                 LOGGER.debug("server got a new message from client: {}", fromClient);
-                messageHandler.put(objectMapper.readValue(fromClient, Transfer.class));
+                Transfer transfer = objectMapper.readValue(fromClient, Transfer.class);
+
+                // the first incoming message defines the owner of this connection
+                if (owner == null) {
+                    owner = transfer.getSender();
+                }
+
+                // validate if the request is from the registered user
+                if (owner.equals(transfer.getSender())) {
+                    messageHandler.put(transfer);
+                } else {
+                    LOGGER.debug("user validation failed. allowed user is {} and request was  {}", owner, fromClient);
+                }
+
             }
             socket.close();
         } catch (IOException e) {
@@ -54,7 +70,21 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * The owner is the only client allowed to use this thread. The owner will be initialized after
+     * the first incoming message.
+     * @return The uuid of the user from remote client
+     */
+    public UUID getOwner() {
+        return owner;
+    }
+
     public void stop() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         isRunning = false;
     }
 

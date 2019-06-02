@@ -1,6 +1,7 @@
 package ch.juventus.yatzi.network.client;
 
 import ch.juventus.yatzi.network.handler.MessageHandler;
+import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -77,6 +78,13 @@ public class ClientTask implements Runnable {
     }
 
     public void stop() {
+        // send exit message to server
+        send(new Transfer(userId, Commands.PLAYER_EXIT));
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         isRunning = false;
     }
 

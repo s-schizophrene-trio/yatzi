@@ -26,20 +26,21 @@ public class MainController implements ViewHandler {
     private ViewContext context;
 
     // ui helper
-    @Getter @Setter
+    @Getter
+    @Setter
     private ScreenHelper screenHelper;
 
     // each controller should be able to manage the status bar
     private StatusController statusController;
 
     @Override
-    public void setStatusController(StatusController statusController) {
-        this.statusController = statusController;
+    public StatusController getStatusController() {
+        return this.statusController;
     }
 
     @Override
-    public StatusController getStatusController() {
-        return this.statusController;
+    public void setStatusController(StatusController statusController) {
+        this.statusController = statusController;
     }
 
     @FXML
@@ -50,17 +51,26 @@ public class MainController implements ViewHandler {
 
     @Override
     public void afterInit(ViewContext context) {
+
         this.context = context;
-        this.screenHelper.clearScreen(context);
+        this.screenHelper.clearScreen(this.context);
         this.context.setViewHandler(this);
-        this.screenHelper.showScreen(context, ScreenType.SETUP);
+        this.screenHelper.showScreen(this.context, ScreenType.SETUP);
 
         // Set on Close Event
         context.getStage().setOnHiding(event -> Platform.runLater(() -> {
             LOGGER.info("application closed by click to close button");
 
-            // shutdown the server
-            this.context.getYatziGame().getServer().stop();
+            if (this.context.getYatziGame().getServeType() != null) {
+                switch (this.context.getYatziGame().getServeType()) {
+                    case SERVER:
+                        this.context.getYatziGame().getServer().stop();
+                        break;
+                    case CLIENT:
+                        this.context.getYatziGame().getClient().stop();
+                        break;
+                }
+            }
 
             System.exit(0);
         }));

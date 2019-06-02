@@ -6,22 +6,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UserService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
     private Faker faker;
 
-    // Storage of local users
+    // In Memory Storage of all users
     private Map<UUID, User> users;
-
-    List<User> remoteUsers;
 
     private User localUser;
 
     public UserService() {
         faker = new Faker();
-        users = new HashMap<>();
+        users = new LinkedHashMap<>();
+
+        LOGGER.debug("user service initialized");
     }
 
     /**
@@ -50,7 +52,6 @@ public class UserService {
      * @return A ArrayList with users in it
      */
     public List<User> getUsers() {
-        generateFakeUsers();
         return new ArrayList<>(users.values());
     }
 
@@ -58,8 +59,21 @@ public class UserService {
         if (localUser != null) {
             return localUser;
         } else {
+            // the user is new and has to be generated
+
             return null;
         }
+    }
+
+    public void updateUsers(List<User> newUsers) {
+        users.clear();
+        Map<UUID, User> result1 = newUsers.stream().collect(
+                Collectors.toMap(User::getUserId, x -> x));
+        users.putAll(result1);
+    }
+
+    public void removeUserById(UUID userId) {
+        users.remove(userId);
     }
 
     public User getUserById(UUID userId) {
@@ -70,11 +84,12 @@ public class UserService {
      * Registers a user by the local user list
      * @param user The user object of the user to register
      */
-    public void registerUser(User user, Boolean isLocal) {
+    public User registerUser(User user, Boolean isLocal) {
         users.put(user.getUserId(), user);
         if (isLocal) {
             localUser = user;
         }
+        return user;
     }
 
 }

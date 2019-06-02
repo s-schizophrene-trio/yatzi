@@ -11,52 +11,47 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="boardContainer" styleClass="board-container" xmlns="http://javafx.com/javafx/8.0.172-ea"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.BoardController"
-      prefHeight="850" >
+<VBox fx:id="boardContainer" prefHeight="850" styleClass="board-container" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.BoardController">
 
     <padding>
-        <Insets left="50" right="50"/>
+        <Insets left="50" right="50" />
     </padding>
 
     <HBox prefWidth="-Infinity">
         <VBox>
-            <Label fx:id="screenTitle" alignment="CENTER_LEFT" prefWidth="200" styleClass="text-title-board"
-                   text="Application Name">
+            <Label fx:id="screenTitle" alignment="CENTER_LEFT" prefWidth="200" styleClass="text-title-board" text="Application Name">
                 <padding>
-                    <Insets top="50.0" bottom="50"/>
+                    <Insets bottom="50" top="50.0" />
                 </padding>
             </Label>
 
             <VBox styleClass="box-user-info">
-                <Label fx:id="currentUser" alignment="BOTTOM_LEFT" styleClass="text-title-subtitle"
-                       text="your username">
+                <Label fx:id="currentUser" alignment="BOTTOM_LEFT" styleClass="text-title-subtitle" text="your username">
                 </Label>
-                <Label fx:id="currentUserId" alignment="BOTTOM_LEFT" styleClass="text-user-id" text="your user id"
-                       textFill="#13455e">
+                <Label fx:id="currentUserId" alignment="BOTTOM_LEFT" styleClass="text-user-id" text="your user id" textFill="#13455e">
                     <padding>
-                        <Insets top="5.0"/>
+                        <Insets top="5.0" />
                     </padding>
                 </Label>
             </VBox>
         </VBox>
 
-        <Region prefWidth="50.0" HBox.hgrow="SOMETIMES"/>
+        <Region prefWidth="50.0" HBox.hgrow="SOMETIMES" />
 
         <VBox alignment="TOP_RIGHT" prefHeight="175.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
             <HBox.margin>
-                <Insets top="15.0"/>
+                <Insets top="15.0" />
             </HBox.margin>
             <HBox alignment="TOP_RIGHT" prefWidth="150" spacing="10">
-                <Button mnemonicParsing="false" onAction="#exit" text="Quit Game"/>
+                <Button mnemonicParsing="false" onAction="#exit" text="Quit Game" />
             </HBox>
 
             <TabPane styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
                 <Tab text="Players">
-                    <TableView fx:id="tblPlayers" prefWidth="200.0"/>
+                    <TableView fx:id="tblPlayers" prefWidth="200.0" />
                 </Tab>
                 <Tab text="Server Info">
-                    <AnchorPane prefWidth="200" styleClass="border-gray"/>
+                    <AnchorPane prefWidth="200" styleClass="border-gray" />
                 </Tab>
             </TabPane>
         </VBox>
@@ -64,12 +59,13 @@
 
     <TableView fx:id="tblBoardMain" prefHeight="507" prefWidth="550.0">
         <VBox.margin>
-            <Insets top="30.0"/>
+            <Insets top="30.0" />
         </VBox.margin>
     </TableView>
 
-    <HBox prefHeight="50.0" prefWidth="-Infinity" styleClass="box-dice-container">
+    <HBox prefHeight="30.0" prefWidth="-Infinity" styleClass="box-dice-container">
 
     </HBox>
+    <Button mnemonicParsing="false" text="Next Player" styleClass="button" onAction="#nextPlayer" />
 
 </VBox>

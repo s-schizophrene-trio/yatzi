@@ -11,6 +11,7 @@
 - [Networking](#networking-javanet)
   * [Implementation](#implementation)
   * [Data Transfer](#data-transfer)
+  * [Protocol Functions](#transfer-functions)
 - [Yatzi Project]()
   * [Naming Conventions](#naming-conventions)
   * [Sonarqube](#static-code-testing-with-sonarqube)
@@ -73,10 +74,11 @@ of the `MainController`
 | STATUS | The status bar will be added on each view and can be access from each controller.         |
 
 
-The `YatziApplication` represents the global context and holds the main stage of the application. 
-The context of this class will be shared with the `MainController`. This is necessary to adapt the window-size
-and other global attributes. Each `ScreenController` holds an instance of the `MainController`. This means every 
-component has access to `MainController` and `YatziApplication`. 
+The `YatziApplication`, an instance of `javafx.application.Application` creates a global `ch.juventus.yatzi.ui.models.FXContext` which holds the 
+main stage and the game instance of the application. The context will be accessed over the `ViewContext` interface. 
+The context instance will be shared with the `MainController`. This is necessary to adapt the window-size
+and other global attributes. Each `ScreenController` holds also an instance of the `ViewContext`. This means every 
+component has access to global `ViewContext` and its child values. 
 
 ### Image Handling
 
@@ -91,17 +93,19 @@ component has access to `MainController` and `YatziApplication`.
 If you want to load an image from resource folder inside a `ScreenController`, use following methods.
 
 ```
+// @param classloader The classloader of the context to access ressources
 // @param subPath The sub-path in the base image folder eg. "icons/"
 // @param key filename (lowercase)
 // @param fileExt file ending eg. "png"
 // @return A String with the relative image path
-this.mainController.getImage("icons/", imageKey, fileExt)
+screenHelper.getImage(classloader, subpath, imageKey, fileExt)
 
 //sample:
-Image image1 = this.mainController.getImage("icons/", "server", "png")
+Image image1 = screenHelper.getImage(this.context.getClassloader(), "background/", "board_background", "jpg");
 
 // render a image view based on this image:
-new ImageView(this.mainController.getImage("icons/", imageKey, fileExt));
+ImageView imageView1 = screenHelper.renderImageView(context.getClassloader(), "icons/", "server", "png")
+ImageView imageView1 = screenHelper.renderImageView(context.getClassloader(), "icons/", "server", "png", 200, 200)
 ```
 
 ### Naming Conventions
@@ -140,38 +144,47 @@ __Sources__
 ### Implementation
 
 ```
-  Player 1 (Host)
-
-          +-----------------+
-  +-----> | Message Handler | <-------------+
-  |       +-----------------+               |                       Player 2
-  |                                         |
-  |                 +------------+      +---+--+
-  |   +-----------> |   Client   +----> | CT 1 +---+                            +-----------------+
-  |   |             +------------+      +------+   |                +---------> | Message Handler |
- ++---+---+                                        |                |           +---------------+-+
- |  Game  |                                        |                |                           ^
- +-+--+---+                             +------+   |                |                           |
-   |  |             +------------+      |      | <-+            +---+--+     +--------+       +-+----+
-   |  +-----------> |   Server   +----> | CH 1 |XXXXXX TCP XXXXX| CT 1 | <---+ Client | <-----+ Game |
-   |                +----------+-+      |      +---+            +------+     +--------+       +------+
-   |                           |        +------+   |
-   |                           |                   |
-   |                           |                   |
-   |                           +------> +------+   |            +------+     +--------+       +------+
-   |                                    | CH n |XXXXXX TCP XXXXX| CT 1 | <---+ Client | <-----+ Game |
-   |                                    +---+--+   +            +---+--+     +--------+       +-+----+
-   |      +-----------------+               |      |                |                           |
-   +----> | Message Handler | <-------------+      |                |                           v
-          +-----------------+                      |                |           +---------------+-+
-                                                   |                +---------> | Message Handler |
-                  ^                                |                            +-----------------+
-                  +--------------------------------+
-
-                                                                    Player n
-CT = Client Task
-
-CH = Client Handler
++---------------------------------------------------+
+|                                                   |
+|   Player 1 (Host)                                 |
+|                                                   |
+|           +-----------------+                     |
+|   +-----> | Message Handler | <-------------+     |
+|   |       +-----------------+               |     |
+|   |                                         |     |
+|   |                 +------------+      +---+--+  |
+|   |   +-----------> |   Client   +----> | CT 1 |  |
+|   |   |             +------------+      +------+  |
+|  ++---+---+                                X      |          +-------------------------------------------+
+|  |  Game  |                               TCP     |          |                                           |
+|  ++---+---+                                X      |          |  Player 2                                 |
+|   |   |             +------------+      +------+  |          |                                           |
+|   |   +-----------> |   Ser|er   +----> | CH 1 |  |          |                   +-----------------+     |
+|   |                 +------------+      +--+----  |          |       +---------> | Message Handler |     |
+|   |                                        |      |          |       |           +---------------+-+     |
+|   |                +-----------------------+      |          |       |                           ^       |
+|   |                |                              |          |       |                           |       |
+|   |                |                    +------+  |          |   +---+--+     +--------+       +-+----+  |
+|   |                |  +-----------------+ CH 2 |XX|XXXX_TCP_X|XXX| CT 1 | <---+ Client | <-----+ Game |  |
+|   |                |  |                 +------+  |          |   +------+     +--------+       +------+  |
+|   |                |  |                           |          |                                           |
+|   |                |  |                           |          +-------------------------------------------+
+|   |                |  |                           |
+|   |                v  v                           |          +-------------------------------------------+
+|   |                                               |          |                                           |
+|   |        +-----------------+          +------+  |          |  +------+     +--------+       +------+   |
+|   +------> | Message Handler | <--------+ CH n |XX|XXX_TCP_XX|XX| CT 1 | <---+ Client | <-----+ Game |   |
+|            +-----------------+          +------+  |          |  +---+--+     +--------+       +-+----+   |
+|                                                   |          |      |                           |        |
++---------------------------------------------------+          |      |                           v        |
+                                                               |      |           +---------------+-+      |
+                                                               |      +---------> | Message Handler |      |
+                                                               |                  +-----------------+      |
+                                                               |                                           |
+                                                               |                                           |
+                                                               |  Player n                                 |
+ CT = Client Task                                              |                                           |
+ CH = Client Handler                                           +-------------------------------------------+
 ```
 
 ### Data Transfer
@@ -191,20 +204,27 @@ CH = Client Handler
 | MAX_PLAYERS_REACHED | The maximum of clients is reached.                                     | -         |
 | WAIT_FOR_GAME_READY | The server is waiting for new players to join.                         | -         |
 | GAME_READY          | The server has started the game.                                       | -         |
+| CLIENT_READY        | The client is ready to start a new game.                               | -         |
 | DICE_CHANGED        | The dice set has been changed.                                         | Dice[]    |
 | ROUND_START         | Starts a new round of the game.                                        | YatziGame |
-| BOARD_CHANGED       | The board has been changed. (includes the currently active user)       | Board     |
+| GAME_CHANGED        | The game has been changed. (includes the currently active user)        | YatziGame |
 | PLAYER_EXIT         | A player leaves the game early.                                        | User Id   |
 | GAME_END            | The game is finished. The user can exit the game or start a new party. | -         |
 
 #### Communication Flow
-In this illustration the java socket flow is visualized. (Single Server Socket and Client Socket) 
-![java socket flow](https://vichargrave.github.io/assets/images/Socket-Workflow.png)
+Each client opens a new connection to the server. The server tries to keep alive these connections. This is needed 
+to prevent latency during game play due of connection establishing.
+
+![java socket flow](https://www.oreilly.com/library/view/distributed-computing-in/9781787126992/assets/ea864328-5b66-4620-9dd8-9005c5af7986.png)
+
+_https://www.oreilly.com/library/view/distributed-computing-in/9781787126992/assets/ea864328-5b66-4620-9dd8-9005c5af7986.png_
 
 #### Client Handling
 This Yatzi Game (Host) is able to manage multiple Clients (max 7). To make this possible, the Server
 creates for each incoming Client a new Client Handler Thread. 
 ![java socket flow](https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgramming.png)
+
+_https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgramming.png_
 
 ### Build & Ship Info
 
