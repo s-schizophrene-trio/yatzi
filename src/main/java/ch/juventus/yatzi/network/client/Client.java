@@ -65,7 +65,7 @@ public class Client {
                 .build();
 
         BasicThreadFactory clientExecutorFactory = new BasicThreadFactory.Builder()
-                .namingPattern("Local Client Handler #%d")
+                .namingPattern("Local Client Manager #%d")
                 .daemon(true)
                 .priority(Thread.MAX_PRIORITY)
                 .build();

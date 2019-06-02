@@ -60,7 +60,7 @@ public class Server {
                 .build();
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
-                .namingPattern("Server Message Handler #%d")
+                .namingPattern("Server Message Manager #%d")
                 .daemon(true)
                 .priority(Thread.MAX_PRIORITY)
                 .build();

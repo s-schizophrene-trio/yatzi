@@ -82,7 +82,7 @@ public class BoardController implements ViewController {
         messageHandler = new MessageHandler();
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
-                .namingPattern("Board Message Handler #%d")
+                .namingPattern("Board Message Manager #%d")
                 .daemon(true)
                 .priority(Thread.MAX_PRIORITY)
                 .build();
