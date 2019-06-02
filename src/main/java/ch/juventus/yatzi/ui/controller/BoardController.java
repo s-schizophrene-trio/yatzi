@@ -12,6 +12,8 @@ import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewController;
+import ch.juventus.yatzi.ui.models.ActionCell;
+import ch.juventus.yatzi.ui.models.ActionField;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
 import ch.juventus.yatzi.engine.user.User;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -30,6 +32,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.util.Callback;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,10 +232,8 @@ public class BoardController implements ViewController {
         tblBoardMain.getColumns().clear();
         tblBoardMain.getItems().clear();
 
-        boardTableRows = new ArrayList<>();
-        for (FieldType fieldType : FieldType.values()) {
-            boardTableRows.add(new BoardTableRow(new Field(fieldType), context.getYatziGame().getPlayers()));
-        }
+        // generate the table raw data list. based on this list, the data will be rendered
+        boardTableRows = getBoardTableRows();
 
         // static combinations
         TableColumn<BoardTableRow, VBox> fieldsContainer = new TableColumn("Fields");
@@ -271,11 +272,59 @@ public class BoardController implements ViewController {
             userContainer.getColumns().add(userColumn);
         }
 
-        // User column to main table
+        // user column to main table
         tblBoardMain.getColumns().add(userContainer);
+
+        // add action column
+        addButtonToTable(tblBoardMain);
+
 
         // fill the table with the board table items
         tblBoardMain.getItems().addAll(boardTableRows);
+    }
+
+    private List<BoardTableRow> getBoardTableRows() {
+
+        List<BoardTableRow> rows = new ArrayList<>();
+
+        for (FieldType fieldType : FieldType.values()) {
+
+            if (fieldType == FieldType.SUB_TOTAL || fieldType ==  FieldType.TOTAL) {
+                rows.add(new BoardTableRow(
+                        new Field(fieldType, true),
+                        context.getYatziGame().getPlayers(),
+                        new ActionField(false)
+                ));
+            } else {
+                rows.add(new BoardTableRow(
+                        new Field(fieldType, false),
+                        context.getYatziGame().getPlayers(),
+                        new ActionField(true)
+                ));
+            }
+        }
+
+        return rows;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addButtonToTable(TableView table) {
+
+        TableColumn<BoardTableRow, ActionField> actionColumn = new TableColumn("Action");
+
+        Callback<TableColumn<BoardTableRow, ActionField>, TableCell<BoardTableRow, ActionField>> cellFactory = new Callback<>() {
+
+            @Override
+            public TableCell<BoardTableRow, ActionField> call(final TableColumn<BoardTableRow, ActionField> param) {
+               return new ActionCell<>();
+            }
+        };
+
+        actionColumn.setCellValueFactory(new PropertyValueFactory<>("actionField"));
+        actionColumn.setCellFactory(cellFactory);
+
+        table.getColumns().add(actionColumn);
+
     }
 
     /**
@@ -393,6 +442,13 @@ public class BoardController implements ViewController {
 
     /* ----------------- Actions --------------------- */
 
+    /**
+     * Displays an JavaFX Alert Box
+     * @param type Alert.AlertType
+     * @param title Will be displayed in the window title bar
+     * @param header Will be displayed as main text
+     * @param content Will be displayed as action text
+     */
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -436,7 +492,6 @@ public class BoardController implements ViewController {
 
         switch (context.getYatziGame().getServeType()) {
             case SERVER:
-                context.getYatziGame().getClient().stop();
                 context.getYatziGame().getServer().stop();
                 break;
             case CLIENT:
