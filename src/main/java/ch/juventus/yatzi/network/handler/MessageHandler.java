@@ -1,6 +1,5 @@
 package ch.juventus.yatzi.network.handler;
 
-import ch.juventus.yatzi.network.model.Message;
 import ch.juventus.yatzi.network.model.Transfer;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
