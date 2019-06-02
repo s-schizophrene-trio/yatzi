@@ -344,7 +344,6 @@ public class BoardController implements ViewController {
 
                                 break;
                             case GAME_CHANGED:
-
                                 YatziGame game = objectMapper.readValue(transfer.getBody(), YatziGame.class);
                                 context.getYatziGame().updateGame(game);
 
@@ -354,12 +353,19 @@ public class BoardController implements ViewController {
 
                                     generatePlayerTable();
                                     generateBoardTable();
+
                                     //TODO: Implement round counter
                                     tblPlayers.setDisable(false);
                                     tblBoardMain.setDisable(false);
                                     context.getViewHandler().getStatusController().updateStatus("round 1 in progress", StatusType.OK);
                                 });
-
+                                break;
+                            case GAME_END:
+                                break;
+                            case SERVER_EXIT:
+                                Platform.runLater(() -> {
+                                    showAlert(Alert.AlertType.ERROR, "Server Error", "Server has finished the game.", "Exit the Game?");
+                                });
                                 break;
                         }
                     }
@@ -387,15 +393,14 @@ public class BoardController implements ViewController {
 
     /* ----------------- Actions --------------------- */
 
-    @FXML
-    private void showMessage() {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Message Here...");
-        alert.setHeaderText("Look, an Information Dialog");
-        alert.setContentText("I have a great message for you!");
+    private void showAlert(Alert.AlertType type, String title, String header, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
         alert.showAndWait().ifPresent(rs -> {
             if (rs == ButtonType.OK) {
-                LOGGER.debug("pressed OK");
+                System.exit(0);
             }
         });
     }

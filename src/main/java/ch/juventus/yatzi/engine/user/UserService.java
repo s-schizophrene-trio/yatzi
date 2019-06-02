@@ -55,7 +55,6 @@ public class UserService {
         return new ArrayList<>(users.values());
     }
 
-
     public User getLocalUser() {
         if (localUser != null) {
             return localUser;
@@ -67,9 +66,14 @@ public class UserService {
     }
 
     public void updateUsers(List<User> newUsers) {
+        users.clear();
         Map<UUID, User> result1 = newUsers.stream().collect(
                 Collectors.toMap(User::getUserId, x -> x));
         users.putAll(result1);
+    }
+
+    public void removeUserById(UUID userId) {
+        users.remove(userId);
     }
 
     public User getUserById(UUID userId) {

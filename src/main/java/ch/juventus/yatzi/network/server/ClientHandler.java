@@ -80,6 +80,11 @@ public class ClientHandler implements Runnable {
     }
 
     public void stop() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         isRunning = false;
     }
 

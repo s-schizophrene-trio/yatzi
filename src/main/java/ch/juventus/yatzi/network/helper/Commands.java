@@ -17,5 +17,5 @@ public class Commands {
     public static final String ROUND_START = "round_start"; // Starts a new round of the game.
     public static final String GAME_CHANGED = "board_changed"; // The board has been changed. (includes the currently active user)
     public static final String GAME_END = "game_end"; // The game is finished. The user can exit the game or start a new party.
-
+    public static final String SERVER_EXIT = "server_exit"; // The server closes its application.
 }

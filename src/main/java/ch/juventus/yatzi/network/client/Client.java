@@ -1,6 +1,7 @@
 package ch.juventus.yatzi.network.client;
 
 import ch.juventus.yatzi.network.handler.MessageHandler;
+import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import lombok.Getter;
