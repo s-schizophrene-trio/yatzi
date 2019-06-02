@@ -4,8 +4,6 @@ import ch.juventus.yatzi.engine.YatziGame;
 import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
@@ -22,8 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static ch.juventus.yatzi.network.helper.Commands.CLIENT_READY;
-import static ch.juventus.yatzi.network.helper.Commands.PLAYER_NEW;
+import static ch.juventus.yatzi.network.helper.Commands.*;
 
 public class Server {
 
@@ -145,14 +142,28 @@ public class Server {
                         switch (transfer.getFunction()) {
                             case PLAYER_NEW:
                                 // tell the main client, that a new user is registered
-                                sendMessageToMainClient(transfer);
+                                //sendMessageToMainClient(transfer);
+                                sendMessageToClientByUserId(yatziGame.getUserMe().getUserId(), transfer);
                                 // tell the other clients, the have to wait until the main client gives the OK
                                 broadcastMessage(new Transfer(Commands.WAIT_FOR_GAME_READY), false);
                                 break;
-                            case CLIENT_READY:
+                            case CLIENT_READY: // the client has loaded its board and is ready to get the updated game
                                 // Trigger the client to start the party
                                 String game = objectMapper.writeValueAsString(yatziGame);
                                 sendMessageToClientByUserId(transfer.getSender(), new Transfer(serverUserId, Commands.ROUND_START, game));
+                                break;
+                            case GAME_CHANGED: // A client has updated the game
+                                // Trigger the client to start the party
+                                YatziGame changedGame = objectMapper.readValue(transfer.getBody(), YatziGame.class);
+                                yatziGame.updateGame(changedGame);
+                                yatziGame.nextUserInCircle();
+
+                                // update all clients with the new game state
+                                broadcastMessage(new Transfer(
+                                        yatziGame.getUserMe().getUserId(),
+                                        GAME_CHANGED,
+                                        objectMapper.writeValueAsString(yatziGame)),
+                                        true );
                                 break;
                         }
                     }

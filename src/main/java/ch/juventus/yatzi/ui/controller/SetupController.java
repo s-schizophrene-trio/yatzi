@@ -334,6 +334,10 @@ public class SetupController implements ViewController {
      * Sends a broadcast message to all clients
      */
     public void startGame() {
+
+        User randomUser = context.getYatziGame().getRandomActiveUeser();
+
+        context.getYatziGame().setActiveUserId(randomUser.getUserId());
         context.getYatziGame().getServer().broadcastMessage(new Transfer(Commands.GAME_READY), true);
     }
 

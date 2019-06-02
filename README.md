@@ -11,6 +11,7 @@
 - [Networking](#networking-javanet)
   * [Implementation](#implementation)
   * [Data Transfer](#data-transfer)
+  * [Protocol Functions](#transfer-functions)
 - [Yatzi Project]()
   * [Naming Conventions](#naming-conventions)
   * [Sonarqube](#static-code-testing-with-sonarqube)
@@ -206,7 +207,7 @@ __Sources__
 | CLIENT_READY        | The client is ready to start a new game.                               | -         |
 | DICE_CHANGED        | The dice set has been changed.                                         | Dice[]    |
 | ROUND_START         | Starts a new round of the game.                                        | YatziGame |
-| BOARD_CHANGED       | The board has been changed. (includes the currently active user)       | Board     |
+| GAME_CHANGED        | The game has been changed. (includes the currently active user)        | YatziGame |
 | PLAYER_EXIT         | A player leaves the game early.                                        | User Id   |
 | GAME_END            | The game is finished. The user can exit the game or start a new party. | -         |
 

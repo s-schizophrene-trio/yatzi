@@ -15,7 +15,7 @@ public class Commands {
     public static final String GAME_READY = "game_ready"; // The server has started the game.
     public static final String DICE_CHANGED = "dice_changed"; // The dice set has been changed.
     public static final String ROUND_START = "round_start"; // Starts a new round of the game.
-    public static final String BOARD_CHANGED = "board_changed"; // The board has been changed. (includes the currently active user)
+    public static final String GAME_CHANGED = "board_changed"; // The board has been changed. (includes the currently active user)
     public static final String GAME_END = "game_end"; // The game is finished. The user can exit the game or start a new party.
 
 }
