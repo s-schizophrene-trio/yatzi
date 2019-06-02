@@ -2,7 +2,6 @@ package ch.juventus.yatzi.engine.user;
 
 import ch.juventus.yatzi.ui.enums.ServeType;
 import com.github.javafaker.Faker;
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +19,9 @@ public class UserService {
 
     private User localUser;
 
-    private Map<UUID, User> circleRoundPlayed;
-
-    @Getter
-    private UUID activeUserId;
-
     public UserService() {
         faker = new Faker();
         users = new LinkedHashMap<>();
-        circleRoundPlayed = new LinkedHashMap<>();
 
         LOGGER.debug("user service initialized");
     }
@@ -62,23 +55,6 @@ public class UserService {
         return new ArrayList<>(users.values());
     }
 
-    public User getNextUserInCircleRound() {
-
-        for(User u : users.values()) {
-            if (circleRoundPlayed.get(u.getUserId()) != null) {
-                // user has already played in this circle
-            } else {
-                // user can play
-                activeUserId = u.getUserId();
-            }
-        }
-
-        return getUserById(activeUserId);
-    }
-
-    public void setActiveUserId(UUID userId) {
-        this.activeUserId = userId;
-    }
 
     public User getLocalUser() {
         if (localUser != null) {
@@ -104,12 +80,12 @@ public class UserService {
      * Registers a user by the local user list
      * @param user The user object of the user to register
      */
-    public void registerUser(User user, Boolean isLocal) {
+    public User registerUser(User user, Boolean isLocal) {
         users.put(user.getUserId(), user);
         if (isLocal) {
             localUser = user;
-            activeUserId = localUser.getUserId();
         }
+        return user;
     }
 
 }

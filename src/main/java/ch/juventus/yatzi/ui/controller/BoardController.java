@@ -6,7 +6,6 @@ import ch.juventus.yatzi.engine.field.Field;
 import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.engine.field.FieldTypeHelper;
 import ch.juventus.yatzi.network.handler.MessageHandler;
-import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.enums.StatusType;
@@ -16,6 +15,7 @@ import ch.juventus.yatzi.ui.interfaces.ViewController;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
 import ch.juventus.yatzi.engine.user.User;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,7 +24,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -259,10 +258,14 @@ public class BoardController implements ViewController {
             userColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getUsers().get(index).getShortUserId()));
             userColumn.setSortable(false);
 
-            if (users.get(index).getUserId().equals(context.getYatziGame().getActiveUserId())) {
+            User userToLoad = users.get(index);
+            UUID activeUserOnBoard = context.getYatziGame().getActiveUserId();
+            LOGGER.debug("active user on baord is: {}", activeUserOnBoard);
+
+            if (userToLoad.getUserId().equals(activeUserOnBoard)) {
                userColumn.setStyle("-fx-background-color: rgba(235,242,216,0.7);");
             } else {
-                userColumn. setStyle("-fx-background-color: rgba(229,229,229,0.7);");
+                userColumn.setStyle("-fx-background-color: rgba(229,229,229,0.7);");
             }
             userColumn.setEditable(false);
             userContainer.getColumns().add(userColumn);
@@ -273,7 +276,6 @@ public class BoardController implements ViewController {
 
         // fill the table with the board table items
         tblBoardMain.getItems().addAll(boardTableRows);
-
     }
 
     /**
@@ -328,7 +330,7 @@ public class BoardController implements ViewController {
                             case ROUND_START:
                                 YatziGame yatziGame = objectMapper.readValue(transfer.getBody(), YatziGame.class);
                                 context.getYatziGame().updateGame(yatziGame);
-                                context.getYatziGame().getUserService().getNextUserInCircleRound();
+                                context.getYatziGame().getCircleRoundPlayed().add(yatziGame.getActiveUserId());
 
                                 Platform.runLater(() -> {
 
@@ -338,6 +340,24 @@ public class BoardController implements ViewController {
                                     tblPlayers.setDisable(false);
                                     tblBoardMain.setDisable(false);
                                     context.getViewHandler().getStatusController().updateStatus("round 1 started", StatusType.OK);
+                                });
+
+                                break;
+                            case GAME_CHANGED:
+
+                                YatziGame game = objectMapper.readValue(transfer.getBody(), YatziGame.class);
+                                context.getYatziGame().updateGame(game);
+
+                                LOGGER.debug("got new game change from another client. Active user on board: {}", game.getActiveUserId());
+
+                                Platform.runLater(() -> {
+
+                                    generatePlayerTable();
+                                    generateBoardTable();
+                                    //TODO: Implement round counter
+                                    tblPlayers.setDisable(false);
+                                    tblBoardMain.setDisable(false);
+                                    context.getViewHandler().getStatusController().updateStatus("round 1 in progress", StatusType.OK);
                                 });
 
                                 break;
@@ -383,7 +403,26 @@ public class BoardController implements ViewController {
     /**
      * Will be triggered by Server to make a player changed
      */
+    @FXML
     private void nextPlayer() {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+        try {
+
+            // disable the tables during game update
+            tblPlayers.setDisable(true);
+            tblBoardMain.setDisable(true);
+
+            String game = objectMapper.writeValueAsString(context.getYatziGame());
+            Transfer transfer = new Transfer(this.context.getYatziGame().getUserMe().getUserId(), GAME_CHANGED, game);
+            context.getYatziGame().getClient().send(transfer);
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
 
     }
 

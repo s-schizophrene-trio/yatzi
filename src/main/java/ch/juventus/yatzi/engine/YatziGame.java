@@ -33,9 +33,13 @@ public class YatziGame {
     @JsonIgnore
     private UserService userService;
 
+    private UUID activeUserId;
+    private List<UUID> circleRoundPlayed;
+
     public YatziGame() {
         userService = new UserService();
         board = new Board();
+        circleRoundPlayed = new ArrayList<>();
     }
 
     /**
@@ -59,12 +63,35 @@ public class YatziGame {
         userService.updateUsers(users);
     }
 
-    public UUID getActiveUserId() {
-        return userService.getActiveUserId();
+    @JsonIgnore
+    public User getRandomActiveUeser() {
+        List<User> users = userService.getUsers();
+        Random randomGenerator = new Random();
+
+        int index = randomGenerator.nextInt(users.size());
+        User user = users.get(index);
+
+        return user;
     }
 
-    public void setActiveUserId(UUID userId) {
-        this.getUserService().setActiveUserId(userId);
+    @JsonIgnore
+    public void nextUserInCircle() {
+        List<User> users = userService.getUsers();
+
+        // check if all users has played in this circle
+        if (circleRoundPlayed.size() >= users.size()) {
+            // start a new circle
+            circleRoundPlayed.clear();
+        }
+
+        for(User u : users) {
+            // check if the user has played in this circle.
+            if (!circleRoundPlayed.contains(u.getUserId()) && !u.getUserId().equals(activeUserId)) {
+                activeUserId = u.getUserId();
+                circleRoundPlayed.add(activeUserId);
+                break;
+            }
+        }
     }
 
     @JsonIgnore
@@ -74,8 +101,11 @@ public class YatziGame {
 
     @JsonIgnore
     public void updateGame(YatziGame yatziGame) {
-        // update board
+        // update all players on board
         updatePlayers(yatziGame.getUserService().getUsers());
+
+        // the first user is allowed to start play
+        this.setActiveUserId(yatziGame.getActiveUserId());
     }
 
 }
