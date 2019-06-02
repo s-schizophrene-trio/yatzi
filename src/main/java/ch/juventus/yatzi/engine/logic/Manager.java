@@ -16,14 +16,14 @@ public class Manager {
 
         // functions to check
 
-        checkOnePair(diceValues);
 
+        checkOnePair(diceValues);
+        checkThreeOfAKind(diceValues);
         return fieldTypes;
     }
 
-    // call functions
 
-    // onePair
+
 
     public void checkOnePair(Map<Integer, Integer> diceValues) {
 
@@ -34,7 +34,13 @@ public class Manager {
         }
     }
 
+    public void checkThreeOfAKind (Map<Integer, Integer> diceValues){
 
-
+        for (int i=1; i < 7; i++) {
+            if (diceValues.get(i) >= 3){
+                fieldTypes.add(FieldType.THREE_OF_A_KIND);
+            }
+        }
+    }
 
 }

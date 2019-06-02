@@ -130,7 +130,7 @@ public class Client {
             clientTask.stop();
             clientConnectionExecutor.shutdown();
         } catch (Exception e) {
-            LOGGER.error("failed to stop connection to server", e.getMessage());
+            LOGGER.error("failed to stop connection to server {}", e.getMessage());
         }
     }
 }
