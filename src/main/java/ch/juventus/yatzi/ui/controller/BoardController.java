@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
@@ -308,40 +307,19 @@ public class BoardController implements ViewController {
         return rows;
     }
 
+    @SuppressWarnings("unchecked")
     private void addButtonToTable(TableView table) {
 
-        TableColumn<BoardTableRow, ActionField> actionColumn = new TableColumn("Button Column");
+        TableColumn<BoardTableRow, ActionField> actionColumn = new TableColumn("Action");
 
         Callback<TableColumn<BoardTableRow, ActionField>, TableCell<BoardTableRow, ActionField>> cellFactory = new Callback<>() {
+
             @Override
             public TableCell<BoardTableRow, ActionField> call(final TableColumn<BoardTableRow, ActionField> param) {
-                final TableCell<BoardTableRow, ActionField> actionCell = new TableCell<>() {
-
-                    private final Button btn = new Button("select");
-                    {
-                        btn.setOnAction((ActionEvent event) -> {
-                            BoardTableRow data = getTableView().getItems().get(getIndex());
-                            LOGGER.debug("board-action -> {}", data.getDescField().getFieldType());
-                        });
-                    }
-
-                    @Override
-                    public void updateItem(ActionField item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            if (item.getActionAvailable()) {
-                                setGraphic(btn);
-                            } else {
-                                setGraphic(null);
-                            }
-                        }
-                    }
-                };
-                return actionCell;
+               return new ActionCell<>();
             }
         };
+
         actionColumn.setCellValueFactory(new PropertyValueFactory<>("actionField"));
         actionColumn.setCellFactory(cellFactory);
 
