@@ -64,7 +64,7 @@ public class YatziGame {
     }
 
     @JsonIgnore
-    public User getRandomActiveUeser() {
+    public User getRandomActiveUser() {
         List<User> users = userService.getUsers();
         Random randomGenerator = new Random();
 
@@ -72,6 +72,11 @@ public class YatziGame {
         User user = users.get(index);
 
         return user;
+    }
+
+    public void kickUserFromGame(UUID userId) {
+        userService.removeUserById(userId);
+        circleRoundPlayed.remove(userId);
     }
 
     @JsonIgnore

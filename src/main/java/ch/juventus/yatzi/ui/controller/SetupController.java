@@ -24,6 +24,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
@@ -263,39 +264,12 @@ public class SetupController implements ViewController {
 
                         switch (transfer.getFunction()) {
                             case PLAYER_NEW:
-                                Platform.runLater(() -> {
-                                    try {
-                                        setupUsersContainer.setVisible(true);
-                                        context.getViewHandler().getStatusController().updateStatus("waiting for players..", true);
-
-                                        User user = objectMapper.readValue(transfer.getBody(), User.class);
-                                        context.getYatziGame().getUserService().registerUser(user, false);
-
-                                        Label lblUser = new Label();
-                                        lblUser.getStyleClass().add("text-field-value");
-                                        lblUser.setText(user.getUserName());
-
-                                        Label lblUserId = new Label();
-                                        lblUserId.getStyleClass().add("text-field-value");
-                                        lblUserId.setText(user.getShortUserId());
-
-                                        int rowIndex = setupUsersGrid.getRowCount();
-
-                                        setupUsersGrid.add(lblUser, 0, rowIndex);
-                                        setupUsersGrid.add(lblUserId, 1, rowIndex);
-
-                                        // enable the start game button
-                                        btnStartServer.setVisible(false);
-
-                                        // only when more than 1 player is joined
-                                        if (setupUsersGrid.getRowCount() > 1) {
-                                            vboxStartServerOuterContainer.getChildren().remove(btnStartServer);
-                                            vboxStartServerContainer.getChildren().add(btnStartGame);
-                                        }
-                                    } catch (Exception e) {
-                                        LOGGER.error("Failed to update the user list: {}", e.getMessage());
-                                    }
-                                });
+                                try {
+                                    User user = objectMapper.readValue(transfer.getBody(), User.class);
+                                    newPlayerJoined(user);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                                 break;
                             case WAIT_FOR_GAME_READY:
                                 Platform.runLater(() -> {
@@ -304,9 +278,13 @@ public class SetupController implements ViewController {
                                     tabHostServer.setDisable(true);
                                 });
                                 break;
+                            case MAX_PLAYERS_REACHED:
+                                Platform.runLater(() -> {
+                                    context.getViewHandler().getStatusController().showError("max amount of players reached.");
+                                });
+                                break;
                             case GAME_READY:
                                 Platform.runLater(() -> {
-
                                     // stop message listener
                                     this.shouldListen = false;
                                     context.getViewHandler().getScreenHelper().showScreen(context, ScreenType.BOARD);
@@ -331,11 +309,51 @@ public class SetupController implements ViewController {
     }
 
     /**
+     * A new user has joined the game and will be registered through the main client
+     * @param user
+     */
+    private void newPlayerJoined(User user) {
+        Platform.runLater(() -> {
+            try {
+                setupUsersContainer.setVisible(true);
+                context.getViewHandler().getStatusController().updateStatus("waiting for players..", true);
+
+
+                context.getYatziGame().getUserService().registerUser(user, false);
+
+                Label lblUser = new Label();
+                lblUser.getStyleClass().add("text-field-value");
+                lblUser.setText(user.getUserName());
+
+                Label lblUserId = new Label();
+                lblUserId.getStyleClass().add("text-field-value");
+                lblUserId.setText(user.getShortUserId());
+
+                int rowIndex = setupUsersGrid.getRowCount();
+
+                setupUsersGrid.add(lblUser, 0, rowIndex);
+                setupUsersGrid.add(lblUserId, 1, rowIndex);
+
+                // enable the start game button
+                btnStartServer.setVisible(false);
+
+                // only when more than 1 player is joined
+                if (setupUsersGrid.getRowCount() > 1) {
+                    vboxStartServerOuterContainer.getChildren().remove(btnStartServer);
+                    vboxStartServerContainer.getChildren().add(btnStartGame);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Failed to update the user list: {}", e.getMessage());
+            }
+        });
+    }
+
+    /**
      * Sends a broadcast message to all clients
      */
     public void startGame() {
 
-        User randomUser = context.getYatziGame().getRandomActiveUeser();
+        User randomUser = context.getYatziGame().getRandomActiveUser();
 
         context.getYatziGame().setActiveUserId(randomUser.getUserId());
         context.getYatziGame().getServer().broadcastMessage(new Transfer(Commands.GAME_READY), true);
