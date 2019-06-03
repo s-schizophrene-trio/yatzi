@@ -39,7 +39,7 @@ public class YatziApplication extends Application {
         LOGGER.debug("application started in {}ms", elapsedTime);
     }
 
-    /**
+    /**Bildschirmfoto 2019-06-04 um 00.48.42
      * Starts all necessary components for the UI, initialize them and start the built UI.
      */
     private void startUI(Stage primaryStage) {

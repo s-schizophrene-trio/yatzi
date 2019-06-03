@@ -74,12 +74,8 @@ public class BoardController implements ViewController {
     @FXML
     private TableView<User> tblPlayers;
 
-    // list to hold all combinations of the board table
     private List<BoardTableRow> boardTableRows;
-
     private ExecutorService messageHandlerPool;
-
-    private MessageHandler messageHandler;
 
     /* ----------------- Initializer --------------------- */
 
@@ -109,11 +105,10 @@ public class BoardController implements ViewController {
         this.context = context;
 
         // listen to the client-message handler queue
-        this.messageHandler = this.context.getYatziGame().getClient().getMessageHandler();
-        listenToLocalClient(messageHandler);
+        listenToLocalClient(this.context.getYatziGame().getClient().getMessageHandler());
 
         // inform the server, this client is ready to get board data
-        sendMessageToServer(
+        context.getYatziGame().getClient().send(
                 new Transfer(context.getYatziGame().getUserMe().getUserId(), CLIENT_READY)
         );
 
@@ -148,8 +143,6 @@ public class BoardController implements ViewController {
         // update status bar
         this.context.getViewHandler().getStatusController().updateServeMode(context.getYatziGame().getServeType());
 
-        // send demo message to server
-        //this.function.getBoard().getClient().sendAsyncMessage("Board started message");
     }
 
     /* ----------------- UI Rendering --------------------- */
@@ -276,13 +269,18 @@ public class BoardController implements ViewController {
         tblBoardMain.getColumns().add(userContainer);
 
         // add action column
-        addButtonToTable(tblBoardMain);
-
+        TableColumn<BoardTableRow, ActionField> actionColumn = this.getActionColumn();
+        actionColumn.setSortable(false);
+        tblBoardMain.getColumns().add(actionColumn);
 
         // fill the table with the board table items
         tblBoardMain.getItems().addAll(boardTableRows);
     }
 
+    /**
+     * Generates all board table rows. This list represents the raw btw. src. data of the table view.
+     * @return A list of BoardTableRow which represent table data source.
+     */
     private List<BoardTableRow> getBoardTableRows() {
 
         List<BoardTableRow> rows = new ArrayList<>();
@@ -307,8 +305,12 @@ public class BoardController implements ViewController {
         return rows;
     }
 
+    /**
+     * Generates the action column of the yatzi board.
+     * @return TableColumn of the yatzi board.
+     */
     @SuppressWarnings("unchecked")
-    private void addButtonToTable(TableView table) {
+    private TableColumn<BoardTableRow, ActionField> getActionColumn() {
 
         TableColumn<BoardTableRow, ActionField> actionColumn = new TableColumn("Action");
 
@@ -323,7 +325,7 @@ public class BoardController implements ViewController {
         actionColumn.setCellValueFactory(new PropertyValueFactory<>("actionField"));
         actionColumn.setCellFactory(cellFactory);
 
-        table.getColumns().add(actionColumn);
+        return actionColumn;
 
     }
 
@@ -352,10 +354,6 @@ public class BoardController implements ViewController {
         }
 
         return imageGroup;
-    }
-
-    private void sendMessageToServer(Transfer transfer){
-            context.getYatziGame().getClient().send(transfer);
     }
 
     /**
@@ -490,14 +488,8 @@ public class BoardController implements ViewController {
     @FXML
     public void exit(ActionEvent e) {
 
-        switch (context.getYatziGame().getServeType()) {
-            case SERVER:
-                context.getYatziGame().getServer().stop();
-                break;
-            case CLIENT:
-                context.getYatziGame().getClient().stop();
-                break;
-        }
+        // exits the game
+        context.getYatziGame().exit();
 
         // TODO: Implment clean exit of the board screen
         screenHelper.showScreen(context, ScreenType.SETUP);

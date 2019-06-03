@@ -5,8 +5,10 @@ import ch.juventus.yatzi.engine.user.User;
 import ch.juventus.yatzi.engine.user.UserService;
 import ch.juventus.yatzi.network.client.Client;
 import ch.juventus.yatzi.network.server.Server;
+import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.enums.ServeType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import javafx.event.ActionEvent;
 import lombok.*;
 
 import java.util.*;
@@ -44,6 +46,7 @@ public class YatziGame {
 
     /**
      * Gets the Local Users (Unique ID overall)
+     *
      * @return The User who is playing this instance of the game
      */
     @JsonIgnore
@@ -53,16 +56,40 @@ public class YatziGame {
 
     /**
      * Returns all Players as Users of this Game
+     *
      * @return An ArrayList of Users
      */
     public List<User> getPlayers() {
         return userService.getUsers();
     }
 
+    /**
+     * This setter is used for de- and serialization  of the json
+     * @param users An arraylist of users.
+     */
     public void setPlayers(List<User> users) {
         userService.updateUsers(users);
     }
 
+    /**
+     * Updates a YatziGame instance. Including the players and set the active user.
+     *
+     * @param yatziGame On object of an existing yatzigame
+     */
+    @JsonIgnore
+    public void updateGame(YatziGame yatziGame) {
+        // update all players on board
+        updatePlayers(yatziGame.getUserService().getUsers());
+
+        // the first user is allowed to start play
+        this.setActiveUserId(yatziGame.getActiveUserId());
+    }
+
+    /**
+     * Returns randomly selected user from all registered users.
+     *
+     * @return A random selected user.
+     */
     @JsonIgnore
     public User getRandomActiveUser() {
         List<User> users = userService.getUsers();
@@ -74,11 +101,20 @@ public class YatziGame {
         return user;
     }
 
+    /**
+     * Kick a user out of the game. This could happen if a client closes or exits the game.
+     *
+     * @param userId The uuid of the user to kick out of the game.
+     */
+    @JsonIgnore
     public void kickUserFromGame(UUID userId) {
         userService.removeUserById(userId);
         circleRoundPlayed.remove(userId);
     }
 
+    /**
+     * Sets the active user to the next user in this circle. Each user can play once in a circle.
+     */
     @JsonIgnore
     public void nextUserInCircle() {
         List<User> users = userService.getUsers();
@@ -89,7 +125,7 @@ public class YatziGame {
             circleRoundPlayed.clear();
         }
 
-        for(User u : users) {
+        for (User u : users) {
             // check if the user has played in this circle.
             if (!circleRoundPlayed.contains(u.getUserId()) && !u.getUserId().equals(activeUserId)) {
                 activeUserId = u.getUserId();
@@ -99,18 +135,31 @@ public class YatziGame {
         }
     }
 
+    /**
+     * Sets the Users to an existing list of Users
+     *
+     * @param users The existing users will be overwritten by a user arrayList
+     */
     @JsonIgnore
     private void updatePlayers(List<User> users) {
         userService.updateUsers(users);
     }
 
+    /**
+     * Exits a YatziGame. Meaning the server and the client will be shutdown, if available.
+     */
     @JsonIgnore
-    public void updateGame(YatziGame yatziGame) {
-        // update all players on board
-        updatePlayers(yatziGame.getUserService().getUsers());
+    public void exit() {
 
-        // the first user is allowed to start play
-        this.setActiveUserId(yatziGame.getActiveUserId());
+        switch (getServeType()) {
+            case SERVER:
+                getServer().stop();
+                break;
+            case CLIENT:
+                getClient().stop();
+                break;
+        }
+
     }
 
 }

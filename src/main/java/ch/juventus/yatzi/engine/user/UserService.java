@@ -60,7 +60,6 @@ public class UserService {
             return localUser;
         } else {
             // the user is new and has to be generated
-
             return null;
         }
     }
