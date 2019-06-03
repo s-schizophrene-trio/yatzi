@@ -23,6 +23,11 @@
   * [Sonarqube](#static-code-testing-with-sonarqube)
   * [Design Guidelines](#identity)
 
+
+|                                                |                                                         |
+| ---------------------------------------------- | ------------------------------------------------------- |
+| ![Setup](docs/assets/setup_screen.png)         | ![Registered](docs/assets/setup_registred_players.png)  |
+| ![Setup](docs/assets/setup_join.png)           | ![Registered](docs/assets/board_screen_alpha1.png)  |
   
 
 ## Getting Started
