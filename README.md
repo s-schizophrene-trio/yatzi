@@ -8,6 +8,9 @@
   * [Java FX](#javafx)
   * [Screen Types](#screen-types)
   * [Image Handling](#image-handling)
+- [Engine](#yatzigame)
+  * [Yatzi Game](#yatzigame)
+  * [Board](#board)
 - [Networking](#networking-javanet)
   * [Implementation](#implementation)
   * [Data Transfer](#data-transfer)
@@ -45,20 +48,15 @@ You have to set some VM Options
 
 ## User Interface
 
+### Application Architecture
+
+![Application](docs/assets/yatzi_application.png)
+
 ### JavaFX
 
 * https://openjfx.io/javadoc/11/javafx.graphics/javafx/scene/doc-files/cssref.html
 
-```
-         +------------------+
-         |  MainController  |
-         +------------------+
-                 ||
-                 ||
-+------------+   ||    +-------------+
-|SetupScreen +<------->+ BoardScreen |
-+------------+         +-------------+
-```
+![Main Controller](docs/assets/main_controller.png)
 
 `MainController` is used to build, load and display a view. He is also used to initialize the board logic. 
 
@@ -133,6 +131,19 @@ JavaDoc
  }
 ```
 
+## YatziGame
+
+The Yatzi Game is a full instance of a game. This Object can be used on multiple clients. The communication 
+between message handlers, allows the developer to to make async calls.
+
+![Application](docs/assets/yatzi_game.png)
+
+## Board
+
+The Board represents the play ground of this game. The board knows all users and the state of the game.
+
+![Board](docs/assets/board.png)
+
 ## Networking (java.net)
 
 By definition, a socket is one endpoint of a two-way communication link between two programs running on different computers on a network. A socket is bound to a port number so that the transport layer can identify the application that data is destined to be sent to.
@@ -142,6 +153,8 @@ __Sources__
 * https://www.baeldung.com/a-guide-to-java-sockets
 
 ### Implementation
+
+#### Overview
 
 ```
 +---------------------------------------------------+
@@ -186,6 +199,18 @@ __Sources__
  CT = Client Task                                              |                                           |
  CH = Client Handler                                           +-------------------------------------------+
 ```
+
+#### Server
+
+The Server holds all client handlers, and handles all messages bundled to one message handler.
+
+![Server](docs/assets/server.png)
+
+#### Client
+
+The Client connects to a server socket and will be a member or player of the game.
+
+![Client](docs/assets/client.png)
 
 ### Data Transfer
 
