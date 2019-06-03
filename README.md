@@ -7,12 +7,15 @@
 - [User Interface](#user-interface)
   * [Java FX](#javafx)
   * [Screen Types](#screen-types)
+  * [Screen Helper](#screen-helper)
   * [Image Handling](#image-handling)
 - [Engine](#yatzigame)
   * [Yatzi Game](#yatzigame)
   * [Board](#board)
 - [Networking](#networking-javanet)
   * [Implementation](#implementation)
+  * [Server](#server)
+  * [Client](#client)
   * [Data Transfer](#data-transfer)
   * [Protocol Functions](#transfer-functions)
 - [Yatzi Project]()
@@ -77,6 +80,12 @@ main stage and the game instance of the application. The context will be accesse
 The context instance will be shared with the `MainController`. This is necessary to adapt the window-size
 and other global attributes. Each `ScreenController` holds also an instance of the `ViewContext`. This means every 
 component has access to global `ViewContext` and its child values. 
+
+### Screen Helper
+
+The `ScreenHelper` class can be loaded by a javaFX class and have access to the main stage.
+
+![Screen Helper](docs/assets/screen_helper.png)
 
 ### Image Handling
 
@@ -202,15 +211,23 @@ __Sources__
 
 #### Server
 
-The Server holds all client handlers, and handles all messages bundled to one message handler.
+The Server holds all `client handlers`, and handles all messages bundled to one `message handler`.
 
 ![Server](docs/assets/server.png)
 
+Each new client will effect in a new `client handler` thread. 
+
+![Server](docs/assets/client_handler.png)
+
 #### Client
 
-The Client connects to a server socket and will be a member or player of the game.
+The Client connects to a `server socket` and will be a member or player of the game.
 
 ![Client](docs/assets/client.png)
+
+The `client` crates a new task to handle the `server <-> client` connection.
+
+![Client](docs/assets/client_task.png)
 
 ### Data Transfer
 
