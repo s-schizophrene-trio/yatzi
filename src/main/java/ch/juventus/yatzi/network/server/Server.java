@@ -83,6 +83,7 @@ public class Server {
      * Starts a new Server Socket Thread. The Thread will create a new Thread for each Client.
      *
      * @param port The port, the server should run.
+     * @param yatziGame An instance of the YatziGame.
      */
     public void start(int port, YatziGame yatziGame) {
 
@@ -116,6 +117,7 @@ public class Server {
 
     /**
      * Listens to the Input Message Queue from the Server
+     * @param yatziGame An instance of the YatziGame
      */
     public void listenToClients(YatziGame yatziGame) {
 
