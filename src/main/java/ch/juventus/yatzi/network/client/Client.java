@@ -51,6 +51,7 @@ public class Client {
      * @param remoteIp Network IP of the Server to connect
      * @param remotePort Network Port of the Server to connect
      * @param userId The User ID of the current playing user
+     * @param messageHandler An instance of the message handler, where the client task can write its messages in
      */
     public Client(String remoteIp, Integer remotePort, UUID userId, MessageHandler messageHandler) {
         this.remoteIp = remoteIp;
@@ -79,6 +80,8 @@ public class Client {
     /**
      * Connects to a Server Socket. If the Server is not reachable, the client will sleep for one second and try again
      * until the MAX_RECONNECTS is reached.
+     *
+     * @param viewContext An instance of a ViewContext to access the yatzi game
      */
     public void connect(ViewContext viewContext) {
 

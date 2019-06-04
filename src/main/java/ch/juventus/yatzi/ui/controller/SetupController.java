@@ -310,7 +310,7 @@ public class SetupController implements ViewController {
 
     /**
      * A new user has joined the game and will be registered through the main client
-     * @param user
+     * @param user A user object of the new user to add to the game context
      */
     private void newPlayerJoined(User user) {
         Platform.runLater(() -> {
@@ -361,6 +361,9 @@ public class SetupController implements ViewController {
 
     /**
      * Connects to the server socket (local and remote)
+     *
+     * @param user This user will be the owner of the according client
+     * @return A initialized client object
      */
     private Client setupClient(User user) {
 

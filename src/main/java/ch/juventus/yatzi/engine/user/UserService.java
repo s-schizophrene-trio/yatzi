@@ -82,6 +82,8 @@ public class UserService {
     /**
      * Registers a user by the local user list
      * @param user The user object of the user to register
+     * @param isLocal Declares if the user is a local user or a remote user
+     * @return Returns the user object of the registered user
      */
     public User registerUser(User user, Boolean isLocal) {
         users.put(user.getUserId(), user);
