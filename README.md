@@ -32,6 +32,8 @@
 
 ## Getting Started
 
+Read the `JavaDoc` at: https://s-schizophrene-trio.github.io/yatzi/
+
 ### Setup Environment
 
 * Install Gradle 5.3.1+
