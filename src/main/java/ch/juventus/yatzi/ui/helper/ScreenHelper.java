@@ -40,6 +40,8 @@ public class ScreenHelper {
 
     /**
      * Shows a screen based on the View Type
+     *
+     * @param context An instance of the view context to clear and add the new screen
      * @param screenType The ScreenType of the requested screen
      */
     public void showScreen(ViewContext context, ScreenType screenType) {
@@ -72,6 +74,7 @@ public class ScreenHelper {
      * screen type is unknown by this function,
      * an error will logged.
      *
+     * @param context An instance of the ViewContext to load the screen and its controller
      * @param screenType the screen type to load
      * @return an initialized screen object based on the screen type.
      */
@@ -94,6 +97,7 @@ public class ScreenHelper {
     /**
      * Builds a screen object based on the fxml path and the according screen type
      *
+     * @param classloader An instance of a classloader to access files
      * @param fxmlPath   The relative path to the fxml layout file with base src/main/resources/
      * @param screenType The screen type to load
      * @return An initialized View object with a loaded fxml file.
@@ -148,6 +152,8 @@ public class ScreenHelper {
 
     /**
      * Adds a new Statusbar to the bottom screen
+     * @param context An instance of a ViewContext to add the statusbar
+     * @return The status controller to manage the notifications
      */
     public StatusController addStatusBar(ViewContext context) {
 
@@ -178,6 +184,8 @@ public class ScreenHelper {
     /**
      * Generates a full relative path to the fxml file based on the screen type.
      *
+     * @param baseBath The base path, the file is located at
+     * @param fileType The file type (ending) of the file
      * @param screenType The screen type of the fxml file
      * @return A full relative path string to the fxml file of this screen type.
      */
@@ -187,6 +195,8 @@ public class ScreenHelper {
 
     /**
      * Adds a Node to the Main Anchor Pane
+     *
+     * @param context A instance ot the ViewContext to add the node to
      * @param node A Node to add to the root layout
      */
     public void addNode(ViewContext context, Node node) {
@@ -198,6 +208,8 @@ public class ScreenHelper {
 
     /**
      * Centers a Window on the View
+     *
+     * @param primaryStage The primary stage is used to center the window on the screen
      */
     public void centerStageOnScreen(Stage primaryStage) {
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
@@ -208,6 +220,8 @@ public class ScreenHelper {
     /**
      * Replaces the current layout with a new JavaFX Node. If the Root View has existing child,
      * they will be removed first.
+     *
+     * @param context An instance of the ViewContext to have access to the root node
      */
     public void clearScreen(ViewContext context) {
         LOGGER.debug("replace layout to new screen");
@@ -219,6 +233,7 @@ public class ScreenHelper {
     /* ----------- Image Handling ----------------- */
     /**
      * Loads an Image from resources
+     * @param classLoader An instance of the main class loader, to load the files from resource.
      * @param subPath The sub-path in the base image folder eg. "icons/"
      * @param key filename (lowercase)
      * @param fileExt file ending eg. "png"
@@ -238,6 +253,8 @@ public class ScreenHelper {
     /**
      * Renders the Image View based on the Image key and file extension
      *
+     * @param classLoader The class loader instance to load the files
+     * @param subPath The sub directory, the image is stored in
      * @param imageKey The unique image name without file extension
      * @param fileExt  The file extension of the image
      * @param height   An optional fit height of the image view

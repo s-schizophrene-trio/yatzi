@@ -39,8 +39,9 @@ public class YatziApplication extends Application {
         LOGGER.debug("application started in {}ms", elapsedTime);
     }
 
-    /**Bildschirmfoto 2019-06-04 um 00.48.42
+    /**
      * Starts all necessary components for the UI, initialize them and start the built UI.
+     * @param primaryStage The primary stage where the UI should be added
      */
     private void startUI(Stage primaryStage) {
 
@@ -52,7 +53,7 @@ public class YatziApplication extends Application {
 
 
         // Create a new Game Instance
-        YatziGame yatziGame = this.initYatziGame();
+        YatziGame yatziGame = new YatziGame();
 
         viewContext.setYatziGame(yatziGame);
         viewContext.setStage(primaryStage);
@@ -89,13 +90,6 @@ public class YatziApplication extends Application {
         } else {
             LOGGER.error("failed to initiate the scenes");
         }
-    }
-
-    /**
-     * Initialize a new Game Board and set the defaults
-     */
-    private YatziGame initYatziGame() {
-        return new YatziGame();
     }
 
 }
