@@ -17,6 +17,6 @@ public enum FieldType {
     LARGE_STRAIGHT,
     FULL_HOUSE,
     CHANCER,
-    YAZI,
+    YATZI,
     TOTAL
 }
