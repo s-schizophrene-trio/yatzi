@@ -10,24 +10,18 @@ public class Manager {
 
     List<FieldType> fieldTypes = new ArrayList<>();
 
-    // seldom functions
-
     public List<FieldType> evaluate(Map<Integer, Integer> diceValues) {
 
-        // functions to check
-
-
         checkOnePair(diceValues);
+        checkTwoPair(diceValues);
         checkThreeOfAKind(diceValues);
         checkFourOfAKind(diceValues);
+        checkFullHouse(diceValues);
         checkSmallStraight(diceValues);
         checkLargeStraight(diceValues);
         checkYatzi(diceValues);
         return fieldTypes;
     }
-
-
-
 
     public void checkOnePair(Map<Integer, Integer> diceValues) {
 
@@ -35,6 +29,31 @@ public class Manager {
             if (diceValues.get(i) >= 2) {
                 fieldTypes.add(FieldType.ONE_PAIR);
             }
+        }
+    }
+
+    public void checkTwoPair(Map<Integer, Integer> diceValues) {
+
+        Boolean firstPair = false;
+        Boolean secondPair = false;
+        int index2 = 0;
+
+        for (int i = 6; i > 0; i--) {
+            if (diceValues.get(i) >= 2) {
+                firstPair = true;
+                index2 = i-1;
+                break;
+            }
+        }
+        for (int i = index2; i > 0; i--) {
+            if (diceValues.get(i) >= 2) {
+                secondPair = true;
+                break;
+            }
+        }
+
+        if (firstPair && secondPair) {
+            fieldTypes.add(FieldType.TWO_PAIRS);
         }
     }
 
@@ -53,6 +72,28 @@ public class Manager {
             if (diceValues.get(i) >= 4){
                 fieldTypes.add(FieldType.FOUR_OF_A_KIND);
             }
+        }
+    }
+
+    public void checkFullHouse(Map<Integer, Integer> diceValues) {
+
+        Boolean pair = false;
+        Boolean threeOfAKind = false;
+        int index2 = 0;
+
+        for (int i = 6; i > 0; i--) {
+            if (diceValues.get(i) >= 2) {
+                pair = true;
+            }
+        }
+        for (int i = index2; i > 0; i--) {
+            if (diceValues.get(i) >= 3) {
+                threeOfAKind = true;
+            }
+        }
+
+        if (pair && threeOfAKind) {
+            fieldTypes.add(FieldType.FULL_HOUSE);
         }
     }
 
