@@ -62,7 +62,7 @@
                         </VBox>
                     </HBox>
                     <Button fx:id="btnStartServer" mnemonicParsing="false" onAction="#startServerAction"
-                            styleClass="button"
+                            styleClass="button-primary"
                             text="Start Server">
                     </Button>
                 </VBox>
@@ -89,7 +89,7 @@
                             </TextField>
                         </HBox>
                     </VBox>
-                    <Button mnemonicParsing="false" fx:id="btnJoinServer" onAction="#joinServerAction" styleClass="button"
+                    <Button mnemonicParsing="false" fx:id="btnJoinServer" onAction="#joinServerAction" styleClass="button-primary"
                             text="Join">
                     </Button>
                 </VBox>

@@ -2,6 +2,7 @@ package ch.juventus.yatzi.engine.board;
 
 import ch.juventus.yatzi.engine.board.score.UserScore;
 import ch.juventus.yatzi.engine.dice.Dice;
+import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.engine.user.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +23,9 @@ import java.util.Map;
 @ToString
 public class Board {
 
-    // holds all the dice from the board
+    // holds all the diceMap from the board
     @JsonIgnore
-    private List<Dice> dice;
+    private List<Dice> dices;
 
     @JsonIgnore
     private UserService userService;
@@ -36,21 +38,23 @@ public class Board {
      * Initialized a new Board with default config.
      */
     public Board() {
-        this.dice = this.initDiceSet();
+        this.dices = this.initDiceSet();
     }
 
     /**
-     * This method generates a set of dice used on the board
-     * @return array list with dice in it
+     * This method generates a set of diceMap used on the board
+     * @return array list with diceMap in it
      */
     @JsonIgnore
     private List<Dice> initDiceSet() {
-        List<Dice> dices = new ArrayList<>();
 
-        for (int i=0; i < 5; i++) {
-            dices.add(new Dice());
+        List<Dice> diceList = new ArrayList<>();
+
+        for(int i=0; i<5; i++) {
+            diceList.add(new Dice());
         }
-        return dices;
+
+        return diceList;
     }
 
 }

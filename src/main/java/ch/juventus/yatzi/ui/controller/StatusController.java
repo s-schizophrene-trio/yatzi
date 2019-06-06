@@ -6,8 +6,10 @@ import ch.juventus.yatzi.ui.helper.ScreenHelper;
 import ch.juventus.yatzi.ui.interfaces.ViewController;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import javafx.fxml.FXML;
+import javafx.scene.CacheHint;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
@@ -115,6 +117,14 @@ public class StatusController implements ViewController {
         Image modeImage = this.screenHelper.getImage(this.context.getClassloader(), "icons/", serveType.toString().toLowerCase(), "png");
         this.serverRoleIcon.setImage(modeImage);
         this.serverRoleIcon.setVisible(true);
+
+        ColorAdjust whitener = new ColorAdjust();
+        whitener.setBrightness(1.0);
+
+        this.serverRoleIcon.setEffect(whitener);
+        this.serverRoleIcon.setCache(true);
+        this.serverRoleIcon.setCacheHint(CacheHint.SPEED);
+
     }
 
     /**
