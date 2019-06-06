@@ -1,6 +1,7 @@
 package ch.juventus.yatzi.ui.controller;
 
 import ch.juventus.yatzi.engine.YatziGame;
+import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.Field;
 import ch.juventus.yatzi.engine.field.FieldType;
@@ -24,14 +25,19 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
@@ -42,17 +48,20 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 import static ch.juventus.yatzi.network.helper.Commands.*;
 
 /**
  * The Board Controller manages the primary Game UI.
+ *
  * @author Jan Minder
  */
 public class BoardController implements ViewController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final String VIEW_TITLE = "Yatzi Play Board";
+    private final String IMAGE_BUTTON_CLASS = "image-button";
 
     private ViewContext context;
     private ScreenHelper screenHelper;
@@ -74,6 +83,15 @@ public class BoardController implements ViewController {
     @FXML
     private TableView<User> tblPlayers;
 
+    @FXML
+    private HBox diceContainer;
+
+    @FXML
+    private Button btnRollTheDice;
+
+    private Lighting lightingGray;
+    private List<Button> diceButtons;
+
     private List<BoardTableRow> boardTableRows;
     private ExecutorService messageHandlerPool;
 
@@ -90,7 +108,7 @@ public class BoardController implements ViewController {
                 .priority(Thread.MAX_PRIORITY)
                 .build();
 
-        messageHandlerPool = Executors.newSingleThreadExecutor( messagePoolFactory);
+        messageHandlerPool = Executors.newSingleThreadExecutor(messagePoolFactory);
     }
 
     /**
@@ -113,8 +131,8 @@ public class BoardController implements ViewController {
         );
 
         // set the correct height for this screen
-        AnchorPane anchorPane =  (AnchorPane)context.getRootNode();
-        anchorPane.setPrefHeight(850D);
+        AnchorPane anchorPane = (AnchorPane) context.getRootNode();
+        anchorPane.setPrefHeight(875D);
 
         tblPlayers.setDisable(true);
         tblBoardMain.setDisable(true);
@@ -127,14 +145,23 @@ public class BoardController implements ViewController {
         loadUserStats();
         generatePlayerTable();
         generateBoardTable();
+        generateDiceArea();
+
+        lightingGray = new Lighting();
+        lightingGray.setDiffuseConstant(1.0);
+        lightingGray.setDiffuseConstant(1.0);
+        lightingGray.setSpecularConstant(0.0);
+        lightingGray.setSpecularExponent(0.0);
+        lightingGray.setSurfaceScale(0.0);
+        lightingGray.setLight(new Light.Distant(45, 45, Color.LIGHTGRAY));
 
         // define a background
         Image sceneBackgroundImage = screenHelper.getImage(this.context.getClassloader(), "background/", "board_background", "jpg");
 
         // define background image
-        BackgroundImage sceneBackground= new BackgroundImage(
+        BackgroundImage sceneBackground = new BackgroundImage(
                 sceneBackgroundImage,
-                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.RIGHT, 0,true, Side.TOP, 0, false ),
+                BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.RIGHT, 0, true, Side.TOP, 0, false),
                 new BackgroundSize(1400, 900, false, false, false, false));
 
         anchorPane.setBackground(new Background(sceneBackground));
@@ -150,6 +177,7 @@ public class BoardController implements ViewController {
     /**
      * Renders the Player Table
      */
+    @SuppressWarnings("unchecked")
     public void renderPlayerTable() {
         TableColumn<User, String> userId = new TableColumn("ID");
         userId.setCellValueFactory(c -> new SimpleStringProperty(
@@ -194,7 +222,7 @@ public class BoardController implements ViewController {
             // reset the table first
             tblPlayers.getItems().clear();
 
-            for(User u : users) {
+            for (User u : users) {
                 tblPlayers.getItems().add(u);
             }
 
@@ -234,7 +262,7 @@ public class BoardController implements ViewController {
         fieldsContainer.setCellValueFactory(c -> new SimpleObjectProperty<>(
                 new VBox(new Label(c.getValue().getDescField().getFieldType().toString().toLowerCase()),
                         getFieldTypeImageGroup(c.getValue().getDescField().getFieldType())
-                        )
+                )
         ));
 
         fieldsContainer.setSortable(false);
@@ -257,7 +285,7 @@ public class BoardController implements ViewController {
             LOGGER.debug("active user on baord is: {}", activeUserOnBoard);
 
             if (userToLoad.getUserId().equals(activeUserOnBoard)) {
-               userColumn.setStyle("-fx-background-color: rgba(235,242,216,0.7);");
+                userColumn.setStyle("-fx-background-color: rgba(235,242,216,0.7);");
             } else {
                 userColumn.setStyle("-fx-background-color: rgba(229,229,229,0.7);");
             }
@@ -279,6 +307,7 @@ public class BoardController implements ViewController {
 
     /**
      * Generates all board table rows. This list represents the raw btw. src. data of the table view.
+     *
      * @return A list of BoardTableRow which represent table data source.
      */
     private List<BoardTableRow> getBoardTableRows() {
@@ -287,7 +316,7 @@ public class BoardController implements ViewController {
 
         for (FieldType fieldType : FieldType.values()) {
 
-            if (fieldType == FieldType.SUB_TOTAL || fieldType ==  FieldType.TOTAL) {
+            if (fieldType == FieldType.SUB_TOTAL || fieldType == FieldType.TOTAL) {
                 rows.add(new BoardTableRow(
                         new Field(fieldType, true),
                         context.getYatziGame().getPlayers(),
@@ -307,6 +336,7 @@ public class BoardController implements ViewController {
 
     /**
      * Generates the action column of the yatzi board.
+     *
      * @return TableColumn of the yatzi board.
      */
     @SuppressWarnings("unchecked")
@@ -318,7 +348,7 @@ public class BoardController implements ViewController {
 
             @Override
             public TableCell<BoardTableRow, ActionField> call(final TableColumn<BoardTableRow, ActionField> param) {
-               return new ActionCell<>();
+                return new ActionCell<>();
             }
         };
 
@@ -329,12 +359,60 @@ public class BoardController implements ViewController {
 
     }
 
+    /* ------------------ Utils --------------------- */
+
     /**
-     * Gets an HBox with ImageViews inside of a dice combination
+     * Generates the diceMap area. this means 5 diceMap and one roll button
+     */
+    private void generateDiceArea() {
+
+        ObservableList<Node> nodes = diceContainer.getChildren();
+        this.diceButtons = new ArrayList<>();
+
+        for (Node node : nodes) {
+            Button button = (Button) node;
+            Integer buttonId = getButtonIdFromString(button.getId());
+
+            if (buttonId != null) {
+                this.diceButtons.add(button);
+                button.setGraphic(screenHelper.renderImageView(
+                        context.getClassloader(),
+                        "dice/3d/",
+                        "dice_default",
+                        "jpg",
+                        40D,
+                        40D));
+            }
+        }
+
+        btnRollTheDice.setGraphic(screenHelper.renderImageView(
+                context.getClassloader(),
+                "icons/",
+                "roll",
+                "jpg",
+                40D,
+                45D));
+
+    }
+
+    private void setDiceValueImage(Button button, DiceType diceType) {
+        button.setGraphic(screenHelper.renderImageView(
+                context.getClassloader(),
+                "dice/3d/",
+                "dice_" + diceType.toString().toLowerCase(),
+                "jpg",
+                40D,
+                40D));
+    }
+
+
+    /**
+     * Gets an HBox with ImageViews inside of a diceMap combination
+     *
      * @param fieldType The FieldType of the field
      * @return A HBox JavaFx Node
      */
-    public HBox getFieldTypeImageGroup(FieldType fieldType) {
+    private HBox getFieldTypeImageGroup(FieldType fieldType) {
 
         FieldTypeHelper fieldTypeHelper = new FieldTypeHelper();
 
@@ -342,14 +420,14 @@ public class BoardController implements ViewController {
         HBox imageGroup = new HBox();
         imageGroup.setSpacing(4);
 
-        // get dice combination
+        // get diceMap combination
         List<DiceType> combination = fieldTypeHelper.getDiceCombination(fieldType);
 
-        // loop through all dice types in the combination, and get the according image
-        for (DiceType diceType:combination) {
+        // loop through all diceMap types in the combination, and get the according image
+        for (DiceType diceType : combination) {
             // get the image for the type
             ImageView diceImageView = screenHelper.renderImageView(context.getClassloader(), "dice/",
-                    "dice_"+diceType.toString().toLowerCase(), "png", 15D, 15D);
+                    "dice_" + diceType.toString().toLowerCase(), "png", 15D, 15D);
             imageGroup.getChildren().add(diceImageView);
         }
 
@@ -358,6 +436,7 @@ public class BoardController implements ViewController {
 
     /**
      * Listens to the Input Message Queue from the Server
+     *
      * @param messageHandler The handler, which should be used to transfer the messages
      */
     public void listenToLocalClient(MessageHandler messageHandler) {
@@ -438,13 +517,30 @@ public class BoardController implements ViewController {
         messageHandlerPool.submit(messageListenerTask);
     }
 
+    /**
+     *
+     * @param buttonString JavaFX Button ID
+     * @return The ID of the dice button or null if the id could not be parsed
+     */
+    private Integer getButtonIdFromString(String buttonString) {
+        // parse the String ID to Integer
+        final String[] btnIdSplit = buttonString.split(Pattern.quote("_"));
+
+        if (btnIdSplit.length > 1) {
+            return Integer.valueOf(btnIdSplit[1]);
+        }
+
+        return null;
+    }
+
     /* ----------------- Actions --------------------- */
 
     /**
      * Displays an JavaFX Alert Box
-     * @param type Alert.AlertType
-     * @param title Will be displayed in the window title bar
-     * @param header Will be displayed as main text
+     *
+     * @param type    Alert.AlertType
+     * @param title   Will be displayed in the window title bar
+     * @param header  Will be displayed as main text
      * @param content Will be displayed as action text
      */
     private void showAlert(Alert.AlertType type, String title, String header, String content) {
@@ -463,7 +559,7 @@ public class BoardController implements ViewController {
      * Will be triggered by Server to make a player changed
      */
     @FXML
-    private void nextPlayer() {
+    public void nextPlayer() {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -483,6 +579,57 @@ public class BoardController implements ViewController {
         }
 
 
+    }
+
+    @FXML
+    public void diceHandler(ActionEvent event) {
+        Button button = (Button) event.getSource();
+        String btnStringId = button.getId();
+
+        Integer buttonId = getButtonIdFromString(btnStringId);
+        int buttonIndex = buttonId - 1;
+
+        List<Dice> dices = context.getYatziGame().getBoard().getDices();
+
+        if (dices.get(buttonIndex).isLocked()) {
+            dices.get(buttonIndex).setLocked(false);
+            button.setEffect(null);
+        } else {
+            dices.get(buttonIndex).setLocked(true);
+            button.setEffect(lightingGray);
+        }
+    }
+
+    @FXML
+    public void rollAction(ActionEvent event) {
+
+        List<Dice> dices = context.getYatziGame().getBoard().getDices();
+
+        for (int i = 0; i < 5;i++) {
+            if (!dices.get(i).isLocked()) {
+
+                Button diceButton = diceButtons.get(i);
+                diceButton.getStyleClass().clear();
+                diceButton.getStyleClass().add(IMAGE_BUTTON_CLASS);
+
+                dices.get(i).rollTheDice();
+
+                if (dices.get(i).getValueAsDiceType() != null) {
+                    LOGGER.trace("Set dice image {} to dice button {}", dices.get(i).getValueAsDiceType(), diceButtons.get(i));
+                    setDiceValueImage(diceButtons.get(i), dices.get(i).getValueAsDiceType());
+                } else {
+                    LOGGER.warn("Failed to get dice value as dice type. current value is {}", dices.get(i).toString());
+                }
+
+            }
+        }
+
+        HashMap<Integer, Integer> diceValue = new HashMap();
+
+        // set the whole hashmap to zero (otherwise it would be "null")
+        for (int i = 1; i < 7; i++) {
+            diceValue.put(i, 0);
+        }
     }
 
     @FXML

@@ -88,7 +88,7 @@ public class SetupController implements ViewController {
         messageHandler = new MessageHandler();
         screenHelper = new ScreenHelper();
         btnStartGame = new Button();
-        btnStartGame.getStyleClass().add("button");
+        btnStartGame.getStyleClass().add("button-primary");
         btnStartGame.setText("Start Game");
         btnStartGame.addEventHandler(ActionEvent.ACTION,
                 event -> {

@@ -27,7 +27,8 @@ public class ActionCell<T> extends TableCell<BoardTableRow, ActionField> {
                 20D
         );
 
-        btn = new Button("select", image);
+        btn = new Button("choose ", image);
+        btn.getStyleClass().add("action-button");
         btn.setOnAction((ActionEvent event) -> {
             BoardTableRow data = getTableView().getItems().get(getIndex());
             LOGGER.debug("board-action -> {}", data.getDescField().getFieldType());

@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="boardContainer" prefHeight="850" styleClass="board-container" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.BoardController">
+<VBox fx:id="boardContainer" prefHeight="850" alignment="CENTER_RIGHT" styleClass="board-container" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ch.juventus.yatzi.ui.controller.BoardController">
 
     <padding>
         <Insets left="50" right="50" />
@@ -43,7 +43,7 @@
                 <Insets top="15.0" />
             </HBox.margin>
             <HBox alignment="TOP_RIGHT" prefWidth="150" spacing="10">
-                <Button mnemonicParsing="false" onAction="#exit" text="Quit Game" />
+                <Button mnemonicParsing="false" styleClass="button-primary" onAction="#exit" text="Quit Game" />
             </HBox>
 
             <TabPane styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
@@ -63,9 +63,21 @@
         </VBox.margin>
     </TableView>
 
-    <HBox prefHeight="30.0" prefWidth="-Infinity" styleClass="box-dice-container">
+    <HBox fx:id="diceContainer" prefHeight="60.0" prefWidth="380" maxWidth="380" styleClass="box-dice-container" alignment="CENTER">
 
+        <VBox.margin>
+            <Insets>
+                <top>30</top>
+            </Insets>
+        </VBox.margin>
+
+        <Button mnemonicParsing="false"  fx:id="dice_1" styleClass="image-button" onAction="#diceHandler" />
+        <Button mnemonicParsing="false"  fx:id="dice_2" styleClass="image-button" onAction="#diceHandler" />
+        <Button mnemonicParsing="false" fx:id="dice_3" styleClass="image-button" onAction="#diceHandler" />
+        <Button mnemonicParsing="false" fx:id="dice_4" styleClass="image-button" onAction="#diceHandler" />
+        <Button mnemonicParsing="false" fx:id="dice_5" styleClass="image-button" onAction="#diceHandler" />
+
+        <Button fx:id="btnRollTheDice" mnemonicParsing="false"  styleClass="image-button" onAction="#rollAction" />
     </HBox>
-    <Button mnemonicParsing="false" text="Next Player" styleClass="button" onAction="#nextPlayer" />
 
 </VBox>

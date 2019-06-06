@@ -91,7 +91,28 @@
 }
 
 .box-dice-container {
-    -fx-background-color: transparent;
-    -fx-margin: 50 0 20 0;
+    -fx-start-margin: 50;
+    -fx-end-margin: 30;
+    -fx-background-color: #fff;
+    -fx-background-radius: 7 7 7 7;
 }
 
+.image-button {
+    -fx-background-color: #fff;
+    -fx-padding: 5 5 5 5;
+}
+
+.image-button:hover {
+    -fx-background-color: gray;
+}
+
+.action-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 2;
+    -fx-border-style: solid;
+    -fx-border-color: green;
+}
+
+.action-button:hover {
+    -fx-background-color: rgba(0, 100, 0, 0.29);
+}
