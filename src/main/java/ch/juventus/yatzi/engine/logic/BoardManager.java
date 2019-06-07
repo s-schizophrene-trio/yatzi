@@ -24,8 +24,10 @@ public class BoardManager {
 
         // functions to check
         checkOnePair(diceValues);
+        checkTwoPair(diceValues);
         checkThreeOfAKind(diceValues);
         checkFourOfAKind(diceValues);
+        checkFullHouse(diceValues);
         checkSmallStraight(diceValues);
         checkLargeStraight(diceValues);
         checkYatzi(diceValues);
@@ -37,7 +39,33 @@ public class BoardManager {
         for (int i = 6; i > 0; i--) {
             if (diceValues.get(DiceType.get(i)) >= 2) {
                 matchingFields.add(FieldType.ONE_PAIR);
+                break;
             }
+        }
+    }
+
+    public void checkTwoPair(Map<DiceType, Integer> diceValues) {
+
+        Boolean firstPair = false;
+        Boolean secondPair = false;
+        int index2 = 0;
+
+        for (int i = 6; i > 0; i--) {
+            if (diceValues.get(DiceType.get(i)) >= 2) {
+                firstPair = true;
+                index2 = i-1;
+                break;
+            }
+        }
+        for (int i = index2; i > 0; i--) {
+            if (diceValues.get(DiceType.get(i)) >= 2) {
+                secondPair = true;
+                break;
+            }
+        }
+
+        if (firstPair && secondPair) {
+            matchingFields.add(FieldType.TWO_PAIRS);
         }
     }
 
@@ -52,10 +80,33 @@ public class BoardManager {
 
     public void checkFourOfAKind (Map<DiceType, Integer> diceValues){
 
-        for (int i=1; i < 7; i++) {
+        for (int i=1; i < 6; i++) {
             if (diceValues.get(DiceType.get(i)) >= 4){
                 matchingFields.add(FieldType.FOUR_OF_A_KIND);
             }
+        }
+    }
+
+    //TODO: check function
+
+    public void checkFullHouse(Map<DiceType, Integer> diceValues) {
+
+        Boolean pair = false;
+        Boolean threeOfAKind = false;
+
+        for (int i = 6; i > 0; i--) {
+            if (diceValues.get(DiceType.get(i)) >= 2) {
+                pair = true;
+            }
+        }
+        for (int i = 6; i > 0; i--) {
+            if (diceValues.get(DiceType.get(i)) >= 3) {
+                threeOfAKind = true;
+            }
+        }
+
+        if (pair && threeOfAKind) {
+            matchingFields.add(FieldType.FULL_HOUSE);
         }
     }
 
