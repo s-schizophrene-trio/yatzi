@@ -461,17 +461,22 @@ public class BoardController implements ViewController {
 
         BoardManager boardManager = context.getYatziGame().getBoard().getBoardManager();
 
-        List<FieldType> matchingFields = boardManager.evaluate(diceResult);
+        // TODO: call evaluate method
+        Map<FieldType, Integer> matchingFields = new HashMap<>();
 
         for (BoardTableRow boardTableRow : boardTableRows) {
-            // check if this board table has a matching condition
-            List<FieldType> correlate = matchingFields.stream().filter(mf -> mf == boardTableRow.getField().getFieldType()).collect(Collectors.toList());
 
-            if (correlate.size() > 0) {
+            // check if this board table has a matching condition
+            if (matchingFields.get(boardTableRow.getField().getFieldType()) != null) {
+
                 boardTableRow.getActionField().setIsActionAvailable(true);
+                Integer fieldValue = matchingFields.get(boardTableRow.getField().getFieldType());
+                LOGGER.debug("the matching field has a value of ");
+
             } else {
                 boardTableRow.getActionField().setIsActionAvailable(false);
             }
+
         }
 
         // render the board table
