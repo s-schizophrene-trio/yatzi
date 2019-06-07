@@ -28,6 +28,7 @@ public class Manager {
         for (int i = 6; i > 0; i--) {
             if (diceValues.get(i) >= 2) {
                 fieldTypes.add(FieldType.ONE_PAIR);
+                break;
             }
         }
     }
