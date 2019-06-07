@@ -63,11 +63,11 @@
         </VBox.margin>
     </TableView>
 
-    <HBox fx:id="diceContainer" prefHeight="60.0" prefWidth="380" maxWidth="380" styleClass="box-dice-container" alignment="CENTER">
+    <HBox fx:id="diceContainer" prefHeight="60.0" spacing="8" prefWidth="380" maxWidth="380" styleClass="box-dice-container" alignment="CENTER">
 
         <VBox.margin>
             <Insets>
-                <top>30</top>
+                <top>20</top>
             </Insets>
         </VBox.margin>
 

@@ -15,7 +15,7 @@ import java.util.List;
 public class BoardTableRow {
 
     @NonNull
-    Field descField;
+    Field field;
 
     @NonNull
     List<User> users;

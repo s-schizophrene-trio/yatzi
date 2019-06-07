@@ -6,7 +6,11 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 @ToString
 public class ActionField {
-    private Boolean actionAvailable;
+    @NonNull
+    private Boolean isActionAvailable;
+    private Boolean isSelected = false;
+
 }

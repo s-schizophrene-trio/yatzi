@@ -1,5 +1,6 @@
 package ch.juventus.yatzi.ui.controller;
 
+import ch.juventus.yatzi.config.ApplicationConfig;
 import ch.juventus.yatzi.engine.user.User;
 import ch.juventus.yatzi.network.client.Client;
 import ch.juventus.yatzi.network.helper.Commands;
@@ -20,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
+import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +56,6 @@ public class SetupController implements ViewController {
     private VBox setupUsersContainer;
     @FXML
     private GridPane setupUsersGrid;
-
     @FXML
     private TextField localServerPort;
     @FXML
@@ -80,6 +81,7 @@ public class SetupController implements ViewController {
     private MessageHandler messageHandler;
     private Boolean shouldListen = true;
     private ExecutorService messageHandlerPool;
+    private ApplicationConfig config;
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
@@ -88,6 +90,7 @@ public class SetupController implements ViewController {
         messageHandler = new MessageHandler();
         screenHelper = new ScreenHelper();
         btnStartGame = new Button();
+        config = ConfigFactory.create(ApplicationConfig.class);
         btnStartGame.getStyleClass().add("button-primary");
         btnStartGame.setText("Start Game");
         btnStartGame.addEventHandler(ActionEvent.ACTION,
@@ -297,7 +300,7 @@ public class SetupController implements ViewController {
                 }
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(config.queuePauseLength());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

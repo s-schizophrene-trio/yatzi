@@ -27,7 +27,7 @@
 |                                                |                                                         |
 | ---------------------------------------------- | ------------------------------------------------------- |
 | ![Setup](docs/assets/setup_screen.png)         | ![Registered](docs/assets/setup_registred_players.png)  |
-| ![Setup](docs/assets/setup_join.png)           | ![Registered](docs/assets/board_screen_alpha1.png)  |
+| ![Setup](docs/assets/setup_join.png)           | ![Registered](docs/assets/board_screen_alpha2.png)  |
   
 
 ## Getting Started
@@ -274,6 +274,11 @@ creates for each incoming Client a new Client Handler Thread.
 ![java socket flow](https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgramming.png)
 
 _https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgramming.png_
+
+#### Configuration
+
+Library: http://owner.aeonbits.org/docs/usage/
+
 
 ### Build & Ship Info
 
