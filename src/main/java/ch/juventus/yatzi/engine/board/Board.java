@@ -4,6 +4,7 @@ import ch.juventus.yatzi.engine.board.score.UserScore;
 import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.FieldType;
+import ch.juventus.yatzi.engine.logic.BoardManager;
 import ch.juventus.yatzi.engine.user.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -27,8 +28,15 @@ public class Board {
     @JsonIgnore
     private List<Dice> dices;
 
+    // This map includes each dice type and the according count of values which are now visible for the user
+    @JsonIgnore
+    private HashMap<DiceType, Integer> diceResult;
+
     @JsonIgnore
     private UserService userService;
+
+    @JsonIgnore
+    private BoardManager boardManager;
 
     // user score service
     @JsonIgnore
@@ -39,6 +47,8 @@ public class Board {
      */
     public Board() {
         this.dices = this.initDiceSet();
+        this.boardManager = new BoardManager();
+        this.diceResult = new HashMap<>();
     }
 
     /**

@@ -53,6 +53,10 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.9'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
 
+    // Config
+    compile group: 'org.aeonbits.owner', name: 'owner', version: '1.0.10'
+
+    // Mocking
     implementation 'com.github.javafaker:javafaker:0.16'
 
     // Use JUnit test framework

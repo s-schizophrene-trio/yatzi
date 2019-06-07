@@ -1,11 +1,13 @@
 package ch.juventus.yatzi.ui.controller;
 
+import ch.juventus.yatzi.config.ApplicationConfig;
 import ch.juventus.yatzi.engine.YatziGame;
 import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.Field;
 import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.engine.field.FieldTypeHelper;
+import ch.juventus.yatzi.engine.logic.BoardManager;
 import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.enums.ScreenType;
@@ -25,6 +27,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,6 +42,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +53,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static ch.juventus.yatzi.network.helper.Commands.*;
 
@@ -64,9 +69,12 @@ public class BoardController implements ViewController {
     private final String IMAGE_BUTTON_CLASS = "image-button";
 
     private ViewContext context;
+    private BoardController self;
     private ScreenHelper screenHelper;
+    private ApplicationConfig config;
 
     private Boolean shouldListen = true;
+    private ObservableList<BoardTableRow> boardTableRows;
 
     @FXML
     private Label screenTitle;
@@ -92,15 +100,16 @@ public class BoardController implements ViewController {
     private Lighting lightingGray;
     private List<Button> diceButtons;
 
-    private List<BoardTableRow> boardTableRows;
     private ExecutorService messageHandlerPool;
 
     /* ----------------- Initializer --------------------- */
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
+        self = this;
         screenTitle.setText(VIEW_TITLE);
         screenHelper = new ScreenHelper();
+        config = ConfigFactory.create(ApplicationConfig.class);
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
                 .namingPattern("Board Message Handler #%d")
@@ -142,9 +151,8 @@ public class BoardController implements ViewController {
         renderPlayerTable();
 
         // initialize the ui components
-        loadUserStats();
+        renderUserStats();
         generatePlayerTable();
-        generateBoardTable();
         generateDiceArea();
 
         lightingGray = new Lighting();
@@ -153,7 +161,7 @@ public class BoardController implements ViewController {
         lightingGray.setSpecularConstant(0.0);
         lightingGray.setSpecularExponent(0.0);
         lightingGray.setSurfaceScale(0.0);
-        lightingGray.setLight(new Light.Distant(45, 45, Color.LIGHTGRAY));
+        lightingGray.setLight(new Light.Distant(45, 45, Color.WHITE));
 
         // define a background
         Image sceneBackgroundImage = screenHelper.getImage(this.context.getClassloader(), "background/", "board_background", "jpg");
@@ -199,17 +207,6 @@ public class BoardController implements ViewController {
     }
 
     /**
-     * Renders the Image View based on the Image key and file extension (icon)
-     *
-     * @param imageKey The unique image name without file extension
-     * @param fileExt  The file extension of the image
-     * @return An Image View based on the Serve Type with an image loaded and resized it.
-     */
-    private ImageView renderIconImageView(String imageKey, String fileExt) {
-        return screenHelper.renderImageView(context.getClassloader(), "icons/", imageKey, fileExt, 20D, 20D);
-    }
-
-    /**
      * Loads the user data from the game and add the items to the table.
      */
     public void generatePlayerTable() {
@@ -233,19 +230,9 @@ public class BoardController implements ViewController {
     }
 
     /**
-     * Loads all users statistics about the current user
-     */
-    private void loadUserStats() {
-        // Set Current User
-        currentUser.setText(context.getYatziGame().getUserMe().getUserName());
-        // Set Current User ID
-        String userId = context.getYatziGame().getUserMe().getShortUserId();
-        currentUserId.setText("ID  " + userId);
-    }
-
-    /**
      * Generates the game board table with the user and their score overview.
      */
+    @SuppressWarnings("unchecked")
     public void generateBoardTable() {
 
         LOGGER.debug("initialize board table");
@@ -253,15 +240,18 @@ public class BoardController implements ViewController {
         tblBoardMain.getColumns().clear();
         tblBoardMain.getItems().clear();
 
+        if (boardTableRows == null)
+            boardTableRows = FXCollections.observableArrayList();
+
         // generate the table raw data list. based on this list, the data will be rendered
-        boardTableRows = getBoardTableRows();
+        generateBoardTableRows();
 
         // static combinations
         TableColumn<BoardTableRow, VBox> fieldsContainer = new TableColumn("Fields");
 
         fieldsContainer.setCellValueFactory(c -> new SimpleObjectProperty<>(
-                new VBox(new Label(c.getValue().getDescField().getFieldType().toString().toLowerCase()),
-                        getFieldTypeImageGroup(c.getValue().getDescField().getFieldType())
+                new VBox(new Label(c.getValue().getField().getFieldType().toString().toLowerCase()),
+                        getFieldTypeImageGroup(c.getValue().getField().getFieldType())
                 )
         ));
 
@@ -306,60 +296,15 @@ public class BoardController implements ViewController {
     }
 
     /**
-     * Generates all board table rows. This list represents the raw btw. src. data of the table view.
-     *
-     * @return A list of BoardTableRow which represent table data source.
+     * Loads all users statistics about the current user
      */
-    private List<BoardTableRow> getBoardTableRows() {
-
-        List<BoardTableRow> rows = new ArrayList<>();
-
-        for (FieldType fieldType : FieldType.values()) {
-
-            if (fieldType == FieldType.SUB_TOTAL || fieldType == FieldType.TOTAL) {
-                rows.add(new BoardTableRow(
-                        new Field(fieldType, true),
-                        context.getYatziGame().getPlayers(),
-                        new ActionField(false)
-                ));
-            } else {
-                rows.add(new BoardTableRow(
-                        new Field(fieldType, false),
-                        context.getYatziGame().getPlayers(),
-                        new ActionField(true)
-                ));
-            }
-        }
-
-        return rows;
+    private void renderUserStats() {
+        // Set Current User
+        currentUser.setText(context.getYatziGame().getUserMe().getUserName());
+        // Set Current User ID
+        String userId = context.getYatziGame().getUserMe().getShortUserId();
+        currentUserId.setText("ID  " + userId);
     }
-
-    /**
-     * Generates the action column of the yatzi board.
-     *
-     * @return TableColumn of the yatzi board.
-     */
-    @SuppressWarnings("unchecked")
-    private TableColumn<BoardTableRow, ActionField> getActionColumn() {
-
-        TableColumn<BoardTableRow, ActionField> actionColumn = new TableColumn("Action");
-
-        Callback<TableColumn<BoardTableRow, ActionField>, TableCell<BoardTableRow, ActionField>> cellFactory = new Callback<>() {
-
-            @Override
-            public TableCell<BoardTableRow, ActionField> call(final TableColumn<BoardTableRow, ActionField> param) {
-                return new ActionCell<>();
-            }
-        };
-
-        actionColumn.setCellValueFactory(new PropertyValueFactory<>("actionField"));
-        actionColumn.setCellFactory(cellFactory);
-
-        return actionColumn;
-
-    }
-
-    /* ------------------ Utils --------------------- */
 
     /**
      * Generates the diceMap area. this means 5 diceMap and one roll button
@@ -395,6 +340,69 @@ public class BoardController implements ViewController {
 
     }
 
+    /* ----------------- UI Helpers ----------------------- */
+
+    /**
+     * Renders the Image View based on the Image key and file extension (icon)
+     *
+     * @param imageKey The unique image name without file extension
+     * @param fileExt  The file extension of the image
+     * @return An Image View based on the Serve Type with an image loaded and resized it.
+     */
+    private ImageView renderIconImageView(String imageKey, String fileExt) {
+        return screenHelper.renderImageView(context.getClassloader(), "icons/", imageKey, fileExt, 20D, 20D);
+    }
+
+    /**
+     * Generates all board table rows. This list represents the raw btw. src. data of the table view.
+     */
+    private void generateBoardTableRows() {
+
+        if (this.boardTableRows.size() == 0 ) {
+            for (FieldType fieldType : FieldType.values()) {
+                if (fieldType == FieldType.SUB_TOTAL || fieldType == FieldType.TOTAL) {
+                    this.boardTableRows.add(new BoardTableRow(
+                            new Field(fieldType, true),
+                            context.getYatziGame().getPlayers(),
+                            new ActionField(false)
+                    ));
+                } else {
+                    this.boardTableRows.add(new BoardTableRow(
+                            new Field(fieldType, false),
+                            context.getYatziGame().getPlayers(),
+                            new ActionField(false)
+                    ));
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates the action column of the yatzi board.
+     *
+     * @return TableColumn of the yatzi board.
+     */
+    @SuppressWarnings("unchecked")
+    private TableColumn<BoardTableRow, ActionField> getActionColumn() {
+
+        TableColumn<BoardTableRow, ActionField> actionColumn = new TableColumn("Action");
+
+        Callback<TableColumn<BoardTableRow, ActionField>, TableCell<BoardTableRow, ActionField>> cellFactory = new Callback<>() {
+
+            @Override
+            public TableCell<BoardTableRow, ActionField> call(final TableColumn<BoardTableRow, ActionField> param) {
+                return new ActionCell<>(self);
+            }
+        };
+
+        actionColumn.setCellValueFactory(new PropertyValueFactory<>("actionField"));
+        actionColumn.setCellFactory(cellFactory);
+        actionColumn.setMinWidth(120D);
+
+        return actionColumn;
+
+    }
+
     private void setDiceValueImage(Button button, DiceType diceType) {
         button.setGraphic(screenHelper.renderImageView(
                 context.getClassloader(),
@@ -404,7 +412,6 @@ public class BoardController implements ViewController {
                 40D,
                 40D));
     }
-
 
     /**
      * Gets an HBox with ImageViews inside of a diceMap combination
@@ -435,6 +442,45 @@ public class BoardController implements ViewController {
     }
 
     /**
+     *
+     * @param buttonString JavaFX Button ID
+     * @return The ID of the dice button or null if the id could not be parsed
+     */
+    private Integer getButtonIdFromString(String buttonString) {
+        // parse the String ID to Integer
+        final String[] btnIdSplit = buttonString.split(Pattern.quote("_"));
+
+        if (btnIdSplit.length > 1) {
+            return Integer.valueOf(btnIdSplit[1]);
+        }
+
+        return null;
+    }
+
+    private void updateChoiceAction(Map<DiceType, Integer> diceResult) {
+
+        BoardManager boardManager = context.getYatziGame().getBoard().getBoardManager();
+
+        List<FieldType> matchingFields = boardManager.evaluate(diceResult);
+
+        for (BoardTableRow boardTableRow : boardTableRows) {
+            // check if this board table has a matching condition
+            List<FieldType> correlate = matchingFields.stream().filter(mf -> mf == boardTableRow.getField().getFieldType()).collect(Collectors.toList());
+
+            if (correlate.size() > 0) {
+                boardTableRow.getActionField().setIsActionAvailable(true);
+            } else {
+                boardTableRow.getActionField().setIsActionAvailable(false);
+            }
+        }
+
+        // render the board table
+        Platform.runLater(() -> this.tblBoardMain.refresh());
+    }
+
+    /* ----------------- Actions --------------------- */
+
+    /**
      * Listens to the Input Message Queue from the Server
      *
      * @param messageHandler The handler, which should be used to transfer the messages
@@ -459,7 +505,6 @@ public class BoardController implements ViewController {
                                 context.getYatziGame().getCircleRoundPlayed().add(yatziGame.getActiveUserId());
 
                                 Platform.runLater(() -> {
-
                                     generatePlayerTable();
                                     generateBoardTable();
                                     //TODO: Implement round counter
@@ -506,7 +551,7 @@ public class BoardController implements ViewController {
                 }
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(config.queuePauseLength());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -516,24 +561,6 @@ public class BoardController implements ViewController {
         Thread messageListenerTask = new Thread(messageListener);
         messageHandlerPool.submit(messageListenerTask);
     }
-
-    /**
-     *
-     * @param buttonString JavaFX Button ID
-     * @return The ID of the dice button or null if the id could not be parsed
-     */
-    private Integer getButtonIdFromString(String buttonString) {
-        // parse the String ID to Integer
-        final String[] btnIdSplit = buttonString.split(Pattern.quote("_"));
-
-        if (btnIdSplit.length > 1) {
-            return Integer.valueOf(btnIdSplit[1]);
-        }
-
-        return null;
-    }
-
-    /* ----------------- Actions --------------------- */
 
     /**
      * Displays an JavaFX Alert Box
@@ -558,14 +585,12 @@ public class BoardController implements ViewController {
     /**
      * Will be triggered by Server to make a player changed
      */
-    @FXML
     public void nextPlayer() {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
         try {
-
             // disable the tables during game update
             tblPlayers.setDisable(true);
             tblBoardMain.setDisable(true);
@@ -577,8 +602,6 @@ public class BoardController implements ViewController {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @FXML
@@ -609,27 +632,39 @@ public class BoardController implements ViewController {
             if (!dices.get(i).isLocked()) {
 
                 Button diceButton = diceButtons.get(i);
+                // clear the locked view if this state has changed
                 diceButton.getStyleClass().clear();
                 diceButton.getStyleClass().add(IMAGE_BUTTON_CLASS);
 
+                // generate new random value
                 dices.get(i).rollTheDice();
 
                 if (dices.get(i).getValueAsDiceType() != null) {
-                    LOGGER.trace("Set dice image {} to dice button {}", dices.get(i).getValueAsDiceType(), diceButtons.get(i));
+                    LOGGER.trace("set dice image {} to dice button {}", dices.get(i).getValueAsDiceType(), diceButtons.get(i));
                     setDiceValueImage(diceButtons.get(i), dices.get(i).getValueAsDiceType());
                 } else {
-                    LOGGER.warn("Failed to get dice value as dice type. current value is {}", dices.get(i).toString());
+                    LOGGER.warn("failed to get dice value as dice type. current value is {}", dices.get(i).toString());
                 }
-
             }
         }
 
-        HashMap<Integer, Integer> diceValue = new HashMap();
+        Map<DiceType, Integer> diceResult = context.getYatziGame().getBoard().getDiceResult();
 
-        // set the whole hashmap to zero (otherwise it would be "null")
-        for (int i = 1; i < 7; i++) {
-            diceValue.put(i, 0);
+        // set the whole map to zero (otherwise it would be "null")
+
+        for (DiceType diceType : DiceType.values()) {
+            diceResult.put(diceType, 0);
         }
+
+        // set the current dice result values into the dice result map
+        for (int i=0; i < dices.size(); i++) {
+            DiceType valueType = dices.get(i).getValueAsDiceType();
+            diceResult.put(valueType, diceResult.get(valueType) + 1);
+        }
+
+        LOGGER.debug("dice result map {}", diceResult.toString());
+
+        this.updateChoiceAction(diceResult);
     }
 
     @FXML
