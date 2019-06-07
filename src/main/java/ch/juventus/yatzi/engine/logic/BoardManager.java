@@ -4,6 +4,7 @@ import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.FieldType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,85 +12,98 @@ public class BoardManager {
 
     List<FieldType> matchingFields;
 
+
     // seldom functions
 
     /**
      * Evaluates the combination of the current dice values.
+     *
      * @param diceValues The map with all dice combinations in it.
      * @return A list of field types with all matching fields
      */
     public List<FieldType> evaluate(Map<DiceType, Integer> diceValues) {
 
+        Map<FieldType, Integer> matchMap = new HashMap<>();
+
         this.matchingFields = new ArrayList<>();
 
         // functions to check
-        checkOnePair(diceValues);
-        checkTwoPair(diceValues);
-        checkThreeOfAKind(diceValues);
-        checkFourOfAKind(diceValues);
-        checkFullHouse(diceValues);
-        checkSmallStraight(diceValues);
-        checkLargeStraight(diceValues);
-        checkYatzi(diceValues);
+        checkOnePair(diceValues, matchMap);
+        checkTwoPair(diceValues, matchMap);
+        checkThreeOfAKind(diceValues, matchMap);
+        checkFourOfAKind(diceValues, matchMap);
+        checkFullHouse(diceValues, matchMap);
+        checkSmallStraight(diceValues, matchMap);
+        checkLargeStraight(diceValues, matchMap);
+        checkYatzi(diceValues, matchMap);
         return matchingFields;
     }
 
-    public void checkOnePair(Map<DiceType, Integer> diceValues) {
+    public void checkOnePair(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
         for (int i = 6; i > 0; i--) {
             if (diceValues.get(DiceType.get(i)) >= 2) {
-                matchingFields.add(FieldType.ONE_PAIR);
+                // multiplicate index with 2 to calculate pair value
+                matchMap.put(FieldType.ONE_PAIR, i * 2);
                 break;
             }
         }
     }
 
-    public void checkTwoPair(Map<DiceType, Integer> diceValues) {
+    public void checkTwoPair(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
         Boolean firstPair = false;
         Boolean secondPair = false;
         int index2 = 0;
+        int pairvalue1 = 0;
+        int pairvalue2 = 0;
+
 
         for (int i = 6; i > 0; i--) {
             if (diceValues.get(DiceType.get(i)) >= 2) {
                 firstPair = true;
-                index2 = i-1;
+                pairvalue1 = i * 2;
+                index2 = i - 1;
                 break;
             }
         }
         for (int i = index2; i > 0; i--) {
             if (diceValues.get(DiceType.get(i)) >= 2) {
                 secondPair = true;
+                pairvalue2 = i * 2;
                 break;
             }
         }
 
         if (firstPair && secondPair) {
-            matchingFields.add(FieldType.TWO_PAIRS);
+            // multiplicate the indexes with 2 to calculate two pair value
+            matchMap.put(FieldType.TWO_PAIRS, pairvalue1 + pairvalue2);
         }
     }
 
-    public void checkThreeOfAKind (Map<DiceType, Integer> diceValues){
+    public void checkThreeOfAKind(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
-        for (int i=1; i < 7; i++) {
-            if (diceValues.get(DiceType.get(i)) >= 3){
-                matchingFields.add(FieldType.THREE_OF_A_KIND);
+        for (int i = 1; i < 7; i++) {
+            if (diceValues.get(DiceType.get(i)) >= 3) {
+                // multiplicate index with 3 to calculate three of a kind value
+                matchMap.put(FieldType.THREE_OF_A_KIND, i * 3);
             }
         }
     }
 
-    public void checkFourOfAKind (Map<DiceType, Integer> diceValues){
+    public void checkFourOfAKind(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
-        for (int i=1; i < 6; i++) {
-            if (diceValues.get(DiceType.get(i)) >= 4){
-                matchingFields.add(FieldType.FOUR_OF_A_KIND);
+        for (int i = 1; i < 6; i++) {
+            if (diceValues.get(DiceType.get(i)) >= 4) {
+                // multiplicate index with 4 to calculate four of a kind value
+                matchMap.put(FieldType.FOUR_OF_A_KIND, i * 4);
             }
         }
     }
 
     //TODO: check function
 
-    public void checkFullHouse(Map<DiceType, Integer> diceValues) {
+    public void checkFullHouse(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
         Boolean pair = false;
         Boolean threeOfAKind = false;
@@ -106,37 +120,38 @@ public class BoardManager {
         }
 
         if (pair && threeOfAKind) {
-            matchingFields.add(FieldType.FULL_HOUSE);
+            matchMap.put(FieldType.FULL_HOUSE, 25);
         }
     }
 
-    public void checkSmallStraight (Map<DiceType, Integer> diceValues) {
+    public void checkSmallStraight(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
         for (int i = 0; i < 3; i++) {
-            if (diceValues.get(DiceType.get(i + 1)) >= 1 && diceValues.get(DiceType.get(i + 2)) >= 1
-                    && diceValues.get(DiceType.get(i + 3)) >= 1 && diceValues.get(DiceType.get(i + 4)) >= 1) {
-                matchingFields.add(FieldType.SMALL_STRAIGHT);
+            if (diceValues.get(DiceType.get(i + 1)) >= 1
+                    && diceValues.get(DiceType.get(i + 2)) >= 1
+                    && diceValues.get(DiceType.get(i + 3)) >= 1
+                    && diceValues.get(DiceType.get(i + 4)) >= 1) {
+                matchMap.put(FieldType.SMALL_STRAIGHT, 30);
             }
         }
     }
 
-    public void checkLargeStraight (Map<DiceType, Integer> diceValues) {
+    public void checkLargeStraight(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
         for (int i = 0; i < 2; i++) {
             if (diceValues.get(DiceType.get(i + 1)) >= 1
                     && diceValues.get(DiceType.get(i + 2)) >= 1
                     && diceValues.get(DiceType.get(i + 3)) >= 1
                     && diceValues.get(DiceType.get(i + 4)) >= 1
-                    && diceValues.get(DiceType.get(i+5)) >= 1)  {
-
-                matchingFields.add(FieldType.LARGE_STRAIGHT);
+                    && diceValues.get(DiceType.get(i + 5)) >= 1) {
+                matchMap.put(FieldType.LARGE_STRAIGHT, 40);
             }
         }
     }
 
-    public void checkYatzi (Map<DiceType, Integer> diceValues){
+    public void checkYatzi(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
-        for (int i=1; i < 7; i++) {
-            if (diceValues.get(DiceType.get(i)) >= 5){
-                matchingFields.add(FieldType.YATZI);
+        for (int i = 1; i < 7; i++) {
+            if (diceValues.get(DiceType.get(i)) >= 5) {
+                matchMap.put(FieldType.YATZI, 50);
             }
         }
     }
