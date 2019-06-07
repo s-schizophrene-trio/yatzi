@@ -13,10 +13,10 @@ public enum FieldType {
     TWO_PAIRS,
     THREE_OF_A_KIND,
     FOUR_OF_A_KIND,
+    FULL_HOUSE,
     SMALL_STRAIGHT,
     LARGE_STRAIGHT,
-    FULL_HOUSE,
-    CHANCER,
     YATZI,
+    CHANCE,
     TOTAL
 }
