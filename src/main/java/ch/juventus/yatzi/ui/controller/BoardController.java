@@ -2,6 +2,7 @@ package ch.juventus.yatzi.ui.controller;
 
 import ch.juventus.yatzi.config.ApplicationConfig;
 import ch.juventus.yatzi.engine.YatziGame;
+import ch.juventus.yatzi.engine.board.score.ScoreService;
 import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.Field;
@@ -42,6 +43,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import lombok.Getter;
 import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
@@ -53,7 +55,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static ch.juventus.yatzi.network.helper.Commands.*;
 
@@ -68,6 +69,7 @@ public class BoardController implements ViewController {
     private final String VIEW_TITLE = "Yatzi Play Board";
     private final String IMAGE_BUTTON_CLASS = "image-button";
 
+    @Getter
     private ViewContext context;
     private BoardController self;
     private ScreenHelper screenHelper;
@@ -152,7 +154,6 @@ public class BoardController implements ViewController {
 
         // initialize the ui components
         renderUserStats();
-        generatePlayerTable();
         generateDiceArea();
 
         lightingGray = new Lighting();
@@ -210,11 +211,18 @@ public class BoardController implements ViewController {
      * Loads the user data from the game and add the items to the table.
      */
     public void generatePlayerTable() {
+
         if (context.getYatziGame() != null) {
 
             LOGGER.debug("{} users are active", context.getYatziGame().getPlayers().size());
-
             List<User> users = context.getYatziGame().getPlayers();
+
+            // check if the local user is the active user
+            if (context.getYatziGame().getActiveUserId().equals(context.getYatziGame().getUserMe().getUserId())) {
+                diceContainer.setDisable(false);
+            } else {
+                diceContainer.setDisable(true);
+            }
 
             // reset the table first
             tblPlayers.getItems().clear();
@@ -230,7 +238,7 @@ public class BoardController implements ViewController {
     }
 
     /**
-     * Generates the game board table with the user and their score overview.
+     * Generates the game board table with the user and their value overview.
      */
     @SuppressWarnings("unchecked")
     public void generateBoardTable() {
@@ -247,30 +255,37 @@ public class BoardController implements ViewController {
         generateBoardTableRows();
 
         // static combinations
-        TableColumn<BoardTableRow, VBox> fieldsContainer = new TableColumn("Fields");
+        TableColumn<BoardTableRow, VBox> fieldsColumn = new TableColumn("Fields");
 
-        fieldsContainer.setCellValueFactory(c -> new SimpleObjectProperty<>(
+        fieldsColumn.setCellValueFactory(c -> new SimpleObjectProperty<>(
                 new VBox(new Label(c.getValue().getField().getFieldType().toString().toLowerCase()),
                         getFieldTypeImageGroup(c.getValue().getField().getFieldType())
                 )
         ));
 
-        fieldsContainer.setSortable(false);
-        tblBoardMain.getColumns().add(fieldsContainer);
+        fieldsColumn.setSortable(false);
+        tblBoardMain.getColumns().add(fieldsColumn);
 
         // add a user wrapper column
         TableColumn userContainer = new TableColumn("Players");
         userContainer.setSortable(false);
         List<User> users = context.getYatziGame().getPlayers();
 
+        // attach the value service from the board
+        ScoreService scoreService = context.getYatziGame().getBoard().getScoreService();
+
         for (int i = 0; i < users.size(); i++) {
-            // static combinations
-            int index = i;
-            TableColumn<BoardTableRow, String> userColumn = new TableColumn(users.get(index).getUserName());
-            userColumn.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getUsers().get(index).getShortUserId()));
+
+            User userToLoad = users.get(i);
+            TableColumn<BoardTableRow, String> userColumn = new TableColumn(userToLoad.getUserName());
             userColumn.setSortable(false);
 
-            User userToLoad = users.get(index);
+            userColumn.setCellValueFactory(c -> new SimpleStringProperty(
+                        scoreService.getScore(
+                                userToLoad.getUserId(), c.getValue().getField().getFieldType()
+                        ).toString()
+            ));
+
             UUID activeUserOnBoard = context.getYatziGame().getActiveUserId();
             LOGGER.debug("active user on baord is: {}", activeUserOnBoard);
 
@@ -358,17 +373,17 @@ public class BoardController implements ViewController {
      */
     private void generateBoardTableRows() {
 
-        if (this.boardTableRows.size() == 0 ) {
+        if (this.boardTableRows.size() == 0) {
             for (FieldType fieldType : FieldType.values()) {
                 if (fieldType == FieldType.SUB_TOTAL || fieldType == FieldType.TOTAL) {
                     this.boardTableRows.add(new BoardTableRow(
-                            new Field(fieldType, true),
+                            new Field(fieldType, 0, true),
                             context.getYatziGame().getPlayers(),
                             new ActionField(false)
                     ));
                 } else {
                     this.boardTableRows.add(new BoardTableRow(
-                            new Field(fieldType, false),
+                            new Field(fieldType, 0,false),
                             context.getYatziGame().getPlayers(),
                             new ActionField(false)
                     ));
@@ -442,7 +457,6 @@ public class BoardController implements ViewController {
     }
 
     /**
-     *
      * @param buttonString JavaFX Button ID
      * @return The ID of the dice button or null if the id could not be parsed
      */
@@ -457,21 +471,33 @@ public class BoardController implements ViewController {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private void updateChoiceAction(Map<DiceType, Integer> diceResult) {
 
         BoardManager boardManager = context.getYatziGame().getBoard().getBoardManager();
 
-        // TODO: call evaluate method
-        Map<FieldType, Integer> matchingFields = new HashMap<>();
+        Map<FieldType, Integer> matchingFields = boardManager.evaluate(diceResult);
 
         for (BoardTableRow boardTableRow : boardTableRows) {
 
             // check if this board table has a matching condition
             if (matchingFields.get(boardTableRow.getField().getFieldType()) != null) {
 
-                boardTableRow.getActionField().setIsActionAvailable(true);
-                Integer fieldValue = matchingFields.get(boardTableRow.getField().getFieldType());
-                LOGGER.debug("the matching field has a value of ");
+                FieldType fieldType = boardTableRow.getField().getFieldType();
+                YatziGame game = context.getYatziGame();
+                Integer fieldValue = 0;
+
+                // check if the current field has already a value inside;
+                if (game.getBoard().getScoreService().getScore(game.getUserMe().getUserId(), fieldType) == 0) {
+
+                    boardTableRow.getActionField().setIsActionAvailable(true);
+                    fieldValue = matchingFields.get(fieldType);
+
+                    // update the action field
+                    boardTableRow.getActionField().setData(fieldValue);
+                }
+
+                LOGGER.debug("the matching field {} has a value of {}", fieldType, fieldValue);
 
             } else {
                 boardTableRow.getActionField().setIsActionAvailable(false);
@@ -633,7 +659,7 @@ public class BoardController implements ViewController {
 
         List<Dice> dices = context.getYatziGame().getBoard().getDices();
 
-        for (int i = 0; i < 5;i++) {
+        for (int i = 0; i < 5; i++) {
             if (!dices.get(i).isLocked()) {
 
                 Button diceButton = diceButtons.get(i);
@@ -662,7 +688,7 @@ public class BoardController implements ViewController {
         }
 
         // set the current dice result values into the dice result map
-        for (int i=0; i < dices.size(); i++) {
+        for (int i = 0; i < dices.size(); i++) {
             DiceType valueType = dices.get(i).getValueAsDiceType();
             diceResult.put(valueType, diceResult.get(valueType) + 1);
         }
