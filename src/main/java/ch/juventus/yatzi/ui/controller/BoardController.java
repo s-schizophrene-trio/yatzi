@@ -11,12 +11,13 @@ import ch.juventus.yatzi.engine.field.FieldTypeHelper;
 import ch.juventus.yatzi.engine.logic.BoardManager;
 import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.model.Transfer;
+import ch.juventus.yatzi.ui.enums.ActionType;
 import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewController;
-import ch.juventus.yatzi.ui.models.ActionCell;
+import ch.juventus.yatzi.ui.helper.ActionCell;
 import ch.juventus.yatzi.ui.models.ActionField;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
 import ch.juventus.yatzi.engine.user.User;
@@ -255,7 +256,7 @@ public class BoardController implements ViewController {
         TableColumn<BoardTableRow, VBox> fieldsColumn = new TableColumn("Fields");
 
         fieldsColumn.setCellValueFactory(c -> new SimpleObjectProperty<>(
-                new VBox(new Label(c.getValue().getField().getFieldType().toString().toLowerCase()),
+                new VBox(new Label(c.getValue().getField().getFieldTypeHumanReadable()),
                         getFieldTypeImageGroup(c.getValue().getField().getFieldType())
                 )
         ));
@@ -278,9 +279,9 @@ public class BoardController implements ViewController {
             userColumn.setSortable(false);
 
             userColumn.setCellValueFactory(c -> new SimpleStringProperty(
-                        scoreService.getScore(
+                        scoreService.getScoreDisplayValue(
                                 userToLoad.getUserId(), c.getValue().getField().getFieldType()
-                        ).toString()
+                        )
             ));
 
             UUID activeUserOnBoard = context.getYatziGame().getActiveUserId();
@@ -376,6 +377,7 @@ public class BoardController implements ViewController {
     private void generateBoardTableRows() {
         if (this.boardTableRows.size() == 0) {
             for (FieldType fieldType : FieldType.values()) {
+
                 if (fieldType == FieldType.SUB_TOTAL || fieldType == FieldType.TOTAL) {
                     this.boardTableRows.add(new BoardTableRow(
                             new Field(fieldType, 0, true),
@@ -476,34 +478,44 @@ public class BoardController implements ViewController {
     private void updateChoiceAction(Map<DiceType, Integer> diceResult) {
 
         BoardManager boardManager = context.getYatziGame().getBoard().getBoardManager();
-
         Map<FieldType, Integer> matchingFields = boardManager.evaluate(diceResult);
 
         for (BoardTableRow boardTableRow : boardTableRows) {
 
+            YatziGame game = context.getYatziGame();
+            FieldType fieldType = boardTableRow.getField().getFieldType();
+            Integer fieldValue = 0;
+
             // check if this board table has a matching condition
             if (matchingFields.get(boardTableRow.getField().getFieldType()) != null) {
 
-                FieldType fieldType = boardTableRow.getField().getFieldType();
-                YatziGame game = context.getYatziGame();
-                Integer fieldValue = 0;
+                // only assign choose action it the current field has no value in it
+                if (game.getBoard().getScoreService().getScore(game.getUserMe().getUserId(), fieldType) == null) {
 
-                // check if the current field has already a value inside;
-                if (game.getBoard().getScoreService().getScore(game.getUserMe().getUserId(), fieldType) == 0) {
-
-                    boardTableRow.getActionField().setIsActionAvailable(true);
+                    boardTableRow.getActionField().setHasAction(true);
+                    boardTableRow.getActionField().setActionType(ActionType.CHOOSE);
                     fieldValue = matchingFields.get(fieldType);
 
                     // update the action field
                     boardTableRow.getActionField().setData(fieldValue);
+                } else {
+                    boardTableRow.getActionField().setHasAction(false);
+                    boardTableRow.getActionField().setIsLocked(true);
                 }
 
                 LOGGER.debug("the matching field {} has a value of {}", fieldType, fieldValue);
 
             } else {
-                boardTableRow.getActionField().setIsActionAvailable(false);
+                // no matching field found (check if the user can strike one field)
+                // TODO: After strike, the field has still a value of 0
+                if (game.getBoard().getScoreService().getScore(game.getUserMe().getUserId(), fieldType) == null) {
+                    boardTableRow.getActionField().setHasAction(true);
+                    boardTableRow.getActionField().setActionType(ActionType.STRIKE);
+                } else {
+                    boardTableRow.getActionField().setHasAction(false);
+                    boardTableRow.getActionField().setActionType(ActionType.NONE);
+                }
             }
-
         }
 
         // render the board table
@@ -549,14 +561,11 @@ public class BoardController implements ViewController {
                             case GAME_CHANGED:
                                 YatziGame game = objectMapper.readValue(transfer.getBody(), YatziGame.class);
                                 context.getYatziGame().updateGame(game);
-
                                 LOGGER.debug("got new game change from another client. Active user on board: {}", game.getActiveUserId());
 
                                 Platform.runLater(() -> {
-
                                     generatePlayerTable();
                                     generateBoardTable();
-
                                     //TODO: Implement round counter
                                     tblPlayers.setDisable(false);
                                     tblBoardMain.setDisable(false);
@@ -662,7 +671,6 @@ public class BoardController implements ViewController {
 
         for (int i = 0; i < 5; i++) {
             if (!dices.get(i).isLocked()) {
-
                 Button diceButton = diceButtons.get(i);
                 // clear the locked view if this state has changed
                 diceButton.getStyleClass().clear();

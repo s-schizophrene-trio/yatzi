@@ -66,7 +66,18 @@ public class ScoreService {
         try {
             return scores.get(userId).get(fieldType).getValue();
         } catch (NullPointerException e) {
-            return 0;
+            return null;
+        }
+    }
+
+    public String getScoreDisplayValue(UUID userId, FieldType fieldType) {
+
+        Integer score = getScore(userId, fieldType);
+
+        if (score != null) {
+            return Integer.toString(score);
+        } else {
+            return "0";
         }
     }
 

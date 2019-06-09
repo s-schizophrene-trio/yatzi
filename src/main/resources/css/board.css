@@ -107,15 +107,26 @@
     -fx-opacity: 0.5;
 }
 
-.action-button {
+.choose-button {
     -fx-background-color: transparent;
     -fx-border-width: 2;
     -fx-border-style: solid;
     -fx-border-color: green;
 }
 
-.action-button:hover {
+.choose-button:hover {
     -fx-background-color: rgba(0, 100, 0, 0.29);
+}
+
+.strike-button {
+    -fx-background-color: transparent;
+    -fx-border-width: 2;
+    -fx-border-style: solid;
+    -fx-border-color: red;
+}
+
+.strike-button:hover {
+    -fx-background-color: rgba(100, 0, 19, 0.29);
 }
 
 .bold.table-cell {
