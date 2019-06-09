@@ -20,4 +20,14 @@ public class Field {
         this.fieldType = fieldType;
         this.isCalculated = isCalculated;
     }
+
+    /**
+     * Returns the field type as human readable.
+     * @return A string of the according field type
+     */
+    public String getFieldTypeHumanReadable() {
+        String fieldTypeString = fieldType.toString().toLowerCase();
+        fieldTypeString = fieldTypeString.replaceAll("_", " ");
+        return fieldTypeString;
+    }
 }

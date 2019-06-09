@@ -18,6 +18,12 @@ public class Score {
 
     public Score(Integer value) {
         this.value = value;
+        this.fieldType = null;
+    }
+
+    public Score(FieldType fieldType) {
+        this.value = 0;
+        this.fieldType = fieldType;
     }
 
 }
