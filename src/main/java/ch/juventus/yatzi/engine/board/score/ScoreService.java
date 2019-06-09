@@ -32,12 +32,28 @@ public class ScoreService {
      */
     public void updateScore(UUID userId, FieldType fieldType, Score score) {
 
-        // create child map
-        Map<FieldType, Score> scoreRow = new HashMap<>();
-        scoreRow.put(fieldType, score);
+        // check if the user has scores or not
+        Map<FieldType, Score> fieldTypeScoreMap = scores.get(userId);
+
+        if (fieldTypeScoreMap != null) {
+            fieldTypeScoreMap.put(fieldType, score);
+        } else {
+            fieldTypeScoreMap = new HashMap<>();
+        }
+
+        // add score to user related score map
+        fieldTypeScoreMap.put(fieldType, score);
 
         // add the map to the parent mmap
-        scores.put(userId, scoreRow);
+        scores.put(userId, fieldTypeScoreMap);
+    }
+
+    /**
+     * Updates the server scores
+     * @param changedScores The list with the different scores in it
+     */
+    public void updateScores(Map<UUID, Map<FieldType, Score>> changedScores) {
+       this.scores = changedScores;
     }
 
     /**

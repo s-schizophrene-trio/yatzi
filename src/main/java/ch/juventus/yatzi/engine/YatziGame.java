@@ -1,18 +1,18 @@
 package ch.juventus.yatzi.engine;
 
 import ch.juventus.yatzi.engine.board.Board;
+import ch.juventus.yatzi.engine.board.score.Score;
+import ch.juventus.yatzi.engine.board.score.ScoreService;
+import ch.juventus.yatzi.engine.field.FieldType;
 import ch.juventus.yatzi.engine.user.User;
 import ch.juventus.yatzi.engine.user.UserService;
 import ch.juventus.yatzi.network.client.Client;
 import ch.juventus.yatzi.network.server.Server;
-import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.enums.ServeType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javafx.event.ActionEvent;
 import lombok.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -80,6 +80,9 @@ public class YatziGame {
     public void updateGame(YatziGame yatziGame) {
         // update all players on board
         updatePlayers(yatziGame.getUserService().getUsers());
+
+        // update score
+        this.board.getScoreService().updateScores(yatziGame.getBoard().getScores());
 
         // the first user is allowed to start play
         this.setActiveUserId(yatziGame.getActiveUserId());

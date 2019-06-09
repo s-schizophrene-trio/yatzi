@@ -1,10 +1,12 @@
 package ch.juventus.yatzi.network.client;
 
+import ch.juventus.yatzi.config.ApplicationConfig;
 import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import lombok.Getter;
+import org.aeonbits.owner.ConfigFactory;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,7 @@ public class Client {
 
     private final ExecutorService clientConnectionExecutor;
     private final ExecutorService clientExecutor;
+    private ApplicationConfig config;
 
     @Getter
     private Socket clientSocket;
@@ -59,6 +62,7 @@ public class Client {
         this.userId = userId;
         this.reconnects = 0;
         this.messageHandler = messageHandler;
+        this.config = ConfigFactory.create(ApplicationConfig.class);
 
 
         BasicThreadFactory clientPoolFactory = new BasicThreadFactory.Builder()
@@ -103,7 +107,9 @@ public class Client {
                     } catch (ConnectException e) {
                         LOGGER.debug("failed to establish a connection to server {}", e.getMessage());
                         try {
-                            Thread.sleep(1000);
+                            // calculate timeout in ms
+                            Integer timeoutInMs = config.clientTimeout() * 1000;
+                            Thread.sleep(timeoutInMs/MAX_RECONNECTS);
                         } catch (InterruptedException ex) {
                             ex.printStackTrace();
                         }

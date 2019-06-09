@@ -9,4 +9,12 @@ public interface ApplicationConfig extends Config {
     @Key("queue.read.pause.length")
     int queuePauseLength();
 
+    @DefaultValue("30")
+    @Key("client.connection.timeout")
+    int clientTimeout();
+
+    @DefaultValue("Yatzi Game")
+    @Key("view.board.title")
+    String boardViewTitle();
+
 }

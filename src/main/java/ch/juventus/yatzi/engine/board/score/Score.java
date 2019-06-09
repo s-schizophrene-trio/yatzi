@@ -19,4 +19,5 @@ public class Score {
     public Score(Integer value) {
         this.value = value;
     }
+
 }
