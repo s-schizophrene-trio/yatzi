@@ -60,13 +60,10 @@ import static ch.juventus.yatzi.network.helper.Commands.*;
 
 /**
  * The Board Controller manages the primary Game UI.
- *
- * @author Jan Minder
  */
 public class BoardController implements ViewController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    private final String VIEW_TITLE = "Yatzi Play Board";
     private final String IMAGE_BUTTON_CLASS = "image-button";
 
     @Getter
@@ -109,9 +106,9 @@ public class BoardController implements ViewController {
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         self = this;
-        screenTitle.setText(VIEW_TITLE);
-        screenHelper = new ScreenHelper();
         config = ConfigFactory.create(ApplicationConfig.class);
+        screenHelper = new ScreenHelper();
+        screenTitle.setText(config.boardViewTitle());
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
                 .namingPattern("Board Message Handler #%d")
@@ -289,12 +286,17 @@ public class BoardController implements ViewController {
             UUID activeUserOnBoard = context.getYatziGame().getActiveUserId();
             LOGGER.debug("active user on baord is: {}", activeUserOnBoard);
 
+            // set column styles
             if (userToLoad.getUserId().equals(activeUserOnBoard)) {
                 userColumn.setStyle("-fx-background-color: rgba(235,242,216,0.7);");
             } else {
                 userColumn.setStyle("-fx-background-color: rgba(229,229,229,0.7);");
             }
+
+            userColumn.getStyleClass().add("bold");
+
             userColumn.setEditable(false);
+
             userContainer.getColumns().add(userColumn);
         }
 
@@ -372,7 +374,6 @@ public class BoardController implements ViewController {
      * Generates all board table rows. This list represents the raw btw. src. data of the table view.
      */
     private void generateBoardTableRows() {
-
         if (this.boardTableRows.size() == 0) {
             for (FieldType fieldType : FieldType.values()) {
                 if (fieldType == FieldType.SUB_TOTAL || fieldType == FieldType.TOTAL) {

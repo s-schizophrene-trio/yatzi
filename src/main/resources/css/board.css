@@ -117,3 +117,10 @@
 .action-button:hover {
     -fx-background-color: rgba(0, 100, 0, 0.29);
 }
+
+.bold.table-cell {
+    -fx-font-weight: bold;
+    -fx-font-size: 18;
+    -fx-alignment: CENTER;
+}
+
