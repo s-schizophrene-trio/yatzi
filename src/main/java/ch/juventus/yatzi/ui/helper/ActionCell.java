@@ -1,7 +1,7 @@
 package ch.juventus.yatzi.ui.helper;
 
-import ch.juventus.yatzi.engine.board.score.Score;
-import ch.juventus.yatzi.engine.dice.Dice;
+import ch.juventus.yatzi.game.board.score.Score;
+import ch.juventus.yatzi.game.dice.Dice;
 import ch.juventus.yatzi.ui.controller.BoardController;
 import ch.juventus.yatzi.ui.enums.ActionType;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;

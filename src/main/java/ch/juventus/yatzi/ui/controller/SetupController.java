@@ -1,7 +1,7 @@
 package ch.juventus.yatzi.ui.controller;
 
 import ch.juventus.yatzi.config.ApplicationConfig;
-import ch.juventus.yatzi.engine.user.User;
+import ch.juventus.yatzi.game.user.User;
 import ch.juventus.yatzi.network.client.Client;
 import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.handler.MessageHandler;
