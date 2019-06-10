@@ -1,7 +1,7 @@
 package ch.juventus.yatzi.ui.models;
 
-import ch.juventus.yatzi.engine.field.Field;
-import ch.juventus.yatzi.engine.user.User;
+import ch.juventus.yatzi.game.field.Field;
+import ch.juventus.yatzi.game.user.User;
 import lombok.*;
 
 import java.util.List;

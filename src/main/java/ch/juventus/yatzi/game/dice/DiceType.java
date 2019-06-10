@@ -1,4 +1,4 @@
-package ch.juventus.yatzi.engine.dice;
+package ch.juventus.yatzi.game.dice;
 
 import java.util.HashMap;
 import java.util.Map;

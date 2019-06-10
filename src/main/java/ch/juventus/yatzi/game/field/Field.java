@@ -1,4 +1,4 @@
-package ch.juventus.yatzi.engine.field;
+package ch.juventus.yatzi.game.field;
 
 import lombok.*;
 

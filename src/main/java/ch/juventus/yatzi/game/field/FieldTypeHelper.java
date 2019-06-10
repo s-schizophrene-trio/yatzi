@@ -1,6 +1,6 @@
-package ch.juventus.yatzi.engine.field;
+package ch.juventus.yatzi.game.field;
 
-import ch.juventus.yatzi.engine.dice.DiceType;
+import ch.juventus.yatzi.game.dice.DiceType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +11,6 @@ public class FieldTypeHelper {
         List<DiceType> diceGroup = new ArrayList<>();
 
         switch (fieldType) {
-            // Dice Pairs
             case ONES:
                 diceGroup.addAll(getDicePair(DiceType.ONE, 5));
                 break;

@@ -1,12 +1,12 @@
-package ch.juventus.yatzi.engine.board;
+package ch.juventus.yatzi.game.board;
 
-import ch.juventus.yatzi.engine.board.score.Score;
-import ch.juventus.yatzi.engine.board.score.ScoreService;
-import ch.juventus.yatzi.engine.dice.Dice;
-import ch.juventus.yatzi.engine.dice.DiceType;
-import ch.juventus.yatzi.engine.field.FieldType;
-import ch.juventus.yatzi.engine.logic.BoardManager;
-import ch.juventus.yatzi.engine.user.UserService;
+import ch.juventus.yatzi.game.board.score.Score;
+import ch.juventus.yatzi.game.board.score.ScoreService;
+import ch.juventus.yatzi.game.dice.Dice;
+import ch.juventus.yatzi.game.dice.DiceType;
+import ch.juventus.yatzi.game.field.FieldType;
+import ch.juventus.yatzi.game.logic.BoardManager;
+import ch.juventus.yatzi.game.user.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;

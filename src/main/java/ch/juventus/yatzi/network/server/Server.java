@@ -1,6 +1,6 @@
 package ch.juventus.yatzi.network.server;
 
-import ch.juventus.yatzi.engine.YatziGame;
+import ch.juventus.yatzi.game.YatziGame;
 import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;

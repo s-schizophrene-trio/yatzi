@@ -3,6 +3,7 @@
 - [Getting Started](#getting-started)
   * [Setup Environment](#setup-environment)
   * [Setup Java FX](#setup-javafx-with-gradle)
+  * [Setup Lombok](#setup-lombok)
   * [Debugging](#debugging)
 - [User Interface](#user-interface)
   * [Java FX](#javafx)
@@ -44,6 +45,12 @@ Read the `JavaDoc` at: https://s-schizophrene-trio.github.io/yatzi/
 ### Setup JavaFX with gradle
 
 https://openjfx.io/openjfx-docs/#gradle -> JavaFX and IntelliJ -> Non-modular with Gradle
+
+### Setup Lombok
+
+
+1. `Settings->Compiler->Annotation Processors`  [enable]
+2. Install `lombok plugin` from marketplace to your idea. (restart)
 
 #### Debugging
 
@@ -188,7 +195,7 @@ __Sources__
 |  |  Game  |                               TCP     |          |                                           |
 |  ++---+---+                                X      |          |  Player 2                                 |
 |   |   |             +------------+      +------+  |          |                                           |
-|   |   +-----------> |   Ser|er   +----> | CH 1 |  |          |                   +-----------------+     |
+|   |   +-----------> |   Server   +----> | CH 1 |  |          |                   +-----------------+     |
 |   |                 +------------+      +--+----  |          |       +---------> | Message Handler |     |
 |   |                                        |      |          |       |           +---------------+-+     |
 |   |                +-----------------------+      |          |       |                           ^       |
@@ -278,6 +285,14 @@ _https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgrammin
 #### Configuration
 
 Library: http://owner.aeonbits.org/docs/usage/
+
+### Generate JavaDoc
+
+This project has its own javadoc theme. Use this theme for the docs assets. Add these java vm options to your start command. 
+
+``
+-encoding UTF-8 -docencoding utf-8 -charset utf-8 -stylesheetfile /path/to/your/yatzi/javadoc-style.css
+``
 
 
 ### Build & Ship Info

@@ -1,26 +1,27 @@
 package ch.juventus.yatzi.ui.controller;
 
 import ch.juventus.yatzi.config.ApplicationConfig;
-import ch.juventus.yatzi.engine.YatziGame;
-import ch.juventus.yatzi.engine.board.score.ScoreService;
-import ch.juventus.yatzi.engine.dice.Dice;
-import ch.juventus.yatzi.engine.dice.DiceType;
-import ch.juventus.yatzi.engine.field.Field;
-import ch.juventus.yatzi.engine.field.FieldType;
-import ch.juventus.yatzi.engine.field.FieldTypeHelper;
-import ch.juventus.yatzi.engine.logic.BoardManager;
+import ch.juventus.yatzi.game.YatziGame;
+import ch.juventus.yatzi.game.board.score.ScoreService;
+import ch.juventus.yatzi.game.dice.Dice;
+import ch.juventus.yatzi.game.dice.DiceType;
+import ch.juventus.yatzi.game.field.Field;
+import ch.juventus.yatzi.game.field.FieldType;
+import ch.juventus.yatzi.game.field.FieldTypeHelper;
+import ch.juventus.yatzi.game.logic.BoardManager;
 import ch.juventus.yatzi.network.handler.MessageHandler;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.enums.ActionType;
 import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.enums.StatusType;
 import ch.juventus.yatzi.ui.helper.ScreenHelper;
+import ch.juventus.yatzi.ui.helper.UserRow;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewController;
 import ch.juventus.yatzi.ui.helper.ActionCell;
 import ch.juventus.yatzi.ui.models.ActionField;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
-import ch.juventus.yatzi.engine.user.User;
+import ch.juventus.yatzi.game.user.User;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -143,8 +144,7 @@ public class BoardController implements ViewController {
         AnchorPane anchorPane = (AnchorPane) context.getRootNode();
         anchorPane.setPrefHeight(875D);
 
-        tblPlayers.setDisable(true);
-        tblBoardMain.setDisable(true);
+        changeBoardAccessibility(true);
         context.getViewHandler().getStatusController().updateStatus("waiting for data..", true);
 
         // render the ui
@@ -203,6 +203,9 @@ public class BoardController implements ViewController {
         ));
         serveType.setStyle("-fx-alignment: CENTER;");
         tblPlayers.getColumns().add(serveType);
+
+        // set row factory to display active user on board
+        tblPlayers.setRowFactory(tableView -> new UserRow(this.context));
     }
 
     /**
@@ -217,9 +220,9 @@ public class BoardController implements ViewController {
 
             // check if the local user is the active user
             if (context.getYatziGame().getActiveUserId().equals(context.getYatziGame().getUserMe().getUserId())) {
-                diceContainer.setDisable(false);
+                changeDiceAccessibility(false);
             } else {
-                diceContainer.setDisable(true);
+                changeDiceAccessibility(true);
             }
 
             // reset the table first
@@ -228,6 +231,8 @@ public class BoardController implements ViewController {
             for (User u : users) {
                 tblPlayers.getItems().add(u);
             }
+
+            tblPlayers.refresh();
 
         } else {
             LOGGER.error("The reference to the main controller could not be accessed by the board controller");
@@ -552,8 +557,7 @@ public class BoardController implements ViewController {
                                     generatePlayerTable();
                                     generateBoardTable();
                                     //TODO: Implement round counter
-                                    tblPlayers.setDisable(false);
-                                    tblBoardMain.setDisable(false);
+                                    changeBoardAccessibility(false);
                                     context.getViewHandler().getStatusController().updateStatus("round 1 started", StatusType.OK);
                                 });
 
@@ -567,8 +571,7 @@ public class BoardController implements ViewController {
                                     generatePlayerTable();
                                     generateBoardTable();
                                     //TODO: Implement round counter
-                                    tblPlayers.setDisable(false);
-                                    tblBoardMain.setDisable(false);
+                                    changeBoardAccessibility(false);
                                     context.getViewHandler().getStatusController().updateStatus("round 1 in progress", StatusType.OK);
                                 });
                                 break;
@@ -633,8 +636,7 @@ public class BoardController implements ViewController {
 
         try {
             // disable the tables during game update
-            tblPlayers.setDisable(true);
-            tblBoardMain.setDisable(true);
+            changeBoardAccessibility(true);
 
             String game = objectMapper.writeValueAsString(context.getYatziGame());
             Transfer transfer = new Transfer(this.context.getYatziGame().getUserMe().getUserId(), GAME_CHANGED, game);
@@ -643,6 +645,33 @@ public class BoardController implements ViewController {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    /* ----------------- Accessibility ------------- */
+
+    /**
+     * Toggles the accessibility of the user controls, to prevent the user to make changes when he is not active.
+     * @param disabled should the board be disabled
+     */
+    public void changeBoardAccessibility(Boolean disabled) {
+
+        tblPlayers.setDisable(disabled);
+        tblBoardMain.setDisable(disabled);
+    }
+
+    /**
+     * Changes the visibility of the dice container.
+     * @param disabled should the dice controls be disabled
+     */
+    public void changeDiceAccessibility(Boolean disabled) {
+        diceContainer.setDisable(disabled);
+
+        if (diceButtons != null) {
+            for (Button diceButton : diceButtons) {
+                diceButton.setDisable(disabled);
+            }
+        }
+
     }
 
     @FXML

@@ -1,12 +1,8 @@
-package ch.juventus.yatzi.engine.dice;
+package ch.juventus.yatzi.game.dice;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.java.Log;
-
-import java.util.logging.Logger;
 
 
 @Setter

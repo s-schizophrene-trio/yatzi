@@ -1,11 +1,8 @@
-package ch.juventus.yatzi.engine;
+package ch.juventus.yatzi.game;
 
-import ch.juventus.yatzi.engine.board.Board;
-import ch.juventus.yatzi.engine.board.score.Score;
-import ch.juventus.yatzi.engine.board.score.ScoreService;
-import ch.juventus.yatzi.engine.field.FieldType;
-import ch.juventus.yatzi.engine.user.User;
-import ch.juventus.yatzi.engine.user.UserService;
+import ch.juventus.yatzi.game.board.Board;
+import ch.juventus.yatzi.game.user.User;
+import ch.juventus.yatzi.game.user.UserService;
 import ch.juventus.yatzi.network.client.Client;
 import ch.juventus.yatzi.network.server.Server;
 import ch.juventus.yatzi.ui.enums.ServeType;

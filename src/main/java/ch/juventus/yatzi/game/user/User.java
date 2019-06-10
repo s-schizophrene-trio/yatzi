@@ -1,4 +1,4 @@
-package ch.juventus.yatzi.engine.user;
+package ch.juventus.yatzi.game.user;
 
 import ch.juventus.yatzi.ui.enums.ServeType;
 import com.fasterxml.jackson.annotation.JsonIgnore;

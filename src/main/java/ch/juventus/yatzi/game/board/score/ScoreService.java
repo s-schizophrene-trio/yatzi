@@ -1,6 +1,6 @@
-package ch.juventus.yatzi.engine.board.score;
+package ch.juventus.yatzi.game.board.score;
 
-import ch.juventus.yatzi.engine.field.FieldType;
+import ch.juventus.yatzi.game.field.FieldType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 

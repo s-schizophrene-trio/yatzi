@@ -1,7 +1,7 @@
-package ch.juventus.yatzi.engine.logic;
+package ch.juventus.yatzi.game.logic;
 
-import ch.juventus.yatzi.engine.dice.DiceType;
-import ch.juventus.yatzi.engine.field.FieldType;
+import ch.juventus.yatzi.game.dice.DiceType;
+import ch.juventus.yatzi.game.field.FieldType;
 
 import java.util.HashMap;
 import java.util.Map;

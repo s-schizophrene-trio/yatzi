@@ -1,6 +1,6 @@
 package ch.juventus.yatzi.ui.models;
 
-import ch.juventus.yatzi.engine.YatziGame;
+import ch.juventus.yatzi.game.YatziGame;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.interfaces.ViewHandler;
 import javafx.scene.Node;
