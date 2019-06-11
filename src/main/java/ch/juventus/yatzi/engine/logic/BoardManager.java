@@ -1,5 +1,6 @@
 package ch.juventus.yatzi.engine.logic;
 
+import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.FieldType;
 
@@ -28,6 +29,12 @@ public class BoardManager {
         this.matchingFields = new ArrayList<>();
 
         // functions to check
+        checkOnes(diceValues, matchMap);
+        checkTwos(diceValues, matchMap);
+        checkThrees(diceValues, matchMap);
+        checkFours(diceValues, matchMap);
+        checkFives(diceValues, matchMap);
+        checkSixes(diceValues, matchMap);
         checkOnePair(diceValues, matchMap);
         checkTwoPair(diceValues, matchMap);
         checkThreeOfAKind(diceValues, matchMap);
@@ -37,6 +44,59 @@ public class BoardManager {
         checkLargeStraight(diceValues, matchMap);
         checkYatzi(diceValues, matchMap);
         return matchingFields;
+    }
+
+    public void checkOnes(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
+
+        if (diceValues.get(DiceType.get(1)) >= 1) {
+
+            matchMap.put(FieldType.ONES, diceValues.get(DiceType.get(1)));
+
+        }
+    }
+
+    public void checkTwos(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
+
+        if (diceValues.get(DiceType.get(2)) >= 1) {
+
+            matchMap.put(FieldType.TWOS, diceValues.get(DiceType.get(2)) * 2);
+
+        }
+    }
+
+    public void checkThrees(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
+
+        if (diceValues.get(DiceType.get(3)) >= 1) {
+
+            matchMap.put(FieldType.THREES, diceValues.get(DiceType.get(3)) * 3);
+
+        }
+    }
+
+    public void checkFours(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
+
+        if (diceValues.get(DiceType.get(4)) >= 1) {
+
+            matchMap.put(FieldType.FOURS, diceValues.get(DiceType.get(3)) * 4);
+        }
+    }
+
+    public void checkFives(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
+
+        if (diceValues.get(DiceType.get(5)) >= 1) {
+
+            matchMap.put(FieldType.FIVES, diceValues.get(DiceType.get(5)) * 5);
+
+        }
+    }
+
+    public void checkSixes(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
+
+        if (diceValues.get(DiceType.get(6)) >= 1) {
+
+            matchMap.put(FieldType.SIXES, diceValues.get(DiceType.get(6)) * 6);
+
+        }
     }
 
     public void checkOnePair(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
@@ -107,15 +167,18 @@ public class BoardManager {
 
         Boolean pair = false;
         Boolean threeOfAKind = false;
+        Integer indexThreeOfAKind = 0;
 
-        for (int i = 6; i > 0; i--) {
-            if (diceValues.get(DiceType.get(i)) >= 2) {
-                pair = true;
-            }
-        }
         for (int i = 6; i > 0; i--) {
             if (diceValues.get(DiceType.get(i)) >= 3) {
                 threeOfAKind = true;
+                indexThreeOfAKind = i;
+            }
+        }
+
+        for (Integer i = 6; i > 0; i--) {
+            if (diceValues.get(DiceType.get(i)) >= 2 && (!i.equals(indexThreeOfAKind))) {
+                pair = true;
             }
         }
 
@@ -154,5 +217,15 @@ public class BoardManager {
                 matchMap.put(FieldType.YATZI, 50);
             }
         }
+    }
+
+    public Integer calculateChance(Map<DiceType, Integer> diceValues) {
+
+        Integer chanceValue = 0;
+
+        for (int i = 1; i < 6; i++) {
+            chanceValue += diceValues.get(DiceType.get(i));
+        }
+        return chanceValue;
     }
 }
