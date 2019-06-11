@@ -4,17 +4,10 @@ import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.FieldType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BoardManager {
-
-    List<FieldType> matchingFields;
-
-
-    // seldom functions
 
     /**
      * Evaluates the combination of the current dice values.
@@ -22,11 +15,9 @@ public class BoardManager {
      * @param diceValues The map with all dice combinations in it.
      * @return A list of field types with all matching fields
      */
-    public List<FieldType> evaluate(Map<DiceType, Integer> diceValues) {
+    public Map<FieldType, Integer> evaluate(Map<DiceType, Integer> diceValues) {
 
         Map<FieldType, Integer> matchMap = new HashMap<>();
-
-        this.matchingFields = new ArrayList<>();
 
         // functions to check
         checkOnes(diceValues, matchMap);
@@ -43,7 +34,8 @@ public class BoardManager {
         checkSmallStraight(diceValues, matchMap);
         checkLargeStraight(diceValues, matchMap);
         checkYatzi(diceValues, matchMap);
-        return matchingFields;
+
+        return matchMap;
     }
 
     public void checkOnes(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {

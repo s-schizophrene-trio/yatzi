@@ -1,7 +1,6 @@
 package ch.juventus.yatzi.engine.board.score;
 
 import ch.juventus.yatzi.engine.field.FieldType;
-import ch.juventus.yatzi.engine.user.User;
 import lombok.*;
 
 @Getter
@@ -9,12 +8,15 @@ import lombok.*;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @ToString
-public class UserScore {
+public class Score {
 
     @NonNull
     private FieldType fieldType;
 
     @NonNull
-    private User owner;
+    private int value;
 
+    public Score(Integer value) {
+        this.value = value;
+    }
 }

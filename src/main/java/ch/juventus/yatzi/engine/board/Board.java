@@ -1,6 +1,7 @@
 package ch.juventus.yatzi.engine.board;
 
-import ch.juventus.yatzi.engine.board.score.UserScore;
+import ch.juventus.yatzi.engine.board.score.Score;
+import ch.juventus.yatzi.engine.board.score.ScoreService;
 import ch.juventus.yatzi.engine.dice.Dice;
 import ch.juventus.yatzi.engine.dice.DiceType;
 import ch.juventus.yatzi.engine.field.FieldType;
@@ -11,10 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The Board represents the play ground of this game. The board knows all users and the state of the game.
@@ -38,9 +36,9 @@ public class Board {
     @JsonIgnore
     private BoardManager boardManager;
 
-    // user score service
+    // user value service
     @JsonIgnore
-    private Map<FieldType, UserScore> scores;
+    private ScoreService scoreService;
 
     /**
      * Initialized a new Board with default config.
@@ -49,6 +47,7 @@ public class Board {
         this.dices = this.initDiceSet();
         this.boardManager = new BoardManager();
         this.diceResult = new HashMap<>();
+        this.scoreService = new ScoreService();
     }
 
     /**
@@ -65,6 +64,14 @@ public class Board {
         }
 
         return diceList;
+    }
+
+    public Map<UUID, Map<FieldType, Score>> getScores() {
+        return this.getScoreService().getScores();
+    }
+
+    public void setScores(Map<UUID, Map<FieldType, Score>> scores) {
+        this.getScoreService().setScores(scores);
     }
 
 }

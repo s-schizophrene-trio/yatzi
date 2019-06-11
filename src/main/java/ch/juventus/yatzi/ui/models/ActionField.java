@@ -8,9 +8,11 @@ import lombok.*;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @ToString
-public class ActionField {
+public class ActionField<T> {
+
     @NonNull
     private Boolean isActionAvailable;
-    private Boolean isSelected = false;
+    private T data;
+    private Boolean isLocked;
 
 }
