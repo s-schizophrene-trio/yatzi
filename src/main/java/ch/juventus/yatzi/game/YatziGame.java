@@ -32,7 +32,14 @@ public class YatziGame {
     @JsonIgnore
     private UserService userService;
 
+    /**
+     * the currently active user which have access to the board and dice area
+     */
     private UUID activeUserId;
+
+    /**
+     * all users in this list has finished their play in this circle
+     */
     private List<UUID> circleRoundPlayed;
 
     public YatziGame() {
@@ -77,6 +84,9 @@ public class YatziGame {
     public void updateGame(YatziGame yatziGame) {
         // update all players on board
         updatePlayers(yatziGame.getUserService().getUsers());
+
+        // mark the current user as played in this circle
+        this.getCircleRoundPlayed().add(yatziGame.getActiveUserId());
 
         // update score
         this.board.getScoreService().updateScores(yatziGame.getBoard().getScores());

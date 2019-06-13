@@ -98,6 +98,9 @@ public class BoardController implements ViewController {
     @FXML
     private Button btnRollTheDice;
 
+    @FXML
+    private Label diceAttempts;
+
     private Lighting lightingGray;
     private List<Button> diceButtons;
 
@@ -284,9 +287,9 @@ public class BoardController implements ViewController {
             userColumn.setSortable(false);
 
             userColumn.setCellValueFactory(c -> new SimpleStringProperty(
-                        scoreService.getScoreDisplayValue(
-                                userToLoad.getUserId(), c.getValue().getField().getFieldType()
-                        )
+                    scoreService.getScoreDisplayValue(
+                            userToLoad.getUserId(), c.getValue().getField().getFieldType()
+                    )
             ));
 
             UUID activeUserOnBoard = context.getYatziGame().getActiveUserId();
@@ -338,18 +341,23 @@ public class BoardController implements ViewController {
         this.diceButtons = new ArrayList<>();
 
         for (Node node : nodes) {
-            Button button = (Button) node;
-            Integer buttonId = getButtonIdFromString(button.getId());
 
-            if (buttonId != null) {
-                this.diceButtons.add(button);
-                button.setGraphic(screenHelper.renderImageView(
-                        context.getClassloader(),
-                        "dice/3d/",
-                        "dice_default",
-                        "jpg",
-                        40D,
-                        40D));
+            // check if the node is element of button
+            if (node instanceof Button) {
+
+                Button button = (Button) node;
+                Integer buttonId = getButtonIdFromString(button.getId());
+
+                if (buttonId != null) {
+                    this.diceButtons.add(button);
+                    button.setGraphic(screenHelper.renderImageView(
+                            context.getClassloader(),
+                            "dice/3d/",
+                            "dice_default",
+                            "jpg",
+                            40D,
+                            40D));
+                }
             }
         }
 
@@ -391,7 +399,7 @@ public class BoardController implements ViewController {
                     ));
                 } else {
                     this.boardTableRows.add(new BoardTableRow(
-                            new Field(fieldType, 0,false),
+                            new Field(fieldType, 0, false),
                             context.getYatziGame().getPlayers(),
                             new ActionField(false)
                     ));
@@ -549,15 +557,13 @@ public class BoardController implements ViewController {
                         LOGGER.debug("board-message handler [incoming]: {}", transfer.toString());
                         switch (transfer.getFunction()) {
                             case ROUND_START:
+
                                 YatziGame yatziGame = objectMapper.readValue(transfer.getBody(), YatziGame.class);
                                 context.getYatziGame().updateGame(yatziGame);
-                                context.getYatziGame().getCircleRoundPlayed().add(yatziGame.getActiveUserId());
+                                context.getYatziGame().getBoard().resetDiceAttemptCounter();
 
                                 Platform.runLater(() -> {
-                                    generatePlayerTable();
-                                    generateBoardTable();
-                                    //TODO: Implement round counter
-                                    changeBoardAccessibility(false);
+                                    generateGameBoardComponents(false);
                                     context.getViewHandler().getStatusController().updateStatus("round 1 started", StatusType.OK);
                                 });
 
@@ -565,13 +571,19 @@ public class BoardController implements ViewController {
                             case GAME_CHANGED:
                                 YatziGame game = objectMapper.readValue(transfer.getBody(), YatziGame.class);
                                 context.getYatziGame().updateGame(game);
+
+                                // The user have again the initial amount of attempts
+                                context.getYatziGame().getBoard().resetDiceAttemptCounter();
                                 LOGGER.debug("got new game change from another client. Active user on board: {}", game.getActiveUserId());
 
                                 Platform.runLater(() -> {
-                                    generatePlayerTable();
-                                    generateBoardTable();
-                                    //TODO: Implement round counter
-                                    changeBoardAccessibility(false);
+
+                                    // reset locked state of dce
+                                    for (Button dice : this.diceButtons) {
+                                        dice.setEffect(null);
+                                    }
+
+                                    generateGameBoardComponents(false);
                                     context.getViewHandler().getStatusController().updateStatus("round 1 in progress", StatusType.OK);
                                 });
                                 break;
@@ -627,6 +639,18 @@ public class BoardController implements ViewController {
     }
 
     /**
+     * Re or Generate the Components on the Board
+     * - player table
+     * - board table
+     */
+    private void generateGameBoardComponents(Boolean accessable) {
+        this.generatePlayerTable();
+        this.generateBoardTable();
+        this.diceAttempts.setText(this.context.getYatziGame().getBoard().getDiceAttemptCounter().toString());
+        this.changeBoardAccessibility(accessable);
+    }
+
+    /**
      * Will be triggered by Server to make a player changed
      */
     public void nextPlayer() {
@@ -643,7 +667,7 @@ public class BoardController implements ViewController {
             context.getYatziGame().getClient().send(transfer);
 
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to process the json input because of: {}", e.getMessage());
         }
     }
 
@@ -651,6 +675,7 @@ public class BoardController implements ViewController {
 
     /**
      * Toggles the accessibility of the user controls, to prevent the user to make changes when he is not active.
+     *
      * @param disabled should the board be disabled
      */
     public void changeBoardAccessibility(Boolean disabled) {
@@ -661,6 +686,7 @@ public class BoardController implements ViewController {
 
     /**
      * Changes the visibility of the dice container.
+     *
      * @param disabled should the dice controls be disabled
      */
     public void changeDiceAccessibility(Boolean disabled) {
@@ -696,44 +722,55 @@ public class BoardController implements ViewController {
     @FXML
     public void rollAction(ActionEvent event) {
 
-        List<Dice> dices = context.getYatziGame().getBoard().getDices();
+        Integer attempts = this.context.getYatziGame().getBoard().decreaseDiceAttemptCounter();
 
-        for (int i = 0; i < 5; i++) {
-            if (!dices.get(i).isLocked()) {
-                Button diceButton = diceButtons.get(i);
-                // clear the locked view if this state has changed
-                diceButton.getStyleClass().clear();
-                diceButton.getStyleClass().add(IMAGE_BUTTON_CLASS);
+        // only do the action if the user has more than 0 attempts
+        LOGGER.debug("you have {} attempts now", attempts);
+        if (attempts > 0) {
+            List<Dice> dices = context.getYatziGame().getBoard().getDices();
 
-                // generate new random value
-                dices.get(i).rollTheDice();
+            for (int i = 0; i < 5; i++) {
+                if (!dices.get(i).isLocked()) {
+                    Button diceButton = diceButtons.get(i);
+                    // clear the locked view if this state has changed
+                    diceButton.getStyleClass().clear();
+                    diceButton.getStyleClass().add(IMAGE_BUTTON_CLASS);
 
-                if (dices.get(i).getValueAsDiceType() != null) {
-                    LOGGER.trace("set dice image {} to dice button {}", dices.get(i).getValueAsDiceType(), diceButtons.get(i));
-                    setDiceValueImage(diceButtons.get(i), dices.get(i).getValueAsDiceType());
-                } else {
-                    LOGGER.warn("failed to get dice value as dice type. current value is {}", dices.get(i).toString());
+                    // generate new random value..
+                    dices.get(i).rollTheDice();
+                    // .. and decrease the attempt counter
+
+                    if (dices.get(i).getValueAsDiceType() != null) {
+                        LOGGER.trace("set dice image {} to dice button {}", dices.get(i).getValueAsDiceType(), diceButtons.get(i));
+                        setDiceValueImage(diceButtons.get(i), dices.get(i).getValueAsDiceType());
+                    } else {
+                        LOGGER.warn("failed to get dice value as dice type. current value is {}", dices.get(i).toString());
+                    }
                 }
             }
+
+            Map<DiceType, Integer> diceResult = context.getYatziGame().getBoard().getDiceResult();
+
+            // set the whole map to zero (otherwise it would be "null")
+            for (DiceType diceType : DiceType.values()) {
+                diceResult.put(diceType, 0);
+            }
+
+            // set the current dice result values into the dice result map
+            for (int i = 0; i < dices.size(); i++) {
+                DiceType valueType = dices.get(i).getValueAsDiceType();
+                diceResult.put(valueType, diceResult.get(valueType) + 1);
+            }
+
+            LOGGER.debug("dice result map {}", diceResult.toString());
+
+            this.updateChoiceAction(diceResult);
+        } else {
+            changeDiceAccessibility(true);
         }
 
-        Map<DiceType, Integer> diceResult = context.getYatziGame().getBoard().getDiceResult();
-
-        // set the whole map to zero (otherwise it would be "null")
-
-        for (DiceType diceType : DiceType.values()) {
-            diceResult.put(diceType, 0);
-        }
-
-        // set the current dice result values into the dice result map
-        for (int i = 0; i < dices.size(); i++) {
-            DiceType valueType = dices.get(i).getValueAsDiceType();
-            diceResult.put(valueType, diceResult.get(valueType) + 1);
-        }
-
-        LOGGER.debug("dice result map {}", diceResult.toString());
-
-        this.updateChoiceAction(diceResult);
+        // update the ui label
+        this.diceAttempts.setText(attempts.toString());
     }
 
     @FXML

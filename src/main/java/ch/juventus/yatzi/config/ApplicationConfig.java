@@ -17,4 +17,8 @@ public interface ApplicationConfig extends Config {
     @Key("view.board.title")
     String boardViewTitle();
 
+    @DefaultValue("3")
+    @Key("game.logic.dice-attemt.max")
+    Integer gameLogicDiceAttemptMax();
+
 }
