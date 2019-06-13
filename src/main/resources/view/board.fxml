@@ -78,6 +78,9 @@
         <Button mnemonicParsing="false" fx:id="dice_5" styleClass="image-button" onAction="#diceHandler" />
 
         <Button fx:id="btnRollTheDice" mnemonicParsing="false"  styleClass="image-button" onAction="#rollAction" />
+
+        <Label fx:id="diceAttempts"  prefWidth="15" prefHeight="15" />
+
     </HBox>
 
 </VBox>

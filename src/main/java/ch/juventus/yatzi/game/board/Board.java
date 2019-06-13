@@ -1,5 +1,6 @@
 package ch.juventus.yatzi.game.board;
 
+import ch.juventus.yatzi.config.ApplicationConfig;
 import ch.juventus.yatzi.game.board.score.Score;
 import ch.juventus.yatzi.game.board.score.ScoreService;
 import ch.juventus.yatzi.game.dice.Dice;
@@ -8,9 +9,11 @@ import ch.juventus.yatzi.game.field.FieldType;
 import ch.juventus.yatzi.game.logic.BoardManager;
 import ch.juventus.yatzi.game.user.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.aeonbits.owner.ConfigFactory;
 
 import java.util.*;
 
@@ -40,6 +43,13 @@ public class Board {
     @JsonIgnore
     private ScoreService scoreService;
 
+    @JsonIgnore
+    private ApplicationConfig config;
+
+    @Setter(AccessLevel.NONE)
+    @JsonIgnore
+    private Integer diceAttemptCounter;
+
     /**
      * Initialized a new Board with default config.
      */
@@ -48,6 +58,26 @@ public class Board {
         this.boardManager = new BoardManager();
         this.diceResult = new HashMap<>();
         this.scoreService = new ScoreService();
+        this.config = ConfigFactory.create(ApplicationConfig.class);
+        this.diceAttemptCounter = config.gameLogicDiceAttemptMax();
+    }
+
+    /**
+     * Decreases the Dice Attempt Counter until it is 0
+     */
+    public Integer decreaseDiceAttemptCounter() {
+        if (this.diceAttemptCounter > 0) {
+            this.diceAttemptCounter--;
+            return this.diceAttemptCounter;
+        }
+        return 0;
+    }
+
+    /**
+     * Resets the dice attempt counter to the max attempts configured in application.properties
+     */
+    public void resetDiceAttemptCounter() {
+        this.diceAttemptCounter = config.gameLogicDiceAttemptMax();
     }
 
     /**
