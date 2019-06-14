@@ -38,7 +38,7 @@ public class BoardManager {
         checkSmallStraight(diceValues, matchMap);
         checkLargeStraight(diceValues, matchMap);
         checkYatzi(diceValues, matchMap);
-
+        checkChance(diceValues, matchMap);
         return matchMap;
     }
 
@@ -224,13 +224,14 @@ public class BoardManager {
         }
     }
 
-    public Integer calculateChance(Map<DiceType, Integer> diceValues) {
+    public void checkChance(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
         Integer chanceValue = 0;
 
-        for (int i = 1; i < 6; i++) {
-            chanceValue += diceValues.get(DiceType.get(i));
+        for (int i = 1; i < 7; i++) {
+            chanceValue = diceValues.get(DiceType.get(i)) * i + chanceValue;
         }
-        return chanceValue;
+        matchMap.put(FieldType.CHANCE, chanceValue);
+        LOGGER.debug("Chance is matching");
     }
 }
