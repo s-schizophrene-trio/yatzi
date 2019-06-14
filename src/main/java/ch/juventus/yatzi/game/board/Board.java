@@ -1,11 +1,11 @@
 package ch.juventus.yatzi.game.board;
 
 import ch.juventus.yatzi.config.ApplicationConfig;
-import ch.juventus.yatzi.game.board.score.Score;
 import ch.juventus.yatzi.game.board.score.ScoreService;
 import ch.juventus.yatzi.game.dice.Dice;
 import ch.juventus.yatzi.game.dice.DiceType;
 import ch.juventus.yatzi.game.field.FieldType;
+import ch.juventus.yatzi.game.field.Field;
 import ch.juventus.yatzi.game.logic.BoardManager;
 import ch.juventus.yatzi.game.user.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -96,11 +96,11 @@ public class Board {
         return diceList;
     }
 
-    public Map<UUID, Map<FieldType, Score>> getScores() {
+    public Map<UUID, Map<FieldType, Field>> getScores() {
         return this.getScoreService().getScores();
     }
 
-    public void setScores(Map<UUID, Map<FieldType, Score>> scores) {
+    public void setScores(Map<UUID, Map<FieldType, Field>> scores) {
         this.getScoreService().setScores(scores);
     }
 
