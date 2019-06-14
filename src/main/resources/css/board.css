@@ -91,10 +91,8 @@
 }
 
 
-
-
 .active-user-marker.table-row-cell {
-    -fx-background-color: rgba(59, 154, 67, 0.5);
+    -fx-background-color: rgba(116, 182, 0, 0.50);
     -fx-text-fill: white;
     fx-text-inner-color: white;
 }
@@ -129,9 +127,6 @@
 
 .choose-button {
     -fx-background-color: transparent;
-    -fx-border-width: 2;
-    -fx-border-style: solid;
-    -fx-border-color: green;
 }
 
 .choose-button:hover {
@@ -140,9 +135,6 @@
 
 .strike-button {
     -fx-background-color: transparent;
-    -fx-border-width: 2;
-    -fx-border-style: solid;
-    -fx-border-color: red;
 }
 
 .strike-button:hover {
