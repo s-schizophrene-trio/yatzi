@@ -1,7 +1,7 @@
 package ch.juventus.yatzi.ui.helper;
 
-import ch.juventus.yatzi.game.board.score.Score;
 import ch.juventus.yatzi.game.dice.Dice;
+import ch.juventus.yatzi.game.field.Field;
 import ch.juventus.yatzi.ui.controller.BoardController;
 import ch.juventus.yatzi.ui.enums.ActionType;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
@@ -100,23 +100,24 @@ public class ActionCell<T> extends TableCell<BoardTableRow, ActionField> {
         BoardTableRow boardTableRow = getTableView().getItems().get(getIndex());
         LOGGER.debug("board-action [{}] -> {}", clickedButton.getId(), boardTableRow.getField().getFieldType());
 
-        Score score = new Score(boardTableRow.getField().getFieldType());
+        Field field = new Field(boardTableRow.getField().getFieldType());
+
         // if the user wants to strike one filed, the score will be updated with a value of 0
         if (clickedButton.getId().equals(ActionType.STRIKE.getValue())) {
-            score.setValue(0);
+            field.setValue(0);
         } else {
-            score.setValue((Integer) boardTableRow.getActionField().getData());
+            field.setValue((Integer) boardTableRow.getActionField().getData());
         }
-        LOGGER.debug("score of {}", score);
+        LOGGER.debug("score of {}", field);
 
         // update the score service with the change
         context.getYatziGame().getBoard().getScoreService().updateScore(
                 context.getYatziGame().getUserMe().getUserId(),
                 boardTableRow.getField().getFieldType(),
-                score
+                field
         );
 
-        LOGGER.debug("board-action [{}] -> {}", clickedButton.getId(), score);
+        LOGGER.debug("board-action [{}] -> {}", clickedButton.getId(), field);
 
         // set all actions to unavailable
         for (BoardTableRow row : getTableView().getItems()) {

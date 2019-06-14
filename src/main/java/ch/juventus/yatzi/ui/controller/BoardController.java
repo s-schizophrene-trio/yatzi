@@ -573,6 +573,7 @@ public class BoardController implements ViewController {
                                 context.getYatziGame().updateGame(game);
 
                                 // The user have again the initial amount of attempts
+                                this.updateTotals();
                                 context.getYatziGame().getBoard().resetDiceAttemptCounter();
                                 LOGGER.debug("got new game change from another client. Active user on board: {}", game.getActiveUserId());
 
@@ -616,6 +617,15 @@ public class BoardController implements ViewController {
 
         Thread messageListenerTask = new Thread(messageListener);
         messageHandlerPool.submit(messageListenerTask);
+    }
+
+    /**
+     * Updates the total of the according fields of all users
+     */
+    public void updateTotals() {
+        for (User user : this.context.getYatziGame().getUserService().getUsers()) {
+            this.context.getYatziGame().getBoard().getScoreService().updateTotals(user.getUserId());
+        }
     }
 
     /**
@@ -726,46 +736,47 @@ public class BoardController implements ViewController {
 
         // only do the action if the user has more than 0 attempts
         LOGGER.debug("you have {} attempts now", attempts);
-        if (attempts > 0) {
-            List<Dice> dices = context.getYatziGame().getBoard().getDices();
 
-            for (int i = 0; i < 5; i++) {
-                if (!dices.get(i).isLocked()) {
-                    Button diceButton = diceButtons.get(i);
-                    // clear the locked view if this state has changed
-                    diceButton.getStyleClass().clear();
-                    diceButton.getStyleClass().add(IMAGE_BUTTON_CLASS);
+        List<Dice> dices = context.getYatziGame().getBoard().getDices();
 
-                    // generate new random value..
-                    dices.get(i).rollTheDice();
-                    // .. and decrease the attempt counter
+        for (int i = 0; i < 5; i++) {
+            if (!dices.get(i).isLocked()) {
+                Button diceButton = diceButtons.get(i);
 
-                    if (dices.get(i).getValueAsDiceType() != null) {
-                        LOGGER.trace("set dice image {} to dice button {}", dices.get(i).getValueAsDiceType(), diceButtons.get(i));
-                        setDiceValueImage(diceButtons.get(i), dices.get(i).getValueAsDiceType());
-                    } else {
-                        LOGGER.warn("failed to get dice value as dice type. current value is {}", dices.get(i).toString());
-                    }
+                // clear the locked view if this state has changed
+                diceButton.getStyleClass().clear();
+                diceButton.getStyleClass().add(IMAGE_BUTTON_CLASS);
+
+                // generate new random value..
+                dices.get(i).rollTheDice();
+
+                if (dices.get(i).getValueAsDiceType() != null) {
+                    LOGGER.trace("set dice image {} to dice button {}", dices.get(i).getValueAsDiceType(), diceButtons.get(i));
+                    setDiceValueImage(diceButtons.get(i), dices.get(i).getValueAsDiceType());
+                } else {
+                    LOGGER.warn("failed to get dice value as dice type. current value is {}", dices.get(i).toString());
                 }
             }
+        }
 
-            Map<DiceType, Integer> diceResult = context.getYatziGame().getBoard().getDiceResult();
+        Map<DiceType, Integer> diceResult = context.getYatziGame().getBoard().getDiceResult();
 
-            // set the whole map to zero (otherwise it would be "null")
-            for (DiceType diceType : DiceType.values()) {
-                diceResult.put(diceType, 0);
-            }
+        // set the whole map to zero (otherwise it would be "null")
+        for (DiceType diceType : DiceType.values()) {
+            diceResult.put(diceType, 0);
+        }
 
-            // set the current dice result values into the dice result map
-            for (int i = 0; i < dices.size(); i++) {
-                DiceType valueType = dices.get(i).getValueAsDiceType();
-                diceResult.put(valueType, diceResult.get(valueType) + 1);
-            }
+        // set the current dice result values into the dice result map
+        for (int i = 0; i < dices.size(); i++) {
+            DiceType valueType = dices.get(i).getValueAsDiceType();
+            diceResult.put(valueType, diceResult.get(valueType) + 1);
+        }
 
-            LOGGER.debug("dice result map {}", diceResult.toString());
+        LOGGER.debug("dice result map {}", diceResult.toString());
 
-            this.updateChoiceAction(diceResult);
-        } else {
+        this.updateChoiceAction(diceResult);
+
+        if (attempts == 0) {
             changeDiceAccessibility(true);
         }
 

@@ -1,12 +1,11 @@
 package ch.juventus.yatzi.game.board.score;
 
+import ch.juventus.yatzi.game.field.Field;
 import ch.juventus.yatzi.game.field.FieldType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -18,10 +17,74 @@ public class ScoreService {
      * Persistence of all Scores
      */
     @JsonIgnore
-    private Map<UUID, Map<FieldType, Score>> scores;
+    private Map<UUID, Map<FieldType, Field>> scores;
 
     public ScoreService() {
         this.scores = new HashMap<>();
+    }
+
+    /**
+     * Updates the score storage with the current sums of their fields
+     */
+    private Integer getSubTotal(UUID userId) {
+
+        // calculate  subtotal
+        Integer subTotal = 0;
+
+        // definition of sub total group
+        List<FieldType> subTotalGroup = new ArrayList<>();
+        subTotalGroup.add(FieldType.ONES);
+        subTotalGroup.add(FieldType.TWOS);
+        subTotalGroup.add(FieldType.THREES);
+        subTotalGroup.add(FieldType.FOURS);
+        subTotalGroup.add(FieldType.FIVES);
+        subTotalGroup.add(FieldType.SIXES);
+
+        for(FieldType fieldType : subTotalGroup){
+
+            if ( this.scores.get(userId) != null) {
+                Field field  = this.scores.get(userId).get(fieldType);
+
+                if (field != null) {
+                    subTotal+=field.getValue();
+                }
+            }
+
+        }
+
+        return subTotal;
+    }
+
+    /**
+     * Updates the score storage with the current sums of their fields
+     */
+    private Integer getTotal(UUID userId) {
+
+        // calculate  subtotal
+        Integer total = 0;
+
+        for(FieldType fieldType : FieldType.values()){
+
+            // ignore all fields which are not part of the score
+            switch (fieldType) {
+                case TOTAL:
+                    break;
+                case SUB_TOTAL:
+                    break;
+                default:
+                    if (this.scores.get(userId) != null) {
+
+                        Field field  = this.scores.get(userId).get(fieldType);
+
+                        if (field != null) {
+                            total+=field.getValue();
+                        }
+                    }
+                    break;
+            }
+        }
+
+        return total ;
     }
 
     /**
@@ -30,29 +93,41 @@ public class ScoreService {
      * @param fieldType Type of the field, the value relates
      * @param score A Score object with the actual values in it
      */
-    public void updateScore(UUID userId, FieldType fieldType, Score score) {
+    public void updateScore(UUID userId, FieldType fieldType, Field field) {
 
         // check if the user has scores or not
-        Map<FieldType, Score> fieldTypeScoreMap = scores.get(userId);
+        Map<FieldType, Field> fieldTypeScoreMap = scores.get(userId);
 
-        if (fieldTypeScoreMap != null) {
-            fieldTypeScoreMap.put(fieldType, score);
-        } else {
+        if (fieldTypeScoreMap == null) {
             fieldTypeScoreMap = new HashMap<>();
         }
 
-        // add score to user related score map
-        fieldTypeScoreMap.put(fieldType, score);
+        fieldTypeScoreMap.put(fieldType, field);
+
+        // update totals
+        fieldTypeScoreMap.put(FieldType.SUB_TOTAL, new Field(FieldType.SUB_TOTAL, this.getSubTotal(userId)));
+        fieldTypeScoreMap.put(FieldType.TOTAL, new Field(FieldType.TOTAL, this.getTotal(userId)));
 
         // add the map to the parent mmap
         scores.put(userId, fieldTypeScoreMap);
+    }
+
+    public void updateTotals(UUID userId) {
+        Map<FieldType, Field> fieldTypeScoreMap = scores.get(userId);
+
+        if (fieldTypeScoreMap == null) {
+            fieldTypeScoreMap = new HashMap<>();
+        }
+
+        fieldTypeScoreMap.put(FieldType.SUB_TOTAL, new Field(FieldType.SUB_TOTAL, this.getSubTotal(userId)));
+        fieldTypeScoreMap.put(FieldType.TOTAL, new Field(FieldType.TOTAL, this.getTotal(userId)));
     }
 
     /**
      * Updates the server scores
      * @param changedScores The list with the different scores in it
      */
-    public void updateScores(Map<UUID, Map<FieldType, Score>> changedScores) {
+    public void updateScores(Map<UUID, Map<FieldType, Field>> changedScores) {
        this.scores = changedScores;
     }
 
@@ -86,7 +161,7 @@ public class ScoreService {
      * @param userId The owner of these scores
      * @return A map of field type / value mapping
      */
-    public Map<FieldType, Score> getScoresByUser(UUID userId) {
+    public Map<FieldType, Field> getScoresByUser(UUID userId) {
         return this.scores.get(userId);
     }
 
