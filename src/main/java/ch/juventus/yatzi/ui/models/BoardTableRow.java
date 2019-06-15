@@ -6,6 +6,9 @@ import lombok.*;
 
 import java.util.List;
 
+/**
+ * The Board Table Row holds all values for the board table
+ */
 @Getter
 @Setter
 @RequiredArgsConstructor

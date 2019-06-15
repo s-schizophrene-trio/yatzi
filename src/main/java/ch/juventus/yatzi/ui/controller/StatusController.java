@@ -23,29 +23,25 @@ import java.util.ResourceBundle;
 public class StatusController implements ViewController {
 
     private ViewContext context;
+    private ScreenHelper screenHelper;
 
     @FXML
     private ProgressIndicator progress;
-
     @FXML
     private Label statusLabel;
-
     @FXML
     private Label serverRoleLabel;
-
     @FXML
     private Region regionStatusDivider;
-
     @FXML
     private Label errorMessage;
-
     @FXML
     private ImageView progressStatusIcon;
-
     @FXML
     private ImageView serverRoleIcon;
 
-    private ScreenHelper screenHelper;
+
+    /* ----------------- Initializer --------------------- */
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
@@ -62,6 +58,8 @@ public class StatusController implements ViewController {
         this.context = context;
         this.progress.setVisible(false);
     }
+
+    /* ----------------- Update Status --------------------- */
 
     /**
      * Updates the Status Bar with a new State (used for loading)
@@ -98,6 +96,28 @@ public class StatusController implements ViewController {
         this.statusLabel.setText(statusMessage);
     }
 
+    /**
+     * Resets the Status Bar back to the initial state
+     */
+    private void resetProgress() {
+        this.progress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+        this.progress.setVisible(false);
+        this.progressStatusIcon.setVisible(false);
+    }
+
+    /* ----------------- Handle Error Message ----------------- */
+
+    /**
+     * Resets the error message field
+     */
+    private void resetError() {
+        this.errorMessage.setVisible(false);
+    }
+
+    /**
+     * Shows an error of the message
+     * @param errorMessage The error message to show
+     */
     public void showError(String errorMessage) {
 
         this.updateStatus("error", StatusType.NOK);
@@ -105,6 +125,16 @@ public class StatusController implements ViewController {
         this.errorMessage.setVisible(true);
         this.regionStatusDivider.setVisible(false);
         this.errorMessage.setText(errorMessage);
+    }
+
+    /* ----------------- Handle Serve Mode --------------------- */
+
+    /**
+     * Resets the Serve Mode Status
+     */
+    private void resetServeMode() {
+        this.serverRoleLabel.setText("no role");
+        this.serverRoleIcon.setVisible(false);
     }
 
     /**
@@ -127,24 +157,4 @@ public class StatusController implements ViewController {
 
     }
 
-    /**
-     * Resets the Serve Mode Status
-     */
-    private void resetServeMode() {
-        this.serverRoleLabel.setText("no role");
-        this.serverRoleIcon.setVisible(false);
-    }
-
-    private void resetError() {
-        this.errorMessage.setVisible(false);
-    }
-
-    /**
-     * Resets the Status Bar back to the initial state
-     */
-    private void resetProgress() {
-        this.progress.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
-        this.progress.setVisible(false);
-        this.progressStatusIcon.setVisible(false);
-    }
 }

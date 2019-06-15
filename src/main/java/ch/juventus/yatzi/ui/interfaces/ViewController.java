@@ -4,7 +4,6 @@ import javafx.fxml.Initializable;
 
 /**
  * The View Controller Interface is used to force all Controllers to implement needed methods.
- * @author Jan Minder
  */
 public interface ViewController extends Initializable {
 

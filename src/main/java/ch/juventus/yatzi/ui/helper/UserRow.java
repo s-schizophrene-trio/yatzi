@@ -9,19 +9,20 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
+/**
+ * The User Row represents one row in the board table view. The objects holds all needed values to render the table.
+ */
 @RequiredArgsConstructor
 @ToString
 public class UserRow extends TableRow<User> {
-
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @NonNull
     private ViewContext context;
 
-
     @Override
-    protected void updateItem(User user, boolean empty){
+    protected void updateItem(User user, boolean empty) {
         super.updateItem(user, empty);
 
         if (!empty || user != null) {
@@ -41,9 +42,6 @@ public class UserRow extends TableRow<User> {
             getStyleClass().removeAll(Collections.singleton("active-user-marker"));
             LOGGER.trace("the row does not contain any user information and will be rested");
         }
-
-
-
     }
 
 }

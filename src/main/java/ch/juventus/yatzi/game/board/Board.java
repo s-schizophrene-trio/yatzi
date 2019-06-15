@@ -1,12 +1,14 @@
 package ch.juventus.yatzi.game.board;
 
 import ch.juventus.yatzi.config.ApplicationConfig;
+import ch.juventus.yatzi.game.board.score.Ranking;
 import ch.juventus.yatzi.game.board.score.ScoreService;
 import ch.juventus.yatzi.game.dice.Dice;
 import ch.juventus.yatzi.game.dice.DiceType;
 import ch.juventus.yatzi.game.field.FieldType;
 import ch.juventus.yatzi.game.field.Field;
 import ch.juventus.yatzi.game.logic.BoardManager;
+import ch.juventus.yatzi.game.user.User;
 import ch.juventus.yatzi.game.user.UserService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
@@ -50,9 +52,6 @@ public class Board {
     @JsonIgnore
     private Integer diceAttemptCounter;
 
-    /**
-     * Initialized a new Board with default config.
-     */
     public Board() {
         this.dices = this.initDiceSet();
         this.boardManager = new BoardManager();
@@ -60,10 +59,26 @@ public class Board {
         this.scoreService = new ScoreService();
         this.config = ConfigFactory.create(ApplicationConfig.class);
         this.diceAttemptCounter = config.gameLogicDiceAttemptMax();
+        this.userService = null;
+    }
+
+    /**
+     * Initialized a new Board with default config.
+     * @param userService The User Service is needed to have access to the current user score
+     */
+    public Board(UserService userService) {
+        this.dices = this.initDiceSet();
+        this.boardManager = new BoardManager();
+        this.diceResult = new HashMap<>();
+        this.scoreService = new ScoreService();
+        this.config = ConfigFactory.create(ApplicationConfig.class);
+        this.diceAttemptCounter = config.gameLogicDiceAttemptMax();
+        this.userService = userService;
     }
 
     /**
      * Decreases the Dice Attempt Counter until it is 0
+     * @return The current value of the dice attempt counter
      */
     public Integer decreaseDiceAttemptCounter() {
         if (this.diceAttemptCounter > 0) {
@@ -96,6 +111,70 @@ public class Board {
         return diceList;
     }
 
+    /**
+     * Calculates the progress of the current Round
+     * @return a number between 0 and 100
+     */
+    @JsonIgnore
+    public Long getRoundProgress() {
+
+        // collect all needed infos
+        int totalFieldsOccupied = 0;
+        int fieldLength = FieldType.values().length;
+        int userSize = this.getUserService().getUsers().size();
+        int totalFieldsCount = fieldLength * userSize;
+
+        // calculate the amount of filled in fields per user
+        for(User user : userService.getUsers()) {
+
+            // does the user already have a map?
+            Map<FieldType, Field> userFieldScores =  scoreService.getScores().get(user.getUserId());
+
+            if (userFieldScores != null) {
+                // add the size of the map entries to the total field amount value
+                totalFieldsOccupied += userFieldScores.size();
+            }
+
+        }
+
+        // calculate the percentage of the game progress
+        double percentageOfTotalProgress = (totalFieldsOccupied / (double)totalFieldsCount) * 100;
+
+        // round the percentage an return the value
+        return Math.round(percentageOfTotalProgress);
+    }
+
+    /**
+     * Gets the a list of all player ranging sorted by its total value
+     * @return A sorted list of player ranking
+     */
+    @JsonIgnore
+    @SuppressWarnings("unchecked")
+    public List<Ranking> getPlayerRankings() {
+
+        // copy user list for sorting
+        List<Ranking> ranking = new ArrayList<>();
+        for(User u : this.userService.getUsers()) {
+            ranking.add(new Ranking(0, u.getUserName(), this.scoreService.getTotal(u.getUserId())));
+        }
+
+        Collections.sort(ranking);
+
+        // update ranks
+        Integer rank = 1;
+        for (Ranking r : ranking) {
+            r.setRank(rank);
+            rank++;
+        }
+
+        return ranking;
+
+    }
+
+    /**
+     * Gets the scores from the score service
+     * @return A two dimensional map of user, field, value combination
+     */
     public Map<UUID, Map<FieldType, Field>> getScores() {
         return this.getScoreService().getScores();
     }

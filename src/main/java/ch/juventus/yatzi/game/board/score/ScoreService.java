@@ -25,8 +25,10 @@ public class ScoreService {
 
     /**
      * Updates the score storage with the current sums of their fields
+     * @param userId The user id to get the subtotal from
+     * @return The sub total of the requested user
      */
-    private Integer getSubTotal(UUID userId) {
+    public Integer getSubTotal(UUID userId) {
 
         // calculate  subtotal
         Integer subTotal = 0;
@@ -57,8 +59,10 @@ public class ScoreService {
 
     /**
      * Updates the score storage with the current sums of their fields
+     * @param userId The user id of the user to get the total of
+     * @return The total amount of scores in this round
      */
-    private Integer getTotal(UUID userId) {
+    public Integer getTotal(UUID userId) {
 
         // calculate  subtotal
         Integer total = 0;
@@ -91,7 +95,7 @@ public class ScoreService {
      * Updates an store scores for a user / field combination
      * @param userId Holder of the scores
      * @param fieldType Type of the field, the value relates
-     * @param score A Score object with the actual values in it
+     * @param field A Field object with the actual values in it
      */
     public void updateScore(UUID userId, FieldType fieldType, Field field) {
 

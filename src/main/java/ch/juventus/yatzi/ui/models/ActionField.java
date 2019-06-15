@@ -3,6 +3,10 @@ package ch.juventus.yatzi.ui.models;
 import ch.juventus.yatzi.ui.enums.ActionType;
 import lombok.*;
 
+/**
+ * The Action Field is used in the action field column
+ * @param <T> Generic Value
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,12 +25,5 @@ public class ActionField<T> {
         this.isLocked = false;
         this.actionType = ActionType.NONE;
     }
-
-    public ActionField(Boolean hasAction, ActionType type) {
-        this.hasAction = hasAction;
-        this.actionType = type;
-        this.isLocked = false;
-    }
-
 
 }

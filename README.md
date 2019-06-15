@@ -23,12 +23,13 @@
   * [Naming Conventions](#naming-conventions)
   * [Sonarqube](#static-code-testing-with-sonarqube)
   * [Design Guidelines](#identity)
+- [Configuration](#configuration)
 
 
 |                                                |                                                         |
 | ---------------------------------------------- | ------------------------------------------------------- |
 | ![Setup](docs/assets/setup_screen.png)         | ![Registered](docs/assets/setup_registred_players.png)  |
-| ![Setup](docs/assets/setup_join.png)           | ![Registered](docs/assets/board_screen_alpha2.png)  |
+| ![Setup](docs/assets/setup_join.png)           | ![Registered](docs/assets/board_screen_beta1.png)  |
   
 
 ## Getting Started
@@ -285,6 +286,19 @@ _https://cdncontribute.geeksforgeeks.org/wp-content/uploads/JavaSocketProgrammin
 #### Configuration
 
 Library: http://owner.aeonbits.org/docs/usage/
+
+use the `application.properties` file in `src/main/resources/config` to configure the game parameters.
+
+Each configuration property needs a method in the Config Interface in `src/main/java/ch/juventus/yatzi/config` 
+```
+/**
+ * Timeout in seconds the client should wait until the timeout exceeded
+ * @return The client timeout as counter
+ */
+@DefaultValue("30")
+@Key("client.connection.timeout")
+int clientTimeout();
+```
 
 ### Generate JavaDoc
 

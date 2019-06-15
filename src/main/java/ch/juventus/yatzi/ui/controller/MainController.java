@@ -15,9 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static ch.juventus.yatzi.ui.enums.ServeType.CLIENT;
-import static ch.juventus.yatzi.ui.enums.ServeType.SERVER;
-
 /**
  * The Main Controller manages all sub screens and handel as main function for the whole UI controllers.
  */

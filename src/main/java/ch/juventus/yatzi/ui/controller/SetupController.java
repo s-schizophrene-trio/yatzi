@@ -44,6 +44,14 @@ public class SetupController implements ViewController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
+    private Button btnStartGame;
+    private ViewContext context;
+    private ScreenHelper screenHelper;
+    private MessageHandler messageHandler;
+    private Boolean shouldListen = true;
+    private ExecutorService messageHandlerPool;
+    private ApplicationConfig config;
+
     @FXML
     private Label localIpLabel;
     @FXML
@@ -75,13 +83,8 @@ public class SetupController implements ViewController {
     @FXML
     private VBox vboxStartServerOuterContainer;
 
-    private Button btnStartGame;
-    private ViewContext context;
-    private ScreenHelper screenHelper;
-    private MessageHandler messageHandler;
-    private Boolean shouldListen = true;
-    private ExecutorService messageHandlerPool;
-    private ApplicationConfig config;
+
+    /* ----------------- Initializer --------------------- */
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
@@ -95,7 +98,7 @@ public class SetupController implements ViewController {
         btnStartGame.setText("Start Game");
         btnStartGame.addEventHandler(ActionEvent.ACTION,
                 event -> {
-                   startGame();
+                    startGame();
                 });
 
         BasicThreadFactory messagePoolFactory = new BasicThreadFactory.Builder()
@@ -106,8 +109,6 @@ public class SetupController implements ViewController {
 
         messageHandlerPool = Executors.newSingleThreadExecutor(messagePoolFactory);
     }
-
-    /* ----------------- Initializer --------------------- */
 
     /**
      * Initialize the Board Controller after the View is rendered.
@@ -187,7 +188,7 @@ public class SetupController implements ViewController {
         networkProgress.setVisible(false);
     }
 
-    /* ----------------- Server --------------------- */
+    /* ----------------- Client / Server --------------- */
 
     public void joinServerAction() {
         if (!userName.getText().isEmpty()) {
@@ -213,41 +214,24 @@ public class SetupController implements ViewController {
     }
 
     /**
-     * Verify the user inputs and start a new server instance.
+     * Connects to the server socket (local and remote)
+     *
+     * @param user This user will be the owner of the according client
+     * @return A initialized client object
      */
-    public void startServerAction() {
+    private Client setupClient(User user) {
 
-        int port = Integer.parseInt(localServerPort.getText());
-        context.getViewHandler().getStatusController().updateStatus("setup server..", true);
+        // connects to the server
+        Client client = new Client(
+                remoteServerIp.getText(),
+                Integer.parseInt(remoteServerPort.getText()),
+                user.getUserId(),
+                messageHandler
+        );
 
-        Server server = new Server();
-        context.getYatziGame().setServer(server);
+        client.connect(context);
 
-        try {
-
-            if (port < 1000) {
-                context.getViewHandler().getStatusController().showError("port have to be > 1000");
-            } else {
-
-                if (!userName.getText().isEmpty()) {
-
-                    joinServer(SERVER);
-                    server.start(port, context.getYatziGame());
-                    context.getYatziGame().setServer(server);
-
-                    tabJoinHost.setDisable(true);
-                    userName.setDisable(true);
-
-                } else {
-                    context.getViewHandler().getStatusController().showError("username can not be empty");
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.error("failed to start the server");
-            e.printStackTrace();
-            context.getViewHandler().getStatusController().showError("failed to start the server");
-        }
+        return client;
     }
 
     /**
@@ -311,6 +295,19 @@ public class SetupController implements ViewController {
         messageHandlerPool.submit(messageListenerTask);
     }
 
+    /* ------------------ Game API ------------------ */
+
+    /**
+     * Sends a broadcast message to all clients
+     */
+    public void startGame() {
+
+        User randomUser = context.getYatziGame().getRandomActiveUser();
+
+        context.getYatziGame().setActiveUserId(randomUser.getUserId());
+        context.getYatziGame().getServer().broadcastMessage(new Transfer(Commands.GAME_READY), true);
+    }
+
     /**
      * A new user has joined the game and will be registered through the main client
      * @param user A user object of the new user to add to the game context
@@ -351,35 +348,44 @@ public class SetupController implements ViewController {
         });
     }
 
-    /**
-     * Sends a broadcast message to all clients
-     */
-    public void startGame() {
-
-        User randomUser = context.getYatziGame().getRandomActiveUser();
-
-        context.getYatziGame().setActiveUserId(randomUser.getUserId());
-        context.getYatziGame().getServer().broadcastMessage(new Transfer(Commands.GAME_READY), true);
-    }
+    /* ------------------ Actions ------------------ */
 
     /**
-     * Connects to the server socket (local and remote)
-     *
-     * @param user This user will be the owner of the according client
-     * @return A initialized client object
+     * Verify the user inputs and start a new server instance.
      */
-    private Client setupClient(User user) {
+    public void startServerAction() {
 
-            // connects to the server
-            Client client = new Client(
-                    remoteServerIp.getText(),
-                    Integer.parseInt(remoteServerPort.getText()),
-                    user.getUserId(),
-                    messageHandler
-            );
+        int port = Integer.parseInt(localServerPort.getText());
+        context.getViewHandler().getStatusController().updateStatus("setup server..", true);
 
-            client.connect(context);
+        Server server = new Server();
+        context.getYatziGame().setServer(server);
 
-            return client;
+        try {
+
+            if (port < 1000) {
+                context.getViewHandler().getStatusController().showError("port have to be > 1000");
+            } else {
+
+                if (!userName.getText().isEmpty()) {
+
+                    joinServer(SERVER);
+                    server.start(port, context.getYatziGame());
+                    context.getYatziGame().setServer(server);
+
+                    tabJoinHost.setDisable(true);
+                    userName.setDisable(true);
+
+                } else {
+                    context.getViewHandler().getStatusController().showError("username can not be empty");
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("failed to start the server");
+            e.printStackTrace();
+            context.getViewHandler().getStatusController().showError("failed to start the server");
+        }
     }
+
 }

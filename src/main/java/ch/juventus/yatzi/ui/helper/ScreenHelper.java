@@ -1,5 +1,8 @@
 package ch.juventus.yatzi.ui.helper;
 
+import ch.juventus.yatzi.game.dice.DiceType;
+import ch.juventus.yatzi.game.field.FieldType;
+import ch.juventus.yatzi.game.field.FieldTypeHelper;
 import ch.juventus.yatzi.ui.controller.StatusController;
 import ch.juventus.yatzi.ui.enums.ScreenType;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
@@ -12,12 +15,14 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.List;
 
 /**
  * Additional functionality to simplify the UI building
@@ -30,13 +35,7 @@ public class ScreenHelper {
     public final static String BASE_PATH_CSS = "css/";
     public final static String BASE_PATH_IMAGES = "images/";
 
-    public URL getStyleUrl(ViewContext context, ScreenType screenType) {
-        return  context.getClassloader().getResource(
-                this.getFilePath(
-                        ScreenHelper.BASE_PATH_CSS, screenType, "css"
-                )
-        );
-    }
+    /* ----------- Handel's the Views ------------------------- */
 
     /**
      * Shows a screen based on the View Type
@@ -94,6 +93,8 @@ public class ScreenHelper {
         return view;
     }
 
+    /* ----------- Generate new View Objects ----------------- */
+
     /**
      * Builds a screen object based on the fxml path and the according screen type
      *
@@ -150,6 +151,8 @@ public class ScreenHelper {
         }
     }
 
+    /* ----------- Statusbar ----------------- */
+
     /**
      * Adds a new Statusbar to the bottom screen
      * @param context An instance of a ViewContext to add the statusbar
@@ -181,6 +184,8 @@ public class ScreenHelper {
         return statusController;
     }
 
+    /* ----------- I/O Handlers -------------- */
+
     /**
      * Generates a full relative path to the fxml file based on the screen type.
      *
@@ -192,6 +197,22 @@ public class ScreenHelper {
     public String getFilePath(String baseBath, ScreenType screenType, String fileType) {
         return baseBath + screenType.toString().toLowerCase() + "." + fileType;
     }
+
+    /**
+     * Gets the Style URL of the provided screenType
+     * @param context The View Context with access to a game instance
+     * @param screenType The required screen type to load
+     * @return A url of the style path
+     */
+    public URL getStyleUrl(ViewContext context, ScreenType screenType) {
+        return  context.getClassloader().getResource(
+                this.getFilePath(
+                        ScreenHelper.BASE_PATH_CSS, screenType, "css"
+                )
+        );
+    }
+
+    /* ------------ Stage Managers ------------- */
 
     /**
      * Adds a Node to the Main Anchor Pane
@@ -231,6 +252,36 @@ public class ScreenHelper {
     }
 
     /* ----------- Image Handling ----------------- */
+
+    /**
+     * Gets an HBox with ImageViews inside of a diceMap combination
+     *
+     * @param fieldType The FieldType of the field
+     * @param context The View Context is needed to have access to the class loader
+     * @return A HBox JavaFx Node
+     */
+    public HBox getFieldTypeImageGroup(FieldType fieldType, ViewContext context) {
+
+        FieldTypeHelper fieldTypeHelper = new FieldTypeHelper();
+
+        // render the hbox
+        HBox imageGroup = new HBox();
+        imageGroup.setSpacing(4);
+
+        // get diceMap combination
+        List<DiceType> combination = fieldTypeHelper.getDiceCombination(fieldType);
+
+        // loop through all diceMap types in the combination, and get the according image
+        for (DiceType diceType : combination) {
+            // get the image for the type
+            ImageView diceImageView = this.renderImageView(context.getClassloader(), "dice/",
+                    "dice_" + diceType.toString().toLowerCase(), "png", 15D, 15D);
+            imageGroup.getChildren().add(diceImageView);
+        }
+
+        return imageGroup;
+    }
+
     /**
      * Loads an Image from resources
      * @param classLoader An instance of the main class loader, to load the files from resource.

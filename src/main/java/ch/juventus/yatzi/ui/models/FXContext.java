@@ -7,6 +7,9 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * The FX Context is an implementation of the View Context and is able to hold a JavaFX specific View Context.
+ */
 public class FXContext implements ViewContext {
 
     private ClassLoader classLoader;
@@ -14,8 +17,6 @@ public class FXContext implements ViewContext {
     private Stage stage;
     private Scene scene;
     private ViewHandler viewHandler;
-
-    // function of the game
     private YatziGame yatziGame;
 
     @Override
