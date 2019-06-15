@@ -377,8 +377,8 @@ public class BoardController implements ViewController {
                         context.getYatziGame().getPlayers(),
                         new ActionField(false)
                 );
-                this.boardTableRows.add(boardTableRow);
 
+                this.boardTableRows.add(boardTableRow);
             }
         }
     }
@@ -783,6 +783,7 @@ public class BoardController implements ViewController {
         List<Dice> dices = context.getYatziGame().getBoard().getDices();
 
         for (int i = 0; i < 5; i++) {
+
             if (!dices.get(i).isLocked()) {
                 Button diceButton = diceButtons.get(i);
 
@@ -852,6 +853,8 @@ public class BoardController implements ViewController {
                     // update the action field
                     boardTableRow.getActionField().setData(fieldValue);
                 } else {
+
+                    // log the client
                     boardTableRow.getActionField().setHasAction(false);
                     boardTableRow.getActionField().setIsLocked(true);
                 }
@@ -862,8 +865,15 @@ public class BoardController implements ViewController {
                 // no matching field found (check if the user can strike one field)
                 // TODO: After strike, the field has still a value of 0
                 if (game.getBoard().getScoreService().getScore(game.getUserMe().getUserId(), fieldType) == null) {
-                    boardTableRow.getActionField().setHasAction(true);
-                    boardTableRow.getActionField().setActionType(ActionType.STRIKE);
+
+                    // check if the field is a calculated field
+                    if (!boardTableRow.getField().getIsCalculated()) {
+                        boardTableRow.getActionField().setHasAction(true);
+                        boardTableRow.getActionField().setActionType(ActionType.STRIKE);
+                    } else {
+                        boardTableRow.getActionField().setHasAction(false);
+                        boardTableRow.getActionField().setActionType(ActionType.NONE);
+                    }
                 } else {
                     boardTableRow.getActionField().setHasAction(false);
                     boardTableRow.getActionField().setActionType(ActionType.NONE);
