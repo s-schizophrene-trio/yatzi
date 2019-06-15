@@ -90,17 +90,10 @@
 
 }
 
-
 .active-user-marker.table-row-cell {
-    -fx-background-color: rgba(116, 182, 0, 0.50);
+    -fx-background-color: rgba(144, 182, 149, 0.97);
     -fx-text-fill: white;
-    fx-text-inner-color: white;
 }
-
-.active-user-marker .table-row-cell .table-cell .text {
-   -fx-text-fill: white;
-}
-
 
 .box-dice-container {
     -fx-start-margin: 50;
