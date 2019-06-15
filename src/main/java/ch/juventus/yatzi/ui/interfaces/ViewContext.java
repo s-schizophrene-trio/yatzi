@@ -5,6 +5,9 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * The View Context interface is used to have a general access to an View Instance
+ */
 public interface ViewContext {
 
     ClassLoader getClassloader();

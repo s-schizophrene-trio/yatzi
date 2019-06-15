@@ -3,6 +3,9 @@ package ch.juventus.yatzi.ui.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The Action Type defines the displayed buttons in the board table
+ */
 public enum ActionType {
 
    CHOOSE("choose"), STRIKE("strike"), NONE("none");

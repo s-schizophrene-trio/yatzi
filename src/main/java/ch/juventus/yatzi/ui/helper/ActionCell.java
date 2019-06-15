@@ -8,6 +8,7 @@ import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import ch.juventus.yatzi.ui.models.ActionField;
 import ch.juventus.yatzi.ui.models.BoardTableRow;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.image.ImageView;
@@ -16,22 +17,33 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+/**
+ * The Action Cell is used to extend a normal table column with actions in it. This Class defines
+ * also the behaviour of the loaded actions.
+ *
+ * @param <T> Generic Value
+ */
 public class ActionCell<T> extends TableCell<BoardTableRow, ActionField> {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
+    @FXML
     private final Button chooseButton;
+    @FXML
     private final Button strikeButton;
-    private ViewContext context;
 
+    private ViewContext context;
     private BoardController boardController;
 
+    /**
+     * The Action Cell requires access to the board controller to manipulate the state of the dice container
+     * @param boardController The board controller which holds the game
+     */
     public ActionCell(BoardController boardController) {
 
         ScreenHelper screenHelper = new ScreenHelper();
         this.context = boardController.getContext();
         this.boardController = boardController;
-
 
         ImageView chooseImage = screenHelper.renderImageView(this.getClass().getClassLoader(),
                 "icons/",
@@ -41,8 +53,7 @@ public class ActionCell<T> extends TableCell<BoardTableRow, ActionField> {
                 20D
         );
 
-        ImageView strikeImage = screenHelper.renderImageView(this.getClass().getClassLoader(),
-                "icons/",
+        ImageView strikeImage = screenHelper.renderImageView(this.getClass().getClassLoader(), "icons/",
                 "strike",
                 "png",
                 20D,
@@ -68,6 +79,11 @@ public class ActionCell<T> extends TableCell<BoardTableRow, ActionField> {
         setGraphic(chooseButton);
     }
 
+    /**
+     * Decides to show an action based on the action field or not
+     * @param item The Action Field Object
+     * @param empty A boolean if the field is empty or not
+     */
     @Override
     public void updateItem(ActionField item, boolean empty) {
         super.updateItem(item, empty);
@@ -94,6 +110,10 @@ public class ActionCell<T> extends TableCell<BoardTableRow, ActionField> {
 
     }
 
+    /**
+     * Handles the event which obscures when a user selects an action in board table
+     * @param event The FX Event
+     */
     private void boardAction(ActionEvent event) {
 
         Button clickedButton = (Button) event.getSource();

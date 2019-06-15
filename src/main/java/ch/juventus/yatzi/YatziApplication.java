@@ -14,13 +14,14 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * The Yatzi Application is a JavaFX Instance
+ */
 public class YatziApplication extends Application {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    // JavaFX
-    private final String WINDOW_TITLE = "Yatzi Application 1.0";
+    private final static String WINDOW_TITLE = "Yatzi Application 1.0";
 
     public static void main(String[] args) {
         launch(args);
@@ -48,9 +49,7 @@ public class YatziApplication extends Application {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         ScreenHelper screenHelper = new ScreenHelper();
         ViewContext viewContext = new FXContext();
-
         viewContext.setClassloader(classloader);
-
 
         // Create a new Game Instance
         YatziGame yatziGame = new YatziGame();
@@ -75,6 +74,7 @@ public class YatziApplication extends Application {
         viewContext.setScene(scene);
 
         if (scene != null) {
+
             // configure the stage and show the UI
             primaryStage.setTitle(WINDOW_TITLE);
             primaryStage.setScene(scene);

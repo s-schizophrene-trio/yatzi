@@ -44,7 +44,7 @@ public class YatziGame {
 
     public YatziGame() {
         userService = new UserService();
-        board = new Board();
+        board = new Board(userService);
         circleRoundPlayed = new ArrayList<>();
     }
 
