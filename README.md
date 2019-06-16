@@ -1,5 +1,7 @@
 # Yatzi (JavaFX)
 
+![Setup](docs/assets/yatzi.jpg) 
+
 - [Getting Started](#getting-started)
   * [Setup Environment](#setup-environment)
   * [Setup Java FX](#setup-javafx-with-gradle)
@@ -25,12 +27,9 @@
   * [Design Guidelines](#identity)
 - [Configuration](#configuration)
 
-
-|                                                |                                                         |
-| ---------------------------------------------- | ------------------------------------------------------- |
-| ![Setup](docs/assets/setup_screen.png)         | ![Registered](docs/assets/setup_registred_players.png)  |
-| ![Setup](docs/assets/setup_join.png)           | ![Registered](docs/assets/board_screen_beta1.png)  |
-  
+![Setup Server](docs/assets/setup_server.png) 
+![Setup Client](docs/assets/setup_client.png) 
+![Board](docs/assets/board.png)
 
 ## Getting Started
 
@@ -45,7 +44,7 @@ Read the `JavaDoc` at: https://s-schizophrene-trio.github.io/yatzi/
 
 ### Setup JavaFX with gradle
 
-Download `SDK Version 11` at https://gluonhq.com/products/javafx/
+* Download `SDK Version 11` at https://gluonhq.com/products/javafx/
 https://openjfx.io/openjfx-docs/#gradle -> JavaFX and IntelliJ -> Non-modular with Gradle
 
 ### Setup Lombok
