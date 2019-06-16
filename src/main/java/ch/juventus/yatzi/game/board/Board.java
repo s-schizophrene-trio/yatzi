@@ -41,7 +41,6 @@ public class Board {
     @JsonIgnore
     private BoardManager boardManager;
 
-    // user value service
     @JsonIgnore
     private ScoreService scoreService;
 
@@ -71,6 +70,20 @@ public class Board {
         this.boardManager = new BoardManager();
         this.diceResult = new HashMap<>();
         this.scoreService = new ScoreService();
+        this.config = ConfigFactory.create(ApplicationConfig.class);
+        this.diceAttemptCounter = config.gameLogicDiceAttemptMax();
+        this.userService = userService;
+    }
+
+    /**
+     * Initialized a new Board with default config.
+     * @param userService The User Service is needed to have access to the current user score
+     */
+    public Board(UserService userService, ScoreService scoreService) {
+        this.dices = this.initDiceSet();
+        this.boardManager = new BoardManager();
+        this.diceResult = new HashMap<>();
+        this.scoreService = scoreService;
         this.config = ConfigFactory.create(ApplicationConfig.class);
         this.diceAttemptCounter = config.gameLogicDiceAttemptMax();
         this.userService = userService;

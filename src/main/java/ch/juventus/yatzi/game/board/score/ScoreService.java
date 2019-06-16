@@ -1,9 +1,13 @@
 package ch.juventus.yatzi.game.board.score;
 
+import ch.juventus.yatzi.config.ApplicationConfig;
 import ch.juventus.yatzi.game.field.Field;
 import ch.juventus.yatzi.game.field.FieldType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.aeonbits.owner.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -13,14 +17,21 @@ import java.util.*;
 @ToString
 public class ScoreService {
 
+    @JsonIgnore
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
     /**
      * Persistence of all Scores
      */
     @JsonIgnore
     private Map<UUID, Map<FieldType, Field>> scores;
 
+    @JsonIgnore
+    private ApplicationConfig config;
+
     public ScoreService() {
         this.scores = new HashMap<>();
+        this.config = ConfigFactory.create(ApplicationConfig.class);
     }
 
     /**
@@ -77,10 +88,14 @@ public class ScoreService {
                     break;
                 default:
                     if (this.scores.get(userId) != null) {
-
                         Field field  = this.scores.get(userId).get(fieldType);
 
                         if (field != null) {
+                            LOGGER.debug("Score on User [{}] at field [{}] with value [{}]",
+                                    userId,
+                                    field.getFieldTypeHumanReadable(),
+                                    field.getValue()
+                            );
                             total+=field.getValue();
                         }
                     }
@@ -116,7 +131,7 @@ public class ScoreService {
         scores.put(userId, fieldTypeScoreMap);
     }
 
-    public void updateTotals(UUID userId) {
+    public void updateCalculatedFields(UUID userId) {
         Map<FieldType, Field> fieldTypeScoreMap = scores.get(userId);
 
         if (fieldTypeScoreMap == null) {
@@ -125,6 +140,7 @@ public class ScoreService {
 
         fieldTypeScoreMap.put(FieldType.SUB_TOTAL, new Field(FieldType.SUB_TOTAL, this.getSubTotal(userId)));
         fieldTypeScoreMap.put(FieldType.TOTAL, new Field(FieldType.TOTAL, this.getTotal(userId)));
+        fieldTypeScoreMap.put(FieldType.BONUS, new Field(FieldType.BONUS, this.getBonus(userId)));
     }
 
     /**
@@ -176,4 +192,14 @@ public class ScoreService {
         this.scores = new HashMap<>();
     }
 
+    @JsonIgnore
+    public Integer getBonus(UUID userId) {
+
+        // check against the game rules
+        if (this.getSubTotal(userId) >= config.gameLogicBonusScoresMin()){
+            return config.gameDefaultBonus();
+        } else {
+            return 0;
+        }
+    }
 }

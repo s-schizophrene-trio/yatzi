@@ -36,7 +36,7 @@ public interface ApplicationConfig extends Config {
      * @return The amount of attempts as counter
      */
     @DefaultValue("3")
-    @Key("game.logic.dice-attemt.max")
+    @Key("game.logic.dice-attempt.max")
     Integer gameLogicDiceAttemptMax();
 
     /**
@@ -47,4 +47,19 @@ public interface ApplicationConfig extends Config {
     @Key("game.win.progress.limit-to-reach")
     Integer gameWinProgressLimitToReach();
 
+    /**
+     * Defines the limit, when a user gets the extra scores for his bonus field.
+     * @return The min scores to reach, to get the bonus
+     */
+    @DefaultValue("63")
+    @Key("game.logic.bonus.scores.min")
+    Integer gameLogicBonusScoresMin();
+
+    /**
+     * The amount of points a user gets, when he reach the <pre>gameLogicBonusScoresMin</pre>
+     * @return The default bonus scores
+     */
+    @DefaultValue("35")
+    @Key("game.default.bonus")
+    Integer gameDefaultBonus();
 }

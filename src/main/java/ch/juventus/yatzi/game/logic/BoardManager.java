@@ -155,7 +155,7 @@ public class BoardManager {
 
     public void checkFourOfAKind(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
-        for (int i = 1; i < 6; i++) {
+        for (int i = 1; i < 7; i++) {
             if (diceValues.get(DiceType.get(i)) >= 4) {
                 // multiplicate index with 4 to calculate four of a kind value
                 matchMap.put(FieldType.FOUR_OF_A_KIND, i * 4);
