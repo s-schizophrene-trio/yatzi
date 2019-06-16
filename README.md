@@ -41,10 +41,11 @@ Read the `JavaDoc` at: https://s-schizophrene-trio.github.io/yatzi/
 * Install Gradle 5.3.1+
 * Install JDK 11.0.2
 * Download JavaFX 11
-
+``
 
 ### Setup JavaFX with gradle
 
+Download `SDK Version 11` at https://gluonhq.com/products/javafx/
 https://openjfx.io/openjfx-docs/#gradle -> JavaFX and IntelliJ -> Non-modular with Gradle
 
 ### Setup Lombok
