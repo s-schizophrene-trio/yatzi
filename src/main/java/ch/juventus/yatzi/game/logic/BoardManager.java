@@ -21,6 +21,8 @@ public class BoardManager {
 
     public Map<FieldType, Integer> evaluate(Map<DiceType, Integer> diceValues) {
 
+        LOGGER.debug("evaluate the dice map {}", diceValues.toString());
+
         Map<FieldType, Integer> matchMap = new HashMap<>();
 
         // functions to check
@@ -161,8 +163,6 @@ public class BoardManager {
             }
         }
     }
-
-    //TODO: check function
 
     public void checkFullHouse(Map<DiceType, Integer> diceValues, Map<FieldType, Integer> matchMap) {
 
