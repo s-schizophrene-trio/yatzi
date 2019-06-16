@@ -23,13 +23,16 @@
   * [Protocol Functions](#transfer-functions)
 - [Yatzi Project]()
   * [Naming Conventions](#naming-conventions)
-  * [Sonarqube](#static-code-testing-with-sonarqube)
   * [Design Guidelines](#identity)
+- [Testing](#testing)
+  * [Unit Tests](#unit-testing)
+  * [Sonarqube](#static-code-testing-with-sonarqube)  
 - [Configuration](#configuration)
 
 ![Setup Server](docs/assets/setup_server.png) 
 ![Setup Client](docs/assets/setup_client.png) 
 ![Board](docs/assets/board.png)
+![Actions](docs/assets/choose-strocke.png)
 
 ## Getting Started
 
@@ -389,6 +392,12 @@ This project has its own javadoc theme. Use this theme for the docs assets. Add 
 ### Build & Ship Info
 
 * [How to run the application with gradle - stackoverflow](https://stackoverflow.com/a/52571719/5242747)
+
+### Testing
+
+#### Unit Testing
+
+The Junit5 tests can be executed by `./gradlew clean test`
 
 #### Static Code testing with SonarQube
 
