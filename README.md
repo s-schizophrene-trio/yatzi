@@ -227,6 +227,8 @@ __Sources__
  CH = Client Handler                                           +-------------------------------------------+
 ```
 
+![communication](docs/assets/communication.png)
+
 #### Server
 
 The Server holds all `client handlers`, and handles all messages bundled to one `message handler`.
@@ -236,6 +238,7 @@ The Server holds all `client handlers`, and handles all messages bundled to one 
 Each new client will effect in a new `client handler` thread. 
 
 ![Server](docs/assets/client_handler.png)
+![Communication](docs/assets/server-communication.png) 
 
 #### Client
 
