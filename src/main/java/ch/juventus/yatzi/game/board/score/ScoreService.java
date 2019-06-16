@@ -176,4 +176,11 @@ public class ScoreService {
         this.scores = new HashMap<>();
     }
 
+    @JsonIgnore
+    public void evaluateBonus(UUID userId) {
+        if (this.getSubTotal(userId) >= 10){
+            this.getScores().get(userId).put(FieldType.BONUS, new Field(FieldType.BONUS, 35));
+        }
+        this.getScores().get(userId).put(FieldType.BONUS, new Field(FieldType.BONUS, 0));
+    }
 }

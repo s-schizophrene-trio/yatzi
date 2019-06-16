@@ -537,6 +537,11 @@ public class BoardController implements ViewController {
                                 YatziGame game = objectMapper.readValue(transfer.getBody(), YatziGame.class);
                                 context.getYatziGame().updateGame(game);
 
+                                // evaluate bonus
+
+//                                this.context.getYatziGame().getBoard().getScoreService().evaluateBonus(getContext().getYatziGame().getActiveUserId());
+
+
                                 // The user have again the initial amount of attempts
                                 this.updateTotals();
                                 context.getYatziGame().getBoard().resetDiceAttemptCounter();
