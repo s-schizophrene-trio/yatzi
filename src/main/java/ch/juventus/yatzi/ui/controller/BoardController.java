@@ -179,6 +179,7 @@ public class BoardController implements ViewController {
     private void generateGameBoardComponents(Boolean accessible) {
         this.generatePlayerTable();
         this.generateBoardTable();
+        this.generateDiceArea();
         this.diceAttempts.setText(this.context.getYatziGame().getBoard().getDiceAttemptCounter().toString());
         this.changeBoardAccessibility(accessible);
     }
@@ -524,8 +525,8 @@ public class BoardController implements ViewController {
                             case ROUND_START:
 
                                 YatziGame yatziGame = objectMapper.readValue(transfer.getBody(), YatziGame.class);
-                                context.getYatziGame().updateGame(yatziGame);
-                                context.getYatziGame().getBoard().resetDiceAttemptCounter();
+                                this.context.getYatziGame().updateGame(yatziGame);
+                                this.context.getYatziGame().getBoard().resetDiceAttemptCounter();
 
                                 Platform.runLater(() -> {
                                     generateGameBoardComponents(false);
@@ -535,16 +536,13 @@ public class BoardController implements ViewController {
                                 break;
                             case GAME_CHANGED:
                                 YatziGame game = objectMapper.readValue(transfer.getBody(), YatziGame.class);
-                                context.getYatziGame().updateGame(game);
+                                this.context.getYatziGame().updateGame(game);
 
-                                // evaluate bonus
-
-//                                this.context.getYatziGame().getBoard().getScoreService().evaluateBonus(getContext().getYatziGame().getActiveUserId());
-
+                                this.updateTotalsAndBonus();
 
                                 // The user have again the initial amount of attempts
-                                this.updateTotals();
                                 context.getYatziGame().getBoard().resetDiceAttemptCounter();
+
                                 LOGGER.debug("got new game change from another client. Active user on board: {}", game.getActiveUserId());
 
                                 // change if the round is finished
@@ -562,6 +560,7 @@ public class BoardController implements ViewController {
 
                                         // render the game components in read-only mode
                                         generateGameBoardComponents(false);
+
                                         context.getViewHandler().getStatusController().updateStatus("round 1 in progress", StatusType.OK);
                                     });
 
@@ -629,10 +628,14 @@ public class BoardController implements ViewController {
     /**
      * Updates the total of the according fields of all users
      */
-    public void updateTotals() {
+    public void updateTotalsAndBonus() {
+
         for (User user : this.context.getYatziGame().getUserService().getUsers()) {
-            this.context.getYatziGame().getBoard().getScoreService().updateTotals(user.getUserId());
+            ScoreService scoreService = this.context.getYatziGame().getBoard().getScoreService();
+            // update totals and bonus
+            scoreService.updateCalculatedFields(user.getUserId());
         }
+
     }
 
     /**

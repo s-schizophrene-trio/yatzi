@@ -32,6 +32,7 @@ public class Field {
 
         if (fieldType.equals(FieldType.SUB_TOTAL)) this.isCalculated = true;
         if (fieldType.equals(FieldType.TOTAL)) this.isCalculated = true;
+        if (fieldType.equals(FieldType.BONUS)) this.isCalculated = true;
     }
 
     /**
