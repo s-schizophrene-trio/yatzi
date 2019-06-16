@@ -166,7 +166,7 @@ between message handlers, allows the developer to to make async calls.
 
 The Board represents the play ground of this game. The board knows all users and the state of the game.
 
-![Board](docs/assets/board.png)
+![Board](docs/assets/board_logic.png)
 
 ## Networking (java.net)
 
