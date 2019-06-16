@@ -41,6 +41,13 @@ jar {
     }
 }
 
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardError"
+    }
+}
+
+
 dependencies {
 
     // Prevent boiler plate code
