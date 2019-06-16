@@ -268,6 +268,83 @@ The `client` crates a new task to handle the `server <-> client` connection.
 | PLAYER_EXIT         | A player leaves the game early.                                        | User Id   |
 | GAME_END            | The game is finished. The user can exit the game or start a new party. | -         |
 
+### Transfer Body
+The transfer body can hold every content as String. We use Json to transfer the body. A sample of our `game_changed` event.
+
+```
+{
+   "board":{
+      "scores":{
+         "f27955ce-6a24-44a8-8dfa-e010e0e08982":{
+            "TOTAL":{
+               "fieldType":"TOTAL",
+               "value":9,
+               "isCalculated":true
+            },
+            "SUB_TOTAL":{
+               "fieldType":"SUB_TOTAL",
+               "value":9,
+               "isCalculated":true
+            },
+            "THREES":{
+               "fieldType":"THREES",
+               "value":3,
+               "isCalculated":false
+            },
+            "BONUS":{
+               "fieldType":"BONUS",
+               "value":0,
+               "isCalculated":true
+            },
+            "TWOS":{
+               "fieldType":"TWOS",
+               "value":6,
+               "isCalculated":false
+            }
+         },
+         "efe1402d-2eb2-4570-b724-f9ce257a29a9":{
+            "FOURS":{
+               "fieldType":"FOURS",
+               "value":4,
+               "isCalculated":false
+            },
+            "SUB_TOTAL":{
+               "fieldType":"SUB_TOTAL",
+               "value":4,
+               "isCalculated":true
+            },
+            "TOTAL":{
+               "fieldType":"TOTAL",
+               "value":4,
+               "isCalculated":true
+            },
+            "BONUS":{
+               "fieldType":"BONUS",
+               "value":0,
+               "isCalculated":true
+            }
+         }
+      }
+   },
+   "activeUserId":"efe1402d-2eb2-4570-b724-f9ce257a29a9",
+   "circleRoundPlayed":[
+      "efe1402d-2eb2-4570-b724-f9ce257a29a9"
+   ],
+   "players":[
+      {
+         "userId":"f27955ce-6a24-44a8-8dfa-e010e0e08982",
+         "userName":"client",
+         "serveType":"CLIENT"
+      },
+      {
+         "userId":"efe1402d-2eb2-4570-b724-f9ce257a29a9",
+         "userName":"server",
+         "serveType":"SERVER"
+      }
+   ]
+}
+```
+
 #### Communication Flow
 Each client opens a new connection to the server. The server tries to keep alive these connections. This is needed 
 to prevent latency during game play due of connection establishing.
