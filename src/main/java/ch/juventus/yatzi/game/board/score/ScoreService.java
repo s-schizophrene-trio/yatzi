@@ -6,6 +6,8 @@ import ch.juventus.yatzi.game.field.FieldType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.aeonbits.owner.ConfigFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -14,6 +16,9 @@ import java.util.*;
 @AllArgsConstructor
 @ToString
 public class ScoreService {
+
+    @JsonIgnore
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     /**
      * Persistence of all Scores
@@ -86,9 +91,11 @@ public class ScoreService {
                         Field field  = this.scores.get(userId).get(fieldType);
 
                         if (field != null) {
-                            System.out.println("Score on User ["+userId+
-                                    "] at field ["+field.getFieldTypeHumanReadable() +
-                                    "] with value ["+ field.getValue()+"]");
+                            LOGGER.debug("Score on User [{}] at field [{}] with value [{}]",
+                                    userId,
+                                    field.getFieldTypeHumanReadable(),
+                                    field.getValue()
+                            );
                             total+=field.getValue();
                         }
                     }
