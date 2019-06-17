@@ -197,6 +197,7 @@ public class ScoreService {
 
         // check against the game rules
         if (this.getSubTotal(userId) >= config.gameLogicBonusScoresMin()){
+            LOGGER.debug("Bonus is given");
             return config.gameDefaultBonus();
         } else {
             return 0;
