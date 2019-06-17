@@ -75,7 +75,7 @@ public class BoardManager {
 
         if (diceValues.get(DiceType.get(4)) >= 1) {
 
-            matchMap.put(FieldType.FOURS, diceValues.get(DiceType.get(3)) * 4);
+            matchMap.put(FieldType.FOURS, diceValues.get(DiceType.get(4)) * 4);
             LOGGER.debug("Fours are matching");
         }
     }
