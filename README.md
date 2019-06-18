@@ -40,10 +40,9 @@ Read the `JavaDoc` at: https://s-schizophrene-trio.github.io/yatzi/
 
 ### Setup Environment
 
-* Install Gradle 5.3.1+
-* Install JDK 11.0.2
-* Download JavaFX 11
-``
+* Install `Gradle 5.3.1+`
+* Install `JDK 11.0.2`
+* Download `JavaFX 11`
 
 ### Setup JavaFX with gradle
 
