@@ -11,7 +11,7 @@ addons:
       secure: $SONAR_TOKEN
 
 script:
-  - ./gradlew build --scan -s
+  - ./gradlew build
   - sonar-scanner
 
 before_cache:
