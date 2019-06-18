@@ -4,8 +4,15 @@ install: true
 jdk:
   - oraclejdk11
 
+addons:
+  sonarcloud:
+    organization: "s-schizophrene-trio"
+    token:
+      secure: $SONAR_TOKEN
+
 script:
   - ./gradlew build --scan -s
+  - sonar-scanner
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
