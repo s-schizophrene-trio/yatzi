@@ -1,4 +1,6 @@
-# Yatzi (JavaFX)
+# Yatzi (JavaFX) 
+
+[![Build Status](https://travis-ci.org/s-schizophrene-trio/yatzi.svg?branch=master)](https://travis-ci.org/s-schizophrene-trio/yatzi)
 
 ![Setup](docs/assets/yatzi.jpg) 
 
