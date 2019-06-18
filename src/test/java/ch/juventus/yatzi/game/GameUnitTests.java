@@ -13,7 +13,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GameUnitTests {
 
-    @DisplayName("Check if the Yatzi Game can be initiated")
     @Test
     public void test_if_game_can_be_initiated() {
 
