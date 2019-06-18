@@ -31,6 +31,13 @@ public class ClientTask implements Runnable {
     private PrintWriter out;
     private Boolean isRunning;
 
+    /**
+     * Initializes a new ClientTask and inject a message handler used for communication
+     * @param clientSocket A client socket instance
+     * @param viewContext A view context object
+     * @param userId The local user id
+     * @param messageHandler Used for bi-directional  communication
+     */
     ClientTask(Socket clientSocket, ViewContext viewContext, UUID userId, MessageHandler messageHandler) {
         this.clientSocket = clientSocket;
         this.viewContext = viewContext;
@@ -41,6 +48,9 @@ public class ClientTask implements Runnable {
         this.isRunning = true;
     }
 
+    /**
+     * Runs a client task
+     */
     @Override
     public void run() {
         try {
@@ -77,6 +87,9 @@ public class ClientTask implements Runnable {
         }
     }
 
+    /**
+     * Stops the current thread and send an exit message to the server.
+     */
     public void stop() {
         // send exit message to server
         send(new Transfer(userId, Commands.PLAYER_EXIT));
@@ -88,6 +101,10 @@ public class ClientTask implements Runnable {
         isRunning = false;
     }
 
+    /**
+     * Sends a Transfer Object to the server
+     * @param transfer The object to send to the server
+     */
     public void send(Transfer transfer) {
         LOGGER.debug("send message to client {}", clientSocket.getInetAddress());
         try {

@@ -51,6 +51,9 @@ public class Board {
     @JsonIgnore
     private Integer diceAttemptCounter;
 
+    /**
+     * Initialized a new Board with default config.
+     */
     public Board() {
         this.dices = this.initDiceSet();
         this.boardManager = new BoardManager();
@@ -62,7 +65,7 @@ public class Board {
     }
 
     /**
-     * Initialized a new Board with default config.
+     * Initialized a new Board with default config and inject a user service.
      * @param userService The User Service is needed to have access to the current user score
      */
     public Board(UserService userService) {
@@ -76,8 +79,9 @@ public class Board {
     }
 
     /**
-     * Initialized a new Board with default config.
-     * @param userService The User Service is needed to have access to the current user score
+     * Initialized a new Board with default config and inject user and score service.
+     * @param userService Inject an existing user service
+     * @param scoreService Inject an existing score service
      */
     public Board(UserService userService, ScoreService scoreService) {
         this.dices = this.initDiceSet();

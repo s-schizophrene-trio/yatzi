@@ -105,6 +105,10 @@ public class ScoreService {
         scores.put(userId, fieldTypeScoreMap);
     }
 
+    /**
+     * Updates all calculated fields (sub_total, total and bonus)
+     * @param userId The userId from the user to calculate these fields
+     */
     public void updateCalculatedFields(UUID userId) {
         Map<FieldType, Field> fieldTypeScoreMap = scores.get(userId);
 

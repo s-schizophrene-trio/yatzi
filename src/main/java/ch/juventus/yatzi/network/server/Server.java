@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 
 import static ch.juventus.yatzi.network.helper.Commands.*;
 
+/**
+ * The Server handles all client connections.
+ */
 public class Server {
 
     private static final Integer MAX_CLIENTS = 5;
@@ -29,6 +32,7 @@ public class Server {
     private final ExecutorService clientPoolExecutor;
     private final ExecutorService serverPoolExecutor;
     private final ExecutorService messageHandlerPool;
+
     @Getter
     List<ClientHandler> clients;
     @Getter
@@ -82,7 +86,7 @@ public class Server {
     /**
      * Starts a new Server Socket Thread. The Thread will create a new Thread for each Client.
      *
-     * @param port The port, the server should run.
+     * @param port      The port, the server should run.
      * @param yatziGame An instance of the YatziGame.
      */
     public void start(int port, YatziGame yatziGame) {
@@ -117,6 +121,7 @@ public class Server {
 
     /**
      * Listens to the Input Message Queue from the Server
+     *
      * @param yatziGame An instance of the YatziGame
      */
     public void listenToClients(YatziGame yatziGame) {
@@ -219,6 +224,10 @@ public class Server {
         }
     }
 
+    /**
+     * Kicks a client out of the game scope
+     * @param userId The uuid of the user to kick
+     */
     public void kickClientFromClientHandlers(UUID userId) {
 
         ClientHandler clientHandlerToKick = null;

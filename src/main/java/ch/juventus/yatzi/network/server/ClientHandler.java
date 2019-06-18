@@ -19,14 +19,12 @@ public class ClientHandler implements Runnable {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    Socket socket;
-    MessageHandler messageHandler;
-    Boolean isRunning;
-
-    ObjectMapper objectMapper;
-    PrintWriter out;
-
-    UUID owner;
+    private Socket socket;
+    private MessageHandler messageHandler;
+    private Boolean isRunning;
+    private ObjectMapper objectMapper;
+    private PrintWriter out;
+    private UUID owner;
 
     public ClientHandler(Socket socket, MessageHandler messageHandler) {
         this.socket = socket;
@@ -36,6 +34,9 @@ public class ClientHandler implements Runnable {
         this.isRunning = true;
     }
 
+    /**
+     * Runs the client handler task
+     */
     @Override
     public void run() {
         try {
@@ -73,12 +74,16 @@ public class ClientHandler implements Runnable {
     /**
      * The owner is the only client allowed to use this thread. The owner will be initialized after
      * the first incoming message.
+     *
      * @return The uuid of the user from remote client
      */
     public UUID getOwner() {
         return owner;
     }
 
+    /**
+     * Stops the client handler thread
+     */
     public void stop() {
         try {
             socket.close();
@@ -88,6 +93,11 @@ public class ClientHandler implements Runnable {
         isRunning = false;
     }
 
+    /**
+     * Sends a message to the connected client.
+     *
+     * @param transfer The transfer object to send to the client.
+     */
     public void send(Transfer transfer) {
         LOGGER.debug("send message to client {}", socket.getInetAddress());
         try {
