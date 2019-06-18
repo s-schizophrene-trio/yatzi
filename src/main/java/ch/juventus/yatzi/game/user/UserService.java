@@ -19,6 +19,9 @@ public class UserService {
 
     private User localUser;
 
+    /**
+     * Initializes a new User service.
+     */
     public UserService() {
         faker = new Faker();
         users = new LinkedHashMap<>();
@@ -55,6 +58,10 @@ public class UserService {
         return new ArrayList<>(users.values());
     }
 
+    /**
+     * Gets the local user if exists
+     * @return The local user if exists, otherwise null will be returned
+     */
     public User getLocalUser() {
         if (localUser != null) {
             return localUser;
@@ -64,6 +71,10 @@ public class UserService {
         }
     }
 
+    /**
+     * Updates all users on the local board.
+     * @param newUsers A list of users used for the update (override).
+     */
     public void updateUsers(List<User> newUsers) {
         users.clear();
         Map<UUID, User> result1 = newUsers.stream().collect(
@@ -71,10 +82,19 @@ public class UserService {
         users.putAll(result1);
     }
 
+    /**
+     * Removes a specific user from the user store.
+     * @param userId The id of the user to remove
+     */
     public void removeUserById(UUID userId) {
         users.remove(userId);
     }
 
+    /**
+     * Gets a user by its uuid
+     * @param userId The uuid of the user to return
+     * @return The user object with the same uuid.
+     */
     public User getUserById(UUID userId) {
         return users.get(userId);
     }

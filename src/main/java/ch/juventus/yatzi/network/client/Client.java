@@ -2,7 +2,6 @@ package ch.juventus.yatzi.network.client;
 
 import ch.juventus.yatzi.config.ApplicationConfig;
 import ch.juventus.yatzi.network.handler.MessageHandler;
-import ch.juventus.yatzi.network.helper.Commands;
 import ch.juventus.yatzi.network.model.Transfer;
 import ch.juventus.yatzi.ui.interfaces.ViewContext;
 import lombok.Getter;
@@ -12,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -22,10 +20,8 @@ import java.util.concurrent.Executors;
 
 public class Client {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
     private static final Integer MAX_RECONNECTS = 30;
-
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final ExecutorService clientConnectionExecutor;
     private final ExecutorService clientExecutor;
     private ApplicationConfig config;
@@ -51,9 +47,10 @@ public class Client {
 
     /**
      * Creates a new Client and initialize all the static values.
-     * @param remoteIp Network IP of the Server to connect
-     * @param remotePort Network Port of the Server to connect
-     * @param userId The User ID of the current playing user
+     *
+     * @param remoteIp       Network IP of the Server to connect
+     * @param remotePort     Network Port of the Server to connect
+     * @param userId         The User ID of the current playing user
      * @param messageHandler An instance of the message handler, where the client task can write its messages in
      */
     public Client(String remoteIp, Integer remotePort, UUID userId, MessageHandler messageHandler) {
@@ -109,7 +106,7 @@ public class Client {
                         try {
                             // calculate timeout in ms
                             Integer timeoutInMs = config.clientTimeout() * 1000;
-                            Thread.sleep(timeoutInMs/MAX_RECONNECTS);
+                            Thread.sleep(timeoutInMs / MAX_RECONNECTS);
                         } catch (InterruptedException ex) {
                             ex.printStackTrace();
                         }
@@ -130,10 +127,18 @@ public class Client {
         clientConnectionExecutor.submit(new Thread(clientConnectTask));
     }
 
+    /**
+     * Sends a message to the server
+     *
+     * @param transfer A transfer object to send
+     */
     public void send(Transfer transfer) {
         clientTask.send(transfer);
     }
 
+    /**
+     * Sign-Out from Server and Stop the local client.
+     */
     public void stop() {
         try {
             clientTask.stop();

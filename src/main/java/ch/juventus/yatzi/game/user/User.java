@@ -36,12 +36,20 @@ public class User {
         assignUserId();
     }
 
+    /**
+     * Converts the uuid of the user to a string
+     * @return A string with the according uuid.
+     */
     @JsonIgnore
     public String getUserIdAsString() {
             return userId.toString();
     }
 
 
+    /**
+     * Gets a short version of the uuid if a user (first 3 digits)
+     * @return A string with the short userId.
+     */
     @JsonIgnore
     public String getShortUserId() {
         return userId.toString().substring(0, 3);
@@ -55,6 +63,11 @@ public class User {
         userId = UUID.randomUUID();
     }
 
+    /**
+     * Compare a user only by its userId
+     * @param o object to compare with the current instance
+     * @return true if the object is the same or false if not
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,6 +77,10 @@ public class User {
         return userId.equals(user.userId);
     }
 
+    /**
+     * Generates a hashcode only from userId
+     * @return a hash based on the userId
+     */
     @Override
     public int hashCode() {
         return userId.hashCode();

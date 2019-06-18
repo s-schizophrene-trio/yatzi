@@ -6,6 +6,11 @@ import java.util.List;
 
 public class FieldTypeHelper {
 
+    /**
+     * Returns a list of dice combinations based on the fieldtype. This is used to generate sample images of a specific combination.
+     * @param fieldType The field type to generate a sample combination
+     * @return A list of dice types
+     */
     public List<DiceType> getDiceCombination(FieldType fieldType) {
 
         List<DiceType> diceGroup = new ArrayList<>();
@@ -54,7 +59,13 @@ public class FieldTypeHelper {
         return diceGroup;
     }
 
-    private List<DiceType> getDicePair(DiceType diceType, int size) {
+    /**
+     * Returns a list of the same dice types
+     * @param diceType The dice type to generate the list
+     * @param size The amount of dices to add.
+     * @return A List of the same combinations based on the type and the count.
+     */
+    public List<DiceType> getDicePair(DiceType diceType, int size) {
         List<DiceType> diceTypes = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {

@@ -1,5 +1,8 @@
 package ch.juventus.yatzi.network.helper;
 
+/**
+ * All Protocol Commands available for client and server
+ */
 public class Commands {
 
     // player commands
