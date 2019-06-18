@@ -53,6 +53,7 @@ public class MainController implements ViewHandler {
     public void afterInit(ViewContext context) {
 
         this.context = context;
+        // inizialisieren der UI Komponenten
         this.screenHelper.clearScreen(this.context);
         this.context.setViewHandler(this);
         this.screenHelper.showScreen(this.context, ScreenType.SETUP);

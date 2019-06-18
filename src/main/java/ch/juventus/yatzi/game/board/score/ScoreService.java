@@ -29,10 +29,103 @@ public class ScoreService {
     @JsonIgnore
     private ApplicationConfig config;
 
+    /* ----------------- Initializers --------------------- */
+
     public ScoreService() {
         this.scores = new HashMap<>();
         this.config = ConfigFactory.create(ApplicationConfig.class);
     }
+
+    /* ----------------- Getter --------------------- */
+
+    /**
+     * Gets a Score by User / Field Combination
+     * @param userId Holder of the scores
+     * @param fieldType Type of the field, the value relates
+     * @return A Score object with the actual values in it
+     */
+    public Integer getScore(UUID userId, FieldType fieldType) {
+        try {
+            return scores.get(userId).get(fieldType).getValue();
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Translates the score in to a string value
+     * @param userId uuid of user to get the score from
+     * @param fieldType the field type of the score
+     * @return A String with the score as string
+     */
+    public String getScoreDisplayValue(UUID userId, FieldType fieldType) {
+
+        Integer score = getScore(userId, fieldType);
+
+        if (score != null) {
+            return Integer.toString(score);
+        } else {
+            return "0";
+        }
+    }
+
+    /**
+     * Gets a Map of Field Type and Score of a User
+     * @param userId The owner of these scores
+     * @return A map of field type / value mapping
+     */
+    public Map<FieldType, Field> getScoresByUser(UUID userId) {
+        return this.scores.get(userId);
+    }
+
+    /* ----------------- Update --------------------- */
+
+    /**
+     * Updates an store scores for a user / field combination
+     * @param userId Holder of the scores
+     * @param fieldType Type of the field, the value relates
+     * @param field A Field object with the actual values in it
+     */
+    public void updateScore(UUID userId, FieldType fieldType, Field field) {
+
+        // check if the user has scores or not
+        Map<FieldType, Field> fieldTypeScoreMap = scores.get(userId);
+
+        if (fieldTypeScoreMap == null) {
+            fieldTypeScoreMap = new HashMap<>();
+        }
+
+        fieldTypeScoreMap.put(fieldType, field);
+
+        // update totals
+        fieldTypeScoreMap.put(FieldType.SUB_TOTAL, new Field(FieldType.SUB_TOTAL, this.getSubTotal(userId)));
+        fieldTypeScoreMap.put(FieldType.TOTAL, new Field(FieldType.TOTAL, this.getTotal(userId)));
+
+        // add the map to the parent mmap
+        scores.put(userId, fieldTypeScoreMap);
+    }
+
+    public void updateCalculatedFields(UUID userId) {
+        Map<FieldType, Field> fieldTypeScoreMap = scores.get(userId);
+
+        if (fieldTypeScoreMap == null) {
+            fieldTypeScoreMap = new HashMap<>();
+        }
+
+        fieldTypeScoreMap.put(FieldType.SUB_TOTAL, new Field(FieldType.SUB_TOTAL, this.getSubTotal(userId)));
+        fieldTypeScoreMap.put(FieldType.TOTAL, new Field(FieldType.TOTAL, this.getTotal(userId)));
+        fieldTypeScoreMap.put(FieldType.BONUS, new Field(FieldType.BONUS, this.getBonus(userId)));
+    }
+
+    /**
+     * Updates the server scores
+     * @param changedScores The list with the different scores in it
+     */
+    public void updateScores(Map<UUID, Map<FieldType, Field>> changedScores) {
+       this.scores = changedScores;
+    }
+
+    /* ----------------- Calculations --------------------- */
 
     /**
      * Updates the score storage with the current sums of their fields
@@ -106,92 +199,6 @@ public class ScoreService {
         return total ;
     }
 
-    /**
-     * Updates an store scores for a user / field combination
-     * @param userId Holder of the scores
-     * @param fieldType Type of the field, the value relates
-     * @param field A Field object with the actual values in it
-     */
-    public void updateScore(UUID userId, FieldType fieldType, Field field) {
-
-        // check if the user has scores or not
-        Map<FieldType, Field> fieldTypeScoreMap = scores.get(userId);
-
-        if (fieldTypeScoreMap == null) {
-            fieldTypeScoreMap = new HashMap<>();
-        }
-
-        fieldTypeScoreMap.put(fieldType, field);
-
-        // update totals
-        fieldTypeScoreMap.put(FieldType.SUB_TOTAL, new Field(FieldType.SUB_TOTAL, this.getSubTotal(userId)));
-        fieldTypeScoreMap.put(FieldType.TOTAL, new Field(FieldType.TOTAL, this.getTotal(userId)));
-
-        // add the map to the parent mmap
-        scores.put(userId, fieldTypeScoreMap);
-    }
-
-    public void updateCalculatedFields(UUID userId) {
-        Map<FieldType, Field> fieldTypeScoreMap = scores.get(userId);
-
-        if (fieldTypeScoreMap == null) {
-            fieldTypeScoreMap = new HashMap<>();
-        }
-
-        fieldTypeScoreMap.put(FieldType.SUB_TOTAL, new Field(FieldType.SUB_TOTAL, this.getSubTotal(userId)));
-        fieldTypeScoreMap.put(FieldType.TOTAL, new Field(FieldType.TOTAL, this.getTotal(userId)));
-        fieldTypeScoreMap.put(FieldType.BONUS, new Field(FieldType.BONUS, this.getBonus(userId)));
-    }
-
-    /**
-     * Updates the server scores
-     * @param changedScores The list with the different scores in it
-     */
-    public void updateScores(Map<UUID, Map<FieldType, Field>> changedScores) {
-       this.scores = changedScores;
-    }
-
-    /**
-     * Gets a Score by User / Field Combination
-     * @param userId Holder of the scores
-     * @param fieldType Type of the field, the value relates
-     * @return A Score object with the actual values in it
-     */
-    public Integer getScore(UUID userId, FieldType fieldType) {
-        try {
-            return scores.get(userId).get(fieldType).getValue();
-        } catch (NullPointerException e) {
-            return null;
-        }
-    }
-
-    public String getScoreDisplayValue(UUID userId, FieldType fieldType) {
-
-        Integer score = getScore(userId, fieldType);
-
-        if (score != null) {
-            return Integer.toString(score);
-        } else {
-            return "0";
-        }
-    }
-
-    /**
-     * Gets a Map of Field Type and Score of a User
-     * @param userId The owner of these scores
-     * @return A map of field type / value mapping
-     */
-    public Map<FieldType, Field> getScoresByUser(UUID userId) {
-        return this.scores.get(userId);
-    }
-
-    /**
-     * Resets the value table
-     */
-    public void reset() {
-        this.scores = new HashMap<>();
-    }
-
     @JsonIgnore
     public Integer getBonus(UUID userId) {
 
@@ -203,4 +210,15 @@ public class ScoreService {
             return 0;
         }
     }
+
+    /* ----------------- Clean Up --------------------- */
+
+    /**
+     * Resets the value table
+     */
+    public void reset() {
+        this.scores = new HashMap<>();
+    }
+
+
 }
